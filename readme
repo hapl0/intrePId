@@ -1,0 +1,9 @@
+http://www.linuxfromscratch.org/lfs/view/stable/
+
+prelfs.sh
+	Handles :	II.2 II.3 II.4
+	Prerequistes :	1-partition already formated (not necesseraly mounted)
+			2-lfs user present (http://www.linuxfromscratch.org/lfs/view/stable/chapter04/addinguser.html)
+			3-var checking (top of the script) before launch
+lfs.sh
+	Handles :	II.5 II.6
