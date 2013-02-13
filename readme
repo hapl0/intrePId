@@ -7,3 +7,4 @@ prelfs.sh
 			3-var checking (top of the script) before launch
 lfs.sh
 	Handles :	II.3.1 (dwld & checks) II.5 III.6
+	Prerequistes :	prelfs.sh

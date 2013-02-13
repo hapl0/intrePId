@@ -3,32 +3,16 @@
 #
 # Vars
 #
-LFSFS=ext3
 LFSPART=/dev/sda3
+LFSFS=ext3
+MOUNTPOINT=/mnt/lfs
 SWAP=/dev/sda4
 PROCESSORNUMBER=4
-LFSSCRIPT=yay.sh
+LFSSCRIPT=lfs.sh
 
 #
-# FX
+# Pre lfs
 #
-usage()
-{
-	echo
-	echo $1
-	echo
-	echo "Usage : $0 /mount/point"
-	echo
-	exit 1
-}
-
-#
-# Pre checks
-#
-if [[ $# != 1 ]]
-then
-	usage "Wrong parameters number"
-fi
 if [[  "$USER" != "root" ]]
 then
 	usage "This script must be run as root !"
@@ -37,8 +21,8 @@ fi
 echo
 echo " * Preparing mount point"
 pushd . > /dev/null
-mkdir -p "$1" > /dev/null
-cd "$1"
+mkdir -p "$MOUNTPOINT" > /dev/null
+cd "$MOUNTPOINT"
 LFS=$(pwd)
 popd > /dev/null
 if [ ! -d "$LFS" ]
