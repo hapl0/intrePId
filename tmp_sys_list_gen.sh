@@ -31,7 +31,8 @@ then
 fi
 URLSLIGNES=$(cat $SOURCEURLS | wc -l)
 MD5LIGNES=$(cat $SOURCEMD5| wc -l)
-if (( $URLSLIGNES != $SOURCEMD5 ))
+#oposite return status with ((..))
+if (( $URLSLIGNES == $SOURCEMD5 ))
 then
 	echo -e "\tThe two files do not have same amount of lignes"
 	echo -e "\t\turls : $URLSLIGNES\tmd5s : $MD5LIGNES"
