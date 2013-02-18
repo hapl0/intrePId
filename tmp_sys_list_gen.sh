@@ -41,8 +41,8 @@ fi
 > $DESTINATIONFILE
 for ((i=0;i<$URLSLIGNES;i++))
 do
-	FIRST=$(head -n x $SOURCEMD5 | tail -n 1)
-	SECOND=$(head -n x $SOURCEURLS | tail -n 1)
+	FIRST=$(head -n $i $SOURCEMD5 | tail -n 1)
+	SECOND=$(head -n $i $SOURCEURLS | tail -n 1)
 	echo "$FRIST $SECOND" >> $DESTINATIONFILE
 done
 echo -e "\t$DESTINATIONFILE generated."
