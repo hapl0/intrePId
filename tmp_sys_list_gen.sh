@@ -9,7 +9,7 @@
 #
 SOURCEURLS=wget-list
 SOURCEMD5=md5sums
-DESTINATIONFILE=tmp_sys_files_info
+DESTINATIONFILE=tmpsys_files_info
 
 #
 # Script
@@ -38,12 +38,12 @@ then
 	echo -e "\t\turls : $URLSLIGNES\tmd5s : $MD5LIGNES"
 	exit 1
 fi
-> $DESTINATIONFILE
+rm -f $DESTINATIONFILE
 for ((i=0;i<$URLSLIGNES;i++))
 do
 	FIRST=$(head -n $i $SOURCEMD5 | tail -n 1)
 	SECOND=$(head -n $i $SOURCEURLS | tail -n 1)
-	echo "$FRIST $SECOND" >> $DESTINATIONFILE
+	echo "$FIRST $SECOND" >> $DESTINATIONFILE
 done
 echo -e "\t$DESTINATIONFILE generated."
 exit 0
