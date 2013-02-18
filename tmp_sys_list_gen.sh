@@ -24,7 +24,7 @@ then
 	echo -e "\tError while opening md5 source file ($SOURCEMD5)"
 	exit 1
 fi
-if [ -w $DESTINATIONFILE ]
+if [ ! -w $DESTINATIONFILE ]
 then
 	echo -e "\tThe destination file is not writable :("
 	exit 1
