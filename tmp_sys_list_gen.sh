@@ -16,12 +16,12 @@ DESTINATIONFILE=tmp_sys_files_info
 #
 if [ ! -f $SOURCEURLS ] || [ ! -w $SOURCEURLS ]
 then
-	echo -e "\Error while opening urls source file ($SOURCEURLS)"
+	echo -e "\tError while opening urls source file ($SOURCEURLS)"
 	exit 1
 fi
 if [ ! -f $SOURCEMD5 ] || [ ! -w $SOURCEMD5 ]
 then
-	echo -e "\Error while opening md5 source file ($SOURCEMD5)"
+	echo -e "\tError while opening md5 source file ($SOURCEMD5)"
 	exit 1
 fi
 if [ -w $DESTINATIONFILE ]
