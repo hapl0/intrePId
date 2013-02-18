@@ -24,7 +24,7 @@ then
 	echo -e "\tError while opening md5 source file ($SOURCEMD5)"
 	exit 1
 fi
-if [ ! -w $DESTINATIONFILE ]
+if [ -f $DESTINATIONFILE ] && [ ! -w $DESTINATIONFILE ]
 then
 	echo -e "\tThe destination file is not writable :("
 	exit 1
@@ -32,7 +32,7 @@ fi
 URLSLIGNES=$(cat $SOURCEURLS | wc -l)
 MD5LIGNES=$(cat $SOURCEMD5| wc -l)
 #oposite return status with ((..))
-if (( $URLSLIGNES == $SOURCEMD5 ))
+if (( $URLSLIGNES != $MD5LIGNES ))
 then
 	echo -e "\tThe two files do not have same amount of lignes"
 	echo -e "\t\turls : $URLSLIGNES\tmd5s : $MD5LIGNES"

@@ -35,7 +35,7 @@ download()
 		return $RTRNCODE
 	else
 		echo -e "\t\tdownloading $2"
-		wget --quiet --status $3				
+		wget --quiet --status "$3"
 		if [ ! $? -eq 0]
 		then
 			echo -e "\t\terror while downloading attempt of $2"
