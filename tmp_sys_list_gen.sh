@@ -9,7 +9,7 @@
 #
 SOURCEURLS=wget-list
 SOURCEMD5=md5sums
-DESTINATIONFILE=tmpsys_files_info
+DESTINATIONFILE=archives_details_tmpsys
 
 #
 # Script
