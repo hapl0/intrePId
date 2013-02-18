@@ -14,7 +14,7 @@ LAUNCHINTERM="gnome-terminal -e"
 download() 
 {
 	#$1 = MD5
-	#$2 = nom du fichier
+	#$2 = filename
 	#$3 = URL
 	if [ -f $2 ]
 	then
