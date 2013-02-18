@@ -11,6 +11,42 @@ LAUNCHINTERM="gnome-terminal -e"
 # Fx
 #
 
+download() 
+{
+	#$1 = MD5
+	#$2 = nom du fichier
+	#$3 = URL
+	if [ -f $2 ]
+	then
+		echo -e "\t\t$2 found, checking md5..."
+		echo "$1 $2" > tempmd5
+		md5sum --status -c tempmd5
+		if [ ! $? -eq 0 ]
+		then
+			echo -e "\t\tinvalid md5 hash for $2"
+			rm -f $2
+			download $1 $2 $3
+			RTRNCODE=$?
+		else
+			echo -e "\t\tvalid md5 hash for $2"
+			RTRNCODE=0
+		fi
+		rm tempmd5
+		return $RTRNCODE
+	else
+		echo -e "\t\tdownloading $2"
+		wget --quiet --status $3				
+		if [ ! $? -eq 0]
+		then
+			echo -e "\t\terror while downloading attempt of $2"
+			return 1
+		fi
+		download $1 $2 $3
+		return $?
+	fi
+}
+
+
 #
 # Script
 #
