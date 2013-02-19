@@ -7,16 +7,26 @@ LFSPART=/dev/sda3
 LFSFS=ext3
 MOUNTPOINT=/mnt/lfs
 SWAP=/dev/sda4
+
 PROCESSORNUMBER=4
+
 LFSSCRIPT=lfs.sh
+TMPSYSSCRIPT=tmpsys_listgen.sh
 
 #
 # Pre lfs
 #
 if [[  "$USER" != "root" ]]
 then
-	usage "This script must be run as root !"
+	echo
+	echo "This script must be run as root !"
+	echo
+	exit 1
 fi
+echo
+echo
+echo " -> PreLFS Script started <-"
+
 # check and create mount point
 echo
 echo " * Preparing mount point"
@@ -36,6 +46,7 @@ then
 	exit 1
 fi
 echo -e "\tMount point ready"
+
 # check file device
 echo
 echo " * Checking file devices"
@@ -58,6 +69,7 @@ then
 	exit 1
 fi
 echo -e "\tSWAP file device ready"
+
 # Activate SWAP
 echo
 echo " * Activating SWAP"
@@ -69,6 +81,7 @@ then
 else
 	echo -e "\tSWAP activated on $SWAP"
 fi
+
 # Mount
 echo
 echo " * Mounting"
@@ -80,6 +93,7 @@ then
 	exit 1
 fi
 echo -e "\t$LFSPART mounted on $LFS"
+
 #check mount options
 RES=$(mount | grep "$LFSPART on $LFS" | sed -r "s:^$LFSPART on $LFS type $LFSFS \(rw\)$:good:")
 if [ ! "$RES" == "good" ]
@@ -88,6 +102,7 @@ then
 	echo -e "\t$RES"
 	exit 1
 fi
+
 #Check LFS user
 echo
 echo " * Checking LFS user"
@@ -98,22 +113,24 @@ then
 	exit 1
 fi
 echo -e "\tlfs user found"
+
 #Overwrite LFS user environnement
 echo
 echo " * Setting up environnement for lfs user"
 cat > /home/lfs/.bash_profile << "EOF"
-exec env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash
+exec env -i HOME=/home/lfs TERM=$TERM PS1='\u:\w\$ ' /bin/bash
 EOF
 cat > /home/lfs/.bashrc << "EOF"
 set +h
 umask 022
-LFS=/mnt/lfs
+LFS=$LFS
 LC_ALL=POSIX
 LFS_TGT=$(uname -m)-lfs-linux-gnu
 PATH=/tools/bin:/bin:/usr/bin
 export LFS LC_ALL LFS_TGT PATH
 EOF
 chown lfs:lfs /home/lfs/.bash_profile /home/lfs/.bashrc
+
 #Preparing LFS folder structure
 echo
 echo " * Preparing folder structure"
@@ -142,30 +159,48 @@ then
 	echo -e "\tError while creating symbolic link (LFS II-4.2) :"
 	echo -e "\t$RES"
 	exit 1
+else
+	echo -e "\t/tools symlink ok"
 fi
-echo -e "\t/tools symlink ok"
 ##sources
 if [ ! -d "$LFS/sources" ]
 then
 	mkdir $LFS/sources
 fi
 chmod a+wt $LFS/sources
-#Preparing LFS script
+
+#Copying scripts for lfs
 echo
-echo " * Checking LFS script"
+echo " * Copying LFS scripts"
 if [ ! -f $LFSSCRIPT ]
 then
 	echo -e "\tCan't find $LFSSCRIPT ! Aborting."
 	exit 1
+else
+	echo -e "\tLFS script found, copying to $LFS"
+	cp $LFSSCRIPT $LFS
+	if [ ! $? -eq 0 ]
+	then
+		echo -e "\tError while copying the script"
+		exit 1
+	fi
+	chown lfs $LFS/$LFSSCRIPT
 fi
-echo -e "\tLFS script found, copying to $LFS"
-cp $LFSSCRIPT $LFS
-if [ ! $? -eq 0 ]
+if [ ! -f $TMPSYSSCRIPT ]
 then
-	echo -e "\tError while copying the script"
-	exit 1
+	echo -e "\tCan't find $TMPSYSSCRIPT."
+	read -p "       Skipping, can be an issue during LFS script execution (Press [Enter] to continue)."
+else
+	echo -e "\t$TMPSYSSCRIPT script found, copying to $LFS"
+	cp $TMPSYSSCRIPT $LFS
+	if [ ! $? -eq 0 ]
+	then
+		echo -e "\tError while copying the script"
+		exit 1
+	fi
+	chown lfs $LFS/$TMPSYSSCRIPT
 fi
-chown lfs $LFS/$LFSSCRIPT
+
 #launching lfs build
 echo
 echo " * Launching LFS script"
