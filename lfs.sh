@@ -28,6 +28,19 @@ TMPSYSMD5=http://www.linuxfromscratch.org/lfs/view/stable/md5sums
 # Fx
 #
 
+returncheck()
+{
+	if [ $# -eq 0 ]
+	then
+		return
+	fi
+	if [ ! $1 -eq 0 ]
+	then
+		echo "Error code : $1. Exiting now." | tee -a $LOGFILE
+		exit $1
+	fi
+}
+
 download() 
 {
 	#$1 = MD5
@@ -70,19 +83,6 @@ download()
 		fi
 		download $1 $2 $3
 		return $?
-	fi
-}
-
-returncheck()
-{
-	if [ $# -eq 0 ]
-	then
-		return
-	fi
-	if [ ! $1 -eq 0 ]
-	then
-		echo "Error code : $1. Exiting now." | tee -a $LOGFILE
-		exit $1
 	fi
 }
 
