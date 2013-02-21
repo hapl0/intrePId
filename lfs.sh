@@ -7,9 +7,8 @@
 #PreLFS
 LFSPART=/dev/sda3
 LFSFS=ext3
-LFS=/home/edouard/Bureau/lfs #mount point
+LFS=/mnt/lfs #mount point
 SWAP=/dev/sda4
-
 
 #LFS
 LOGFILE="$LFS/lfs.log"
@@ -263,16 +262,16 @@ if [ "$USER" == "root" ]; then
 	echo
 	echo " * Setting up environnement for lfs user"
 	cat > /home/lfs/.bash_profile << EOF
-	exec env -i HOME=/home/lfs TERM=$TERM PS1='\u:\w\$ ' /bin/bash
+exec env -i HOME=/home/lfs TERM=$TERM PS1='\u:\w\$ ' /bin/bash
 EOF
 	cat > /home/lfs/.bashrc << EOF
-	set +h
-	umask 022
-	LFS=$LFS
-	LC_ALL=POSIX
-	LFS_TGT=$(uname -m)-lfs-linux-gnu
-	PATH=/tools/bin:/bin:/usr/bin
-	export LFS LC_ALL LFS_TGT PATH
+set +h
+umask 022
+LFS=$LFS
+LC_ALL=POSIX
+LFS_TGT=$(uname -m)-lfs-linux-gnu
+PATH=/tools/bin:/bin:/usr/bin
+export LFS LC_ALL LFS_TGT PATH
 EOF
 	chown lfs:lfs /home/lfs/.bash_profile /home/lfs/.bashrc
 
@@ -357,20 +356,23 @@ EOF
 	#
 elif [ "$USER" == "lfs" ]; then
 	#
-	# LFS - Temporary system
+	# LFS /start
 	#
 	echo
 	echo -e "\t   LFS Script started" | tee -a $LOGFILE
 	echo -e "\t  ********************"
+	echo | tee -a $LOGFI
 
 	#preparing
 	MAKEFLAGS="-j $PROCESSORNUMBER"
 
-	#dwlding sources
-	echo | tee -a $LOGFI
+	#
+	# Temporary system
 	echo " * Temporary System" | tee -a $LOGFILE
 	echo "" | tee -a $LOGFILE
 	cd $LFS/sources
+
+	#downloading sources
 	echo -e "\tDownloading sources (check progress by using \"tail -f $LOGFILE\")" | tee -a $LOGFILE
 	if [ ! -f $TMPSYSINFO ]
 	then
@@ -388,7 +390,7 @@ elif [ "$USER" == "lfs" ]; then
 		echo | tee -a $LOGFILE
 	done
 
-	#constructing tmporary system
+	#constructing temporary system
 
 
 	#
