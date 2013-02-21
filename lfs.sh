@@ -4,11 +4,25 @@
 # Vars
 #
 
+#PreLFS
+LFSPART=/dev/sda3
+LFSFS=ext3
+LFS=/mnt/lfs #mount point
+SWAP=/dev/sda4
+
+PROCESSORNUMBER=4
+
+TMPSYSSCRIPT=tmpsys_listgen.sh
+
+
+#LFS
 LOGFILE="$LFS/lfs.log"
+
 TMPSYSINFO=tmpsys_files_details
 TMPSYSGEN=tmpsys_listgen.sh
 TMPSYSURL=http://www.linuxfromscratch.org/lfs/view/stable/wget-list
 TMPSYSMD5=http://www.linuxfromscratch.org/lfs/view/stable/md5sums
+
 
 #
 # Fx
@@ -21,7 +35,8 @@ download()
 	#$3 = URL
 	if [ ! $# -eq 3 ]
 	then
-		echo "download() must be called with 3 parameters ! (actual : $#)"
+		echo "download() must be called with 3 parameters ! (actual : $#)" | tee -a $LOGFILE
+		return 2
 	fi
 	#echo -e "\tFilename :\t$2"
 	#echo -e "\tMD5 :\t\t$1"
@@ -29,28 +44,28 @@ download()
 	#read -p "Pause"
 	if [ -f $2 ]
 	then
-		echo -e "\t\t$2 found, checking md5"
+		echo -e "\t\t$2 found, checking md5" | tee -a $LOGFILE
 		echo "$1  $2" > tempmd5 #double space !
 		md5sum -c tempmd5 >> $LOGFILE 2>&1
 		if [ ! $? -eq 0 ]
 		then
-			echo -e "\t\tinvalid md5 hash for $2"
+			echo -e "\t\tinvalid md5 hash for $2" | tee -a $LOGFILE
 			rm -f $2
 			rm tempmd5
 			download $1 $2 $3
 			RTRNCODE=$?
 		else
-			echo -e "\t\tvalid md5 hash for $2"
+			echo -e "\t\tvalid md5 hash for $2" | tee -a $LOGFILE
 			rm tempmd5
 			RTRNCODE=0
 		fi
 		return $RTRNCODE
 	else
-		echo -e "\t\tdownloading $2"
+		echo -e "\t\tdownloading $2" | tee -a $LOGFILE
 		wget "$3" >> $LOGFILE 2>&1
 		if [ ! $? -eq 0 ]
 		then
-			echo -e "\t\terror while downloading attempt of $2"
+			echo -e "\t\terror while downloading attempt of $2" | tee -a $LOGFILE
 			return 1
 		fi
 		download $1 $2 $3
@@ -66,7 +81,7 @@ returncheck()
 	fi
 	if [ ! $1 -eq 0 ]
 	then
-		echo "Error code : $1. Exiting now."
+		echo "Error code : $1. Exiting now." | tee -a $LOGFILE
 		exit $1
 	fi
 }
@@ -75,40 +90,249 @@ returncheck()
 #
 # Script
 #
-echo | tee $LOGFILE
-echo | tee -a $LOGFILE
-echo " -> LFS Script started <-" | tee -a $LOGFILE
-if [ "$USER" != "lfs" ]
-then
-	echo
-	echo -e "\tUnexpected user : $USER" | tee -a $LOGFILE
-	exit 1
-fi
-#preparing
-cd $LFS
-#dwlding sources
-echo
-echo " * Temporary System" | tee -a $LOGFILE
-echo "" | tee -a $LOGFILE
-cd sources
-echo -e "\tDownloading sources (check progress using \"tail -f $LOGFILE\")"
-if [ ! -f $TMPSYSINFO ]
-then
-	echo -e "\t\tCan't find $TMPSYSINFO"
-	echo -e "\t\tGenerating using \"$TMPSYSGEN\""
-	wget --quiet "$TMPSYSURL"
-	returncheck $?
-	wget --quiet "$TMPSYSMD5"
-	returncheck $?
-	$LFS/$TMPSYSGEN $TMPSYSINFO
-	returncheck $?
-fi
-RES=$(cat $TMPSYSINFO | wc -l)
-PERCENTMULTIPLICATOR=$((100/$RES))
-for ((i=1;i<=$RES;i++))
-do
-	download $(head -n $i $TMPSYSINFO | tail -n 1)
-	echo -e "\t\t$(($i*$PERCENTMULTIPLICATOR))% done"
-	echo
-done
 
+echo >> $LOGFILE
+echo >> $LOGFILE
+echo >> $LOGFILE
+date >> $LOGFILE
+echo >> $LOGFILE
+
+
+if [ "$USER" == "root" ]; then
+	#
+	# PreLFS
+	#
+	echo
+	echo -e "\t   PreLFS Script started"
+	echo -e "\t  ***********************"
+
+	# check and create mount point
+	echo
+	echo " * Preparing mount point"
+	pushd . > /dev/null
+	mkdir -p "$LFS" > /dev/null
+	cd "$LFS"
+	popd > /dev/null
+	if [ ! -d "$LFS" ]
+	then
+		echo -e "\tMount point does not seem to be a directory !"
+		exit 1
+	fi
+	if [ "$(ls -A $LFS)" ]
+	then
+		echo -e "\tThe mount point is not empty !"
+		exit 1
+	fi
+	echo -e "\tMount point ready"
+
+	# check file device
+	echo
+	echo " * Checking file devices"
+	if [ ! -b "$LFSPART" ]
+	then
+		echo -e "\tLFS partition device is not a block file !"
+		exit 1
+	fi
+	echo -e "\tLFS file device ok"
+	RES=$(mount | grep $LFSPART)
+	if [ "$RES" ]
+	then
+		echo -e "\tLFS partition is already mounted !"
+		exit 1
+	fi
+	echo -e "\tLFS file device ready"
+	if [ ! -b "$SWAP" ]
+	then
+		echo -e "\tSWAP partition is not a block device !"
+		exit 1
+	fi
+	echo -e "\tSWAP file device ready"
+
+	# Activate SWAP
+	echo
+	echo " * Activating SWAP"
+	RES=$(/sbin/swapon $SWAP 2>&1)
+	if [ ! $? -eq 0 ]
+	then
+		echo -e "\t$RES"
+		read -p "        Press [Enter] to continue anyway or [Ctrl]+[C] to stop the script"
+	else
+		echo -e "\tSWAP activated on $SWAP"
+	fi
+
+	# Mount
+	echo
+	echo " * Mounting"
+	RES=$(mount "$LFSPART" "$LFS")
+	if [ ! $? -eq 0 ]
+	then
+		echo -e "\tError while mounting $LFSPART on $LFS :"
+		echo -e "\t$RES"
+		exit 1
+	fi
+	echo -e "\t$LFSPART mounted on $LFS"
+
+	#check mount options
+	RES=$(mount | grep "$LFSPART on $LFS" | sed -r "s:^$LFSPART on $LFS type $LFSFS \(rw\)$:good:")
+	if [ ! "$RES" == "good" ]
+	then
+		echo -e "\tWrong mount options !"
+		echo -e "\t$RES"
+		exit 1
+	fi
+
+	#Check LFS user
+	echo
+	echo " * Checking LFS user"
+	LFSUSER=$(cat /etc/passwd | grep lfs | sed -r s/^lfs:.*$/found/ | grep found)
+	if [ ! "$LFSUSER" ]
+	then
+		echo -e "\tCan't find \"lfs\" user !"
+		exit 1
+	fi
+	echo -e "\tlfs user found"
+
+	#Overwrite LFS user environnement
+	echo
+	echo " * Setting up environnement for lfs user"
+	cat > /home/lfs/.bash_profile << "EOF"
+	exec env -i HOME=/home/lfs TERM=$TERM PS1='\u:\w\$ ' /bin/bash
+	EOF
+	cat > /home/lfs/.bashrc << "EOF"
+	set +h
+	umask 022
+	LFS=$LFS
+	LC_ALL=POSIX
+	LFS_TGT=$(uname -m)-lfs-linux-gnu
+	PATH=/tools/bin:/bin:/usr/bin
+	export LFS LC_ALL LFS_TGT PATH
+	EOF
+	chown lfs:lfs /home/lfs/.bash_profile /home/lfs/.bashrc
+
+	#Preparing LFS folder structure
+	echo
+	echo " * Preparing folder structure"
+	##tools
+	if [ ! -d "$LFS/tools" ]
+	then
+		mkdir "$LFS/tools"
+		if [ $? -eq 0 ]
+		then
+			echo -e "\t$LFS/tools created"
+		else
+			echo -e "\tCan't create $LFS/tools !"
+			exit 1
+		fi
+	else
+		echo -e "\t$LFS/tools already exists"
+	fi
+	if [ -e /tools ]
+	then
+		read -p "        /tools (LFS II-4.2) already exists. Press [Enter] to remove it or [Ctrl]+[C] to stop the script."
+		rm -r /tools
+	fi
+	RES=(ln -sv $LFS/tools /)
+	if [ ! $? -eq 0 ]
+	then
+		echo -e "\tError while creating symbolic link (LFS II-4.2) :"
+		echo -e "\t$RES"
+		exit 1
+	else
+		echo -e "\t/tools symlink ok"
+	fi
+	##sources
+	if [ ! -d "$LFS/sources" ]
+	then
+		mkdir $LFS/sources
+	fi
+	chmod a+wt $LFS/sources
+
+	#Copying scripts for lfs
+	echo
+	echo " * Copying LFS scripts"
+	if [ ! -f $LFSSCRIPT ]
+	then
+		echo -e "\tCan't find $LFSSCRIPT ! Aborting."
+		exit 1
+	else
+		echo -e "\tLFS script found, copying to $LFS"
+		cp $LFSSCRIPT $LFS
+		if [ ! $? -eq 0 ]
+		then
+			echo -e "\tError while copying the script"
+			exit 1
+		fi
+		chown lfs $LFS/$LFSSCRIPT
+	fi
+	if [ ! -f $TMPSYSSCRIPT ]
+	then
+		echo -e "\tCan't find $TMPSYSSCRIPT."
+		read -p "       Skipping, can be an issue during LFS script execution (Press [Enter] to continue)."
+	else
+		echo -e "\t$TMPSYSSCRIPT script found, copying to $LFS"
+		cp $TMPSYSSCRIPT $LFS
+		if [ ! $? -eq 0 ]
+		then
+			echo -e "\tError while copying the script"
+			exit 1
+		fi
+		chown lfs $LFS/$TMPSYSSCRIPT
+	fi
+
+	#launching lfs build
+	echo
+	echo " * Launching LFS script"
+	echo
+	echo
+	echo
+	su lfs -c "bash $0"
+	#
+	# PreLFS /end
+	#
+elif [ "$USER" == "lfs" ]; then
+	#
+	# LFS - Temporary system
+	#
+	echo
+	echo -e "\t   LFS Script started" | tee -a $LOGFILE
+	echo -e "\t  ********************"
+
+	#preparing
+	MAKEFLAGS="-j $PROCESSORNUMBER"
+	cd $LFS
+
+	#dwlding sources
+	echo | tee -a $LOGFI
+	echo " * Temporary System" | tee -a $LOGFILE
+	echo "" | tee -a $LOGFILE
+	cd sources
+	echo -e "\tDownloading sources (check progress using \"tail -f $LOGFILE\")" | tee -a $LOGFILE
+	if [ ! -f $TMPSYSINFO ]
+	then
+		echo -e "\t\tCan't find $TMPSYSINFO" | tee -a $LOGFILE
+		echo -e "\t\tGenerating using \"$TMPSYSGEN\"" | tee -a $LOGFILE
+		wget "$TMPSYSURL" >> $LOGFILE
+		returncheck $?
+		wget "$TMPSYSMD5" >> $LOGFILE
+		returncheck $?
+		$LFS/$TMPSYSGEN $TMPSYSINFO
+		returncheck $?
+	fi
+	RES=$(cat $TMPSYSINFO | wc -l)
+	PERCENTMULTIPLICATOR=$((100/$RES))
+	for ((i=1;i<=$RES;i++))
+	do
+		download $(head -n $i $TMPSYSINFO | tail -n 1)
+		echo -e "\t\t$(($i*$PERCENTMULTIPLICATOR))% done" | tee -a $LOGFILE
+		echo | tee -a $LOGFILE
+	done
+	#
+	# LFS - Temporary System /end
+	#
+else
+	echo
+	echo " This script must be called as :"
+	echo -e "\troot -> preLFS checks then LFS script run"
+	echo -e "\tlfs  -> skip preLFS checks and run directly LFS script"
+	echo
+fi
