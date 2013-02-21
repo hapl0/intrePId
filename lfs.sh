@@ -248,36 +248,36 @@ if [ "$USER" == "root" ]; then
 	chmod a+wt $LFS/sources
 
 	#Copying scripts for lfs
-	echo
-	echo " * Copying LFS scripts"
-	if [ ! -f $LFSSCRIPT ]
-	then
-		echo -e "\tCan't find $LFSSCRIPT ! Aborting."
-		exit 1
-	else
-		echo -e "\tLFS script found, copying to $LFS"
-		cp $LFSSCRIPT $LFS
-		if [ ! $? -eq 0 ]
-		then
-			echo -e "\tError while copying the script"
-			exit 1
-		fi
-		chown lfs $LFS/$LFSSCRIPT
-	fi
-	if [ ! -f $TMPSYSSCRIPT ]
-	then
-		echo -e "\tCan't find $TMPSYSSCRIPT."
-		read -p "       Skipping, can be an issue during LFS script execution (Press [Enter] to continue)."
-	else
-		echo -e "\t$TMPSYSSCRIPT script found, copying to $LFS"
-		cp $TMPSYSSCRIPT $LFS
-		if [ ! $? -eq 0 ]
-		then
-			echo -e "\tError while copying the script"
-			exit 1
-		fi
-		chown lfs $LFS/$TMPSYSSCRIPT
-	fi
+	#echo
+	#echo " * Copying LFS scripts"
+	#if [ ! -f $LFSSCRIPT ]
+	#then
+	#	echo -e "\tCan't find $LFSSCRIPT ! Aborting."
+	#	exit 1
+	#else
+	#	echo -e "\tLFS script found, copying to $LFS"
+	#	cp $LFSSCRIPT $LFS
+	#	if [ ! $? -eq 0 ]
+	#	then
+	#		echo -e "\tError while copying the script"
+	#		exit 1
+	#	fi
+	#	chown lfs $LFS/$LFSSCRIPT
+	#fi
+	#if [ ! -f $TMPSYSSCRIPT ]
+	#then
+	#	echo -e "\tCan't find $TMPSYSSCRIPT."
+	#	read -p "       Skipping, can be an issue during LFS script execution (Press [Enter] to continue)."
+	#else
+	#	echo -e "\t$TMPSYSSCRIPT script found, copying to $LFS"
+	#	cp $TMPSYSSCRIPT $LFS
+	#	if [ ! $? -eq 0 ]
+	#	then
+	#		echo -e "\tError while copying the script"
+	#		exit 1
+	#	fi
+	#	chown lfs $LFS/$TMPSYSSCRIPT
+	#fi
 
 	#launching lfs build
 	echo
