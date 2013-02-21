@@ -7,22 +7,14 @@
 #PreLFS
 LFSPART=/dev/sda3
 LFSFS=ext3
-LFS=/mnt/lfs #mount point
+LFS=/home/edouard/Bureau/lfs #mount point
 SWAP=/dev/sda4
-
-PROCESSORNUMBER=4
-
-TMPSYSSCRIPT=tmpsys_listgen.sh
 
 
 #LFS
 LOGFILE="$LFS/lfs.log"
-
 TMPSYSINFO=tmpsys_files_details
-TMPSYSGEN=tmpsys_listgen.sh
-TMPSYSURL=http://www.linuxfromscratch.org/lfs/view/stable/wget-list
-TMPSYSMD5=http://www.linuxfromscratch.org/lfs/view/stable/md5sums
-
+PROCESSORNUMBER=4
 
 #
 # Fx
@@ -36,9 +28,84 @@ returncheck()
 	fi
 	if [ ! $1 -eq 0 ]
 	then
-		echo "Error code : $1. Exiting now." | tee -a $LOGFILE
+		echo "Error code : $1. Stopping now." | tee -a $LOGFILE
 		exit $1
 	fi
+}
+
+tmpsys_listgen()
+{
+	SOURCEURLS=wget-list
+	SOURCEURLSHTTP=http://www.linuxfromscratch.org/lfs/view/stable/wget-list
+	SOURCEMD5=md5sums
+	SOURCEMD5HTTP=http://www.linuxfromscratch.org/lfs/view/stable/md5sums
+
+	if [ ! $# -eq 1 ]
+	then
+		echo "tmpsys_listgen have to be called with one parameter (destination file)" | tee -a $LOGFILE
+		return 1
+	fi
+	DESTINATIONFILE=$1
+
+	if [ ! -f "$SOURCEURLS" ]
+	then
+		echo -e "\tDownloading $SOURCEURLS from $SOURCEURLSHTTP" | tee -a $LOGFILE
+		wget --quiet "$SOURCEURLSHTTP"
+		if [ ! $? -eq 0 ]
+		then
+			echo -e "\tError with $SOURCEURLS download attempt."
+			return 1
+		fi
+	fi
+	if [ ! -r "$SOURCEURLS" ]
+	then
+		echo -e "\tError while opening urls source file ($(pwd)/$SOURCEURLS)" | tee -a $LOGFILE
+		return 1
+	fi
+
+	if [ ! -f "$SOURCEMD5" ]
+	then
+		echo -e "\tDownloading $SOURCEMD5 from $SOURCEMD5HTTP" | tee -a $LOGFILE
+		wget --quiet "$SOURCEMD5SHTTP"
+		if [ ! $? -eq 0 ]
+		then
+			echo -e "\tError with $SOURCEMD5 download attempt."
+			return 1
+		fi
+	fi
+	if [ ! -r "$SOURCEMD5" ]
+	then
+		echo -e "\tError while opening md5 source file ($(pwd)/$SOURCEMD5)" | tee -a $LOGFILE
+		return 1
+	fi
+
+	if [ -f "$DESTINATIONFILE" ]
+	then
+		if [ ! -w "$DESTINATIONFILE" ]
+		then
+			echo -e "\tThe destination file is not writable :(" | tee -a $LOGFILE
+			return 1
+		fi
+		rm -f "$DESTINATIONFILE"
+	fi
+
+	URLSLIGNES=$(cat "$SOURCEURLS" | wc -l)
+	MD5LIGNES=$(cat "$SOURCEMD5" | wc -l)
+	if (( $URLSLIGNES != $MD5LIGNES ))
+	then
+		echo -e "\tThe two files do not have same amount of lignes" | tee -a $LOGFILE
+		echo -e "\t\turls : $URLSLIGNES\tmd5s : $MD5LIGNES" | tee -a $LOGFILE
+		return 1
+	fi
+	for ((i=1;i<=$URLSLIGNES;i++))
+	do
+		FIRST=$(head -n $i $SOURCEMD5 | tail -n 1)
+		SECOND=$(head -n $i $SOURCEURLS | tail -n 1)
+		echo "$FIRST  $SECOND" >> "$DESTINATIONFILE"
+	done
+
+	echo -e "\t\t$DESTINATIONFILE generated." | tee -a $LOGFILE
+	return 0
 }
 
 download() 
@@ -195,10 +262,10 @@ if [ "$USER" == "root" ]; then
 	#Overwrite LFS user environnement
 	echo
 	echo " * Setting up environnement for lfs user"
-	cat > /home/lfs/.bash_profile << "EOF"
+	cat > /home/lfs/.bash_profile << EOF
 	exec env -i HOME=/home/lfs TERM=$TERM PS1='\u:\w\$ ' /bin/bash
-	EOF
-	cat > /home/lfs/.bashrc << "EOF"
+EOF
+	cat > /home/lfs/.bashrc << EOF
 	set +h
 	umask 022
 	LFS=$LFS
@@ -206,7 +273,7 @@ if [ "$USER" == "root" ]; then
 	LFS_TGT=$(uname -m)-lfs-linux-gnu
 	PATH=/tools/bin:/bin:/usr/bin
 	export LFS LC_ALL LFS_TGT PATH
-	EOF
+EOF
 	chown lfs:lfs /home/lfs/.bash_profile /home/lfs/.bashrc
 
 	#Preparing LFS folder structure
@@ -284,7 +351,6 @@ if [ "$USER" == "root" ]; then
 	echo " * Launching LFS script"
 	echo
 	echo
-	echo
 	su lfs -c "bash $0"
 	#
 	# PreLFS /end
@@ -299,33 +365,32 @@ elif [ "$USER" == "lfs" ]; then
 
 	#preparing
 	MAKEFLAGS="-j $PROCESSORNUMBER"
-	cd $LFS
 
 	#dwlding sources
 	echo | tee -a $LOGFI
 	echo " * Temporary System" | tee -a $LOGFILE
 	echo "" | tee -a $LOGFILE
-	cd sources
-	echo -e "\tDownloading sources (check progress using \"tail -f $LOGFILE\")" | tee -a $LOGFILE
+	cd $LFS/sources
+	echo -e "\tDownloading sources (check progress by using \"tail -f $LOGFILE\")" | tee -a $LOGFILE
 	if [ ! -f $TMPSYSINFO ]
 	then
 		echo -e "\t\tCan't find $TMPSYSINFO" | tee -a $LOGFILE
-		echo -e "\t\tGenerating using \"$TMPSYSGEN\"" | tee -a $LOGFILE
-		wget "$TMPSYSURL" >> $LOGFILE
-		returncheck $?
-		wget "$TMPSYSMD5" >> $LOGFILE
-		returncheck $?
-		$LFS/$TMPSYSGEN $TMPSYSINFO
+		echo -e "\t\tGenerating..." | tee -a $LOGFILE
+		tmpsys_listgen $TMPSYSINFO
+		echo | tee -a $LOGFILE
 		returncheck $?
 	fi
 	RES=$(cat $TMPSYSINFO | wc -l)
-	PERCENTMULTIPLICATOR=$((100/$RES))
 	for ((i=1;i<=$RES;i++))
 	do
+		echo -e "\t\t$i/$RES" | tee -a $LOGFILE
 		download $(head -n $i $TMPSYSINFO | tail -n 1)
-		echo -e "\t\t$(($i*$PERCENTMULTIPLICATOR))% done" | tee -a $LOGFILE
 		echo | tee -a $LOGFILE
 	done
+
+	#constructing tmporary system
+
+
 	#
 	# LFS - Temporary System /end
 	#
