@@ -483,14 +483,14 @@ elif [ "$USER" == "lfs" ]; then
 			  touch $file.orig
 			done
 			returncheck $?
-			echo -e "\t\tDetection's pile for gcc"
+			echo -e "\t\tDetection's pile for gcc" | tee -a $LOGFILE 
 			sed -i '/k prot/agcc_cv_libc_provides_ssp=yes' gcc/configure
 			returncheck $?
-			echo -e "\t\tCreating directory"
+			echo -e "\t\tCreating directory" | tee -a $LOGFILE 
 			mkdir -v ../gcc-build  >> $LOGFILE 2>&1
 			cd ../gcc-build
 			returncheck $?
-			echo -e "\t\tPreparing gcc compilation"
+			echo -e "\t\tPreparing gcc compilation" | tee -a $LOGFILE 
 			../gcc-4.7.1/configure         \
 				--target=$LFS_TGT          \
 				--prefix=/tools            \
