@@ -175,37 +175,41 @@ preparepackage()
 	# $1 = package number
 	# $2 = total packages
 	# $3 = package name (without .tar.gz or similar)
+	# return 0 = OK
+	# return 1 = ERROR
+	# return 2 = OK (already processed)
 	echo -e "\t\t$1/$2"
 	echo -e "\t\t$3"
 	if (( ! $# -eq 3  ))
 	then
-		echo -e "\t\prepare() must be called with 3 parameters ! (actual : $#)" | tee -a $LOGFILE
+		echo -e "\t\tprepare() must be called with 3 parameters ! (actual : $#)" | tee -a $LOGFILE
 		return 1
 	else
 		if [[ $1 != [[:digit:]] ]] && [[ $2 != [[:digit:]] ]]
 		then
-			echo -e "\t\$1 et $2 are not numbers"
+			echo -e "\t\t$1 et $2 are not numbers" | tee -a $LOGFILE
 			return 1
 		else
 			if [[ $1 > $2 ]]
 			then 
-				echo -e "\t\The total package isn't correct (CURRENT:$1 TOTAL:$2)"
+				echo -e "\t\ttotal packages appears to be incorrect (CURRENT:$1 TOTAL:$2)" | tee -a $LOGFILE
 				return 1
 			fi
 			if ["$3"]
 			then
-				echo -e "\t\$3 is empty"
+				echo -e "\t\$3 is empty" | tee -a $LOGFILE
 				return 1
 			fi
 		fi
 	fi
+	#check if package already processed
 	if [ -f "$3.done"]
 	then 
 		return 2
 	fi
-
+	#start processing package
 	CURRENTFILENAME=$(ls $3*)
-	if [ ! "$3" ]
+	if [ ! "$CURRENTFILENAME" ]
 	then
 		echo -e "\t\t\tCan't find a file name for $3 :(" | tee -a $LOGFILE
 		return 1
@@ -226,7 +230,7 @@ preparepackage()
 	tar xvf $CURRENTFILENAME >> $LOGFILE
 	if [ ! $? -eq 0 ]
 	then
-		echo -e "\t\t\tError while extracting tar !"
+		echo -e "\t\t\tError while extracting tar !" | tee -a $LOGFILE
 		return 1
 	fi
 	#entering extracted folder
@@ -239,11 +243,36 @@ preparepackage()
 
 endpackage()
 {
-	#package name (something-1.0) without .tar.xx
-	# $2+ extra folders to delete
+	# $1= package name (something-1.0) without .tar.xx
+	# $2+ = extra folders to delete
+	#return 0 = OK
+	#return 1 = ERROR
+	if [ $# < 1 ]
+	then
+		echo -e "\t\t\tendpackage() must be called with at least one parameter !" | tee -a $LOGFILE
+		return 1
+	fi
+	if [ ! "$1" ]
+	then
+		echo -e "\t\t\tendpackage() can not be called with an empty name !" | tee -a $LOGFILE
+		return 1
+	fi
+	#starting
+	PACKAGE=$1
 	cd $LFS/sources
-	#delete folder(s)
-	> "$1.done"
+	while (( $# > 0 ))
+	do
+		if [ -d "$1" ]
+		then
+			echo -e "\t\t\tDeleting $1" | tee -a $LOGFILE
+			rm -r $1
+		else
+			echo -e "\t\t\tCan't find a folder called \"$1\" for deletion !" | tee -a $LOGFILE
+			return 1
+		fi
+		shift
+	done
+	> "$PACKAGE.done"
 	CURRENTNUMBER=$(($CURRENTNUMBER+1))
 	return 0
 }
@@ -503,6 +532,8 @@ elif [ "$USER" == "lfs" ]; then
 		#...
 		#/specific actions
 		endpackage "binutils-2.22"
+	else
+		echo -e "\t\tPackage already processed, skipping."
 	fi
 	
 
