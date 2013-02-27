@@ -261,10 +261,10 @@ endpackage()
 	do
 		if [ -d "$1" ]
 		then
-			echo -e "\t\tDeleting \"$1\" folder" | tee -a $LOGFILE
+			echo -e "\t\tdeleting \"$1\" folder" | tee -a $LOGFILE
 			rm -r $1
 		else
-			echo -e "\t\tCan't find a folder called \"$1\" for deletion !" | tee -a $LOGFILE
+			echo -e "\t\tcan't find a folder called \"$1\" for deletion !" | tee -a $LOGFILE
 			return 1
 		fi
 		shift
