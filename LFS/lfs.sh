@@ -180,7 +180,7 @@ preparepackage()
 	# return 2 = OK (already processed)
 	echo -e "\t\t$1/$2"
 	echo -e "\t\t$3"
-	if (( ! $# -eq 3  ))
+	if [ ! $# -eq 3  ]
 	then
 		echo -e "\t\tprepare() must be called with 3 parameters ! (actual : $#)" | tee -a $LOGFILE
 		return 1
