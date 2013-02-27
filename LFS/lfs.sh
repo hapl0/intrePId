@@ -203,7 +203,7 @@ preparepackage()
 		fi
 	fi
 	#check if package already processed
-	if [ -f "$3.done"]
+	if [ -f "$3.done" ]
 	then 
 		return 2
 	fi
