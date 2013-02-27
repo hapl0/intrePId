@@ -28,6 +28,7 @@ returncheck()
 	if [ ! $1 -eq 0 ]
 	then
 		echo "Error code : $1. Stopping now." | tee -a $LOGFILE
+		echo -e "\tYou may have to clean the current step..."
 		echo -e "\tPlease check log file : $LOGFILE"
 		exit $1
 	else
@@ -151,7 +152,7 @@ preparepackage()
 		return 1	
 	fi
 			
-	echo -e "\t\tunpacking..." | tee -a $LOGFILE
+	echo -e "\t\tunpacking" | tee -a $LOGFILE
 	tar xvf $CURRENTFILENAME >> $LOGFILE
 	if [ ! $? -eq 0 ]
 	then
@@ -187,7 +188,7 @@ endpackage()
 		if [ -d "$1" ]
 		then
 			echo -e "\t\tdeleting \"$1\" folder" | tee -a $LOGFILE
-			rm -r $1
+			rm -f -r $1
 		else
 			echo -e "\t\tcan't find a folder called \"$1\" for deletion !" | tee -a $LOGFILE
 			return 1
@@ -332,35 +333,37 @@ EOF
 	else
 		echo -e "\t$LFS/tools already exists"
 	fi
-	if [ -e /tools ] #not sure if working, need a debug test
+	if [ -e /tools ]
 	then
-		read -p "        /tools (LFS II-4.2) already exists. Press [Enter] to remove it or [Ctrl]+[C] to stop the script."
+		read -p "        /tools (LFS II-4.2) found. [Enter] to remove it [Ctrl]+[C] to stop the script"
 		rm -r /tools
 	fi
-	read -p "LN WAITING"
-	RES=(ln -sv $LFS/tools /)
-	read -p "LN DONE (?)"
+	ln -sv $LFS/tools / >> $LOGFILE
 	if [ ! $? -eq 0 ]
 	then
-		echo -e "\tError while creating symbolic link (LFS II-4.2) :"
+		echo -e "\tError while creating /tools symbolic link (LFS II-4.2) :"
 		echo -e "\t$RES"
 		exit 1
 	else
 		echo -e "\t/tools symlink ok"
 	fi
+	chown lfs $LFS/tools
 	##sources
 	if [ ! -d "$LFS/sources" ]
 	then
 		mkdir $LFS/sources
+		returncheck $?
 	fi
+	chown lfs $LFS/sources
 	chmod a+wt $LFS/sources
+	##logfile
+	chmod 666 $LOGFILE
 
 	#launching lfs build
 	echo
 	echo " * Launching LFS script"
 	echo
 	echo
-	read -p "PAUSE"
 	su lfs -c "bash $0"
 
 	#
@@ -397,7 +400,7 @@ elif [ "$USER" == "lfs" ]; then
 	if [ ! -f $TMPSYSINFO ]
 	then
 		echo -e "\t\tCan't find $TMPSYSINFO" | tee -a $LOGFILE
-		echo -e "\t\tIt can be generated using \"tmpsys_listgen.sh\" before launching lfs script" | tee -a $LOGFILE
+		echo -e "\t\tIt can be generated using \"tmpsys_listgen.sh\" before launching this script" | tee -a $LOGFILE
 		exit 1
 	fi
 	TMPSYSNBFILES=$(cat "$TMPSYSINFO" | wc -l)
@@ -435,21 +438,21 @@ elif [ "$USER" == "lfs" ]; then
 			../binutils-2.22/configure --prefix=/tools --with-sysroot=$LFS --with-lib-path=/tools/lib  --target=$LFS_TGT --disable-nls --disable-werror >> $LOGFILE	
 			returncheck $?
 			echo -e "\t\tmake in progress" | tee -a $LOGFILE
-			make >> $LOGFILE
+			make >> $LOGFILE 2>&1
 			returncheck $?
 			echo -e "\t\tadditional changes" | tee -a $LOGFILE
-			case $(uname -m) in
+			( case $(uname -m) in
  				x86_64) mkdir -v /tools/lib && ln -sv lib /tools/lib64 ;;
-			esac
-			echo -e "\t\tinstalling packet" | tee -a $LOGFILE
-			make install >> $LOGFILE
+			esac ) >> $LOGFILE
+			echo -e "\t\tinstalling package" | tee -a $LOGFILE
+			make install >> $LOGFILE 2>&1
 			returncheck $?
 		#/specific actions
-		read -p "Pause"
 		endpackage "$CURRENTPACKAGE" "binutils-build"
 	else
 		echo -e "\t\tPackage already processed, skipping."
 	fi
+	read -p "STOP HERE"
 	#5.4. gcc-4.7.1 - Passe 1
 	CURRENTPACKAGE="gcc-4.7.1"
 	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
@@ -458,7 +461,7 @@ elif [ "$USER" == "lfs" ]; then
 		returncheck $?
 		#specific actions
 			echo -e "\t\tPreparing packets for gcc"
-			tar -Jxf ../mpfr-3.1.1.tar.xz
+			tar -Jxf ../mpfr-3.1.1.tar.xz >> $LOGFILE
 			mv -v mpfr-3.1.1 mpfr
 			returncheck $?
 			tar -Jxf ../gmp-5.0.5.tar.xz
@@ -545,7 +548,7 @@ elif [ "$USER" == "lfs" ]; then
 			
 	#/specific actions
 		read -p "Pause"
-		endpackage "$CURRENTPACKAGE" "Linux header"
+		endpackage "$CURRENTPACKAGE"
 	else
 		echo -e "\t\tPackage already processed, skipping."
 	fi
