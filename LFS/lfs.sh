@@ -177,18 +177,33 @@ preparepackage()
 	# $3 = package name (without .tar.gz or similar)
 	echo -e "\t\t$1/$2"
 	echo -e "\t\t$3"
-	if (( $# -eq 3  ))
+	if (( ! $# -eq 3  ))
 	then
-		echo "prepare() must be called with 3 parameters ! (actual : $#)" | tee -a $LOGFILE
-		exit 1
+		echo -e "\t\prepare() must be called with 3 parameters ! (actual : $#)" | tee -a $LOGFILE
+		return 1
 	else
 		if [[ $1 != [[:digit:]] ]] && [[ $2 != [[:digit:]] ]]
 		then
-			echo "$1 et $2 ne sont pas des nombres"
+			echo -e "\t\$1 et $2 are not numbers"
 			return 1
 		else
-			if [
-		
+			if [[ $1 > $2 ]]
+			then 
+				echo -e "\t\The total package isn't correct (CURRENT:$1 TOTAL:$2)"
+				return 1
+			fi
+			if ["$3"]
+			then
+				echo -e "\t\$3 is empty"
+				return 1
+			fi
+		fi
+	fi
+	if [ -f "$3.done"]
+	then 
+		return 2
+	fi
+
 	CURRENTFILENAME=$(ls $3*)
 	if [ ! "$3" ]
 	then
