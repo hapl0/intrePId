@@ -554,7 +554,7 @@ elif [ "$USER" == "lfs" ]; then
 	else
 		echo -e "\t\tPackage already processed, skipping."
 	fi
-	#5.4. gcc-4.7.1 - Pass 1
+	#5.4. gcc-4.7.1 - Passe 1
 	CURRENTPACKAGE="gcc-4.7.1"
 	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
 	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
@@ -625,37 +625,9 @@ elif [ "$USER" == "lfs" ]; then
 			echo -e "\t\tCreating symbolic link"
 			ln -vs libgcc.a `$LFS_TGT-gcc -print-libgcc-file-name | sed 's/libgcc/&_eh/'`
 			returncheck $?
-			
-	#5.4. Binutils-2.22 - Pass 1
-	CURRENTPACKAGE="binutils-2.22"
-	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
-	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
-	then
-		returncheck $?
-		#specific actions
-			echo -e "\t\tpatching"
-			patch -Np1 -i ../binutils-2.22-build_fix-1.patch | tee -a $LOGFILE
-			returncheck $?
-			echo -e "\t\tcreating \"binutils-build\" folder" | tee -a $LOGFILE
-			mkdir -v ../binutils-build >> $LOGFILE
-			returncheck $?
-			cd ../binutils-build
-			echo -e "\t\tpreparing build" | tee -a $LOGFILE
-			../binutils-2.22/configure --prefix=/tools --with-sysroot=$LFS --with-lib-path=/tools/lib  --target=$LFS_TGT --disable-nls --disable-werror			
-			returncheck $?
-			echo -e "\t\tmake in progress" | tee -a $LOGFILE
-			make >> $LOGFILE
-			returncheck $?
-			echo -e "\t\tadditional changes" | tee -a $LOGFILE
-			case $(uname -m) in
- 				x86_64) mkdir -v /tools/lib && ln -sv lib /tools/lib64 ;;
-			esac
-			echo -e "\t\tinstalling packet" | tee -a $LOGFILE
-			make install >> $LOGFILE
-			returncheck $?
-		#/specific actions
+	#/specific actions
 		read -p "Pause"
-		endpackage "$CURRENTPACKAGE" "binutils-build"
+		endpackage "$CURRENTPACKAGE" "GCC-4.7.1 - Passe 1"
 	else
 		echo -e "\t\tPackage already processed, skipping."
 	fi
@@ -675,9 +647,12 @@ elif [ "$USER" == "lfs" ]; then
 			cp -rv dest/include/* /tools/include
 			returncheck $?
 			
-		#/specific actions
+	#/specific actions
 		read -p "Pause"
-		endpackage "$CURRENTPACKAGE" "binutils-build"
+		endpackage "$CURRENTPACKAGE" "Linux header"
+	else
+		echo -e "\t\tPackage already processed, skipping."
+	fi
 
 
 	#
