@@ -172,23 +172,29 @@ prepare()
 	# $1 = package number
 	# $2 = total packages
 	# $3 = package name (without .tar.gz or similar)
-	echo -e "\t\t$1/$2"
-	echo -e "\t\t$3"	
+	echo -e "\t\t$1/$2" | tee -a $LOGFILE
+	echo -e "\t\t$3" | tee -a $LOGFILE
 	CURRENTFILENAME=$(ls $3*)
-	if [ -f $CURRENTFILENAME ]
+	if [ ! "$3" ]
 	then
-		if [ ! -r $CURRENTFILENAME ]
+		echo -e "\t\t\tCan't find a file name for $3 :(" | tee -a $LOGFILE
+		return 1
+	fi
+	if [ -f "$CURRENTFILENAME" ]
+	then
+		if [ ! -r "$CURRENTFILENAME" ]
 		then
-			echo -e "\t\t\t$CURRENTFILENAME is not readable ! Stopping now."
-			exit 1
+			echo -e "\t\t\t$CURRENTFILENAME is not readable !" | tee -a $LOGFILE
+			return 1
 		fi
 	else
-		echo -e "\t\t\t$CURRENTFILENAME does not exist ! Stopping now."
-		exit 1	
+		echo -e "\t\t\t$CURRENTFILENAME does not exist !" | tee -a $LOGFILE
+		return 1	
 	fi
 			
-	echo -e "\t\t\tUnpacking..."
-	tar xvf $CURRENTFILENAME
+	echo -e "\t\t\tUnpacking..." | tee -a $LOGFILE
+	tar xvf $CURRENTFILENAME >> $LOGFILE
+	return $?
 }
 
 end()
@@ -440,33 +446,15 @@ elif [ "$USER" == "lfs" ]; then
 	echo | tee -a $LOGFILE
 	echo -e "\tBuilding sources (check progress by using \"tail -f $LOGFILE\")" | tee -a $LOGFILE
 	echo | tee -a $LOGFILE
-	CURRENTNUMBER=0
+	CURRENTNUMBER=1
 
 	#5.4. Binutils-2.22 - Pass 1
-	CURRENTNUMBER=$(($CURRENT+1))
-	CURRENTNAME="binutils-2.22"
-
-	#start
-	CURRENTFILENAME=$(ls $CURRENTNAME*)
-	echo -e "\t\t$CURRENT/$TMPSYSNBFILES"
-	echo -e "\t\tBinutils-2.22 - Pass 1"
-	if [ -f $CURRENTFILENAME ]
-	then
-		if [ ! -r $CURRENTFILENAME ]
-		then
-			echo -e "\t\t\t$CURRENTFILENAME is not readable ! Stopping now."
-			exit 1
-		fi
-	else
-		echo -e "\t\t\t$CURRENTFILENAME does not exist ! Stopping now."
-		exit 1	
-	fi
-			
-	echo -e "\t\t\tUnpacking..."
-	tar xvf $CURRENTFILENAME
-	#end
+	prepare $CURRENT $TMPSYSNBFILES "binutils-2.22"
+	returncheck $?
+	#specific actions
 	#...
-	#fermeture
+	#/specific actions
+	end $CURRENT "binutils-2.22"
 	
 
 
