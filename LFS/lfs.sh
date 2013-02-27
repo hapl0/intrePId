@@ -195,49 +195,46 @@ preparepackage()
 				echo -e "\t\ttotal packages appears to be incorrect (CURRENT:$1 TOTAL:$2)" | tee -a $LOGFILE
 				return 1
 			fi
-			if ["$3"]
+			if [ ! "$3" ]
 			then
-				echo -e "\t\$3 is empty" | tee -a $LOGFILE
+				echo -e "\t\t$3 is empty" | tee -a $LOGFILE
 				return 1
 			fi
 		fi
 	fi
 	#check if package already processed
-	if [ -f "$3.done"]
+	if [ -f "$3.done" ]
 	then 
 		return 2
 	fi
 	#start processing package
-	CURRENTFILENAME=$(ls $3*)
+	CURRENTFILENAME=$(ls | grep "$3.tar")
 	if [ ! "$CURRENTFILENAME" ]
 	then
-		echo -e "\t\t\tCan't find a file name for $3 :(" | tee -a $LOGFILE
+		echo -e "\t\tCan't find an archive name for $3 package :(" | tee -a $LOGFILE
 		return 1
 	fi
 	if [ -f "$CURRENTFILENAME" ]
 	then
 		if [ ! -r "$CURRENTFILENAME" ]
 		then
-			echo -e "\t\t\t$CURRENTFILENAME is not readable !" | tee -a $LOGFILE
+			echo -e "\t\t$CURRENTFILENAME is not readable !" | tee -a $LOGFILE
 			return 1
 		fi
 	else
-		echo -e "\t\t\t$CURRENTFILENAME does not exist !" | tee -a $LOGFILE
+		echo -e "\t\t$CURRENTFILENAME does not exist !" | tee -a $LOGFILE
 		return 1	
 	fi
 			
-	echo -e "\t\t\tUnpacking..." | tee -a $LOGFILE
+	echo -e "\t\tUnpacking..." | tee -a $LOGFILE
 	tar xvf $CURRENTFILENAME >> $LOGFILE
 	if [ ! $? -eq 0 ]
 	then
-		echo -e "\t\t\tError while extracting tar !" | tee -a $LOGFILE
+		echo -e "\t\tError while extracting tar !" | tee -a $LOGFILE
 		return 1
 	fi
 	#entering extracted folder
 	cd $3
-	#tmp
-	pwd
-	read -p "Pause"
 	return 0
 }
 
@@ -247,14 +244,14 @@ endpackage()
 	# $2+ = extra folders to delete
 	#return 0 = OK
 	#return 1 = ERROR
-	if [ $# < 1 ]
+	if (( $# < 1 ))
 	then
-		echo -e "\t\t\tendpackage() must be called with at least one parameter !" | tee -a $LOGFILE
+		echo -e "\t\tendpackage() must be called with at least one parameter !" | tee -a $LOGFILE
 		return 1
 	fi
 	if [ ! "$1" ]
 	then
-		echo -e "\t\t\tendpackage() can not be called with an empty name !" | tee -a $LOGFILE
+		echo -e "\t\tendpackage() can not be called with an empty name !" | tee -a $LOGFILE
 		return 1
 	fi
 	#starting
@@ -264,10 +261,10 @@ endpackage()
 	do
 		if [ -d "$1" ]
 		then
-			echo -e "\t\t\tDeleting $1" | tee -a $LOGFILE
+			echo -e "\t\tDeleting \"$1\" folder" | tee -a $LOGFILE
 			rm -r $1
 		else
-			echo -e "\t\t\tCan't find a folder called \"$1\" for deletion !" | tee -a $LOGFILE
+			echo -e "\t\tCan't find a folder called \"$1\" for deletion !" | tee -a $LOGFILE
 			return 1
 		fi
 		shift
@@ -507,8 +504,8 @@ elif [ "$USER" == "lfs" ]; then
 		echo | tee -a $LOGFILE
 		returncheck $?
 	fi
-	TMPSYSNBFILES=$(cat $TMPSYSINFO | wc -l)
-	for ((i=1;i<=$RES;i++))
+	TMPSYSNBFILES=$(cat "$TMPSYSINFO" | wc -l)
+	for (( i=1 ; i<=$TMPSYSNBFILES ; i++ ))
 	do
 		echo -e "\t\t$i/$TMPSYSNBFILES" | tee -a $LOGFILE
 		download $(head -n $i $TMPSYSINFO | tail -n 1)
@@ -519,19 +516,22 @@ elif [ "$USER" == "lfs" ]; then
 	#
 	#constructing temporary system
 	echo | tee -a $LOGFILE
+	echo | tee -a $LOGFILE
 	echo -e "\tBuilding sources (check progress by using \"tail -f $LOGFILE\")" | tee -a $LOGFILE
 	echo | tee -a $LOGFILE
 	CURRENTNUMBER=1
 
 	#5.4. Binutils-2.22 - Pass 1
-	preparepackage $CURRENTNUMBER $TMPSYSNBFILES "binutils-2.22"
+	CURRENTPACKAGE="binutils-2.22"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
 	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
 	then
 		returncheck $?
 		#specific actions
 		#...
 		#/specific actions
-		endpackage "binutils-2.22"
+		read -p "Pause"
+		endpackage "$CURRENTPACKAGE"
 	else
 		echo -e "\t\tPackage already processed, skipping."
 	fi
