@@ -133,7 +133,7 @@ download()
 			echo -e "\t\tinvalid md5 hash for $2" | tee -a $LOGFILE
 			rm -f $2
 			rm tempmd5
-			download $1 $2 $3
+			download $1 $2 $3 $4
 			RTRNCODE=$?
 		else
 			echo -e "\t\tvalid md5 hash for $2" | tee -a $LOGFILE
@@ -156,11 +156,11 @@ download()
 					echo -e "\t\terror while downloading the backup url of $2" | tee -a $LOGFILE
 					return 1
 				else
-					download $1 $2 $3
+					download $1 $2 $3 $4
 					return $?
 				fi
 			else
-				echo -e "\t\No backup url, aborting :("
+				echo -e "\t\tno backup url :("
 				return 1
 			fi
 		fi
@@ -409,7 +409,7 @@ elif [ "$USER" == "lfs" ]; then
 	echo
 	echo -e "\t   LFS Script started" | tee -a $LOGFILE
 	echo -e "\t  ********************"
-	echo | tee -a $LOGFI
+	echo | tee -a $LOGFILE
 
 	#preparing
 	MAKEFLAGS="-j $PROCESSORNUMBER"
