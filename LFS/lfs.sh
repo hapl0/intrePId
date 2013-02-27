@@ -211,7 +211,7 @@ preparepackage()
 	CURRENTFILENAME=$(ls | grep "$3.tar")
 	if [ ! "$CURRENTFILENAME" ]
 	then
-		echo -e "\t\tCan't find an archive name for $3 package :(" | tee -a $LOGFILE
+		echo -e "\t\tcan't find an archive name for $3 package :(" | tee -a $LOGFILE
 		return 1
 	fi
 	if [ -f "$CURRENTFILENAME" ]
@@ -226,11 +226,11 @@ preparepackage()
 		return 1	
 	fi
 			
-	echo -e "\t\tUnpacking..." | tee -a $LOGFILE
+	echo -e "\t\tunpacking..." | tee -a $LOGFILE
 	tar xvf $CURRENTFILENAME >> $LOGFILE
 	if [ ! $? -eq 0 ]
 	then
-		echo -e "\t\tError while extracting tar !" | tee -a $LOGFILE
+		echo -e "\t\terror while extracting tar !" | tee -a $LOGFILE
 		return 1
 	fi
 	#entering extracted folder
@@ -524,19 +524,19 @@ elif [ "$USER" == "lfs" ]; then
 	#5.4. Binutils-2.22 - Pass 1
 	CURRENTPACKAGE="binutils-2.22"
 	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
-	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
+	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already processed : skipping
 	then
 		returncheck $?
 		#specific actions
 			echo -e "\t\tpatching"
-			patch -Np1 -i ../binutils-2.22-build_fix-1.patch | tee -a $LOGFILE
+			patch -Np1 -i ../binutils-2.22-build_fix-1.patch >> $LOGFILE
 			returncheck $?
-			echo -e "\t\tcreating \"binutils-build\" folder" | tee -a $LOGFILE
-			mkdir -v ../binutils-build >> $LOGFILE
+			echo -e "\t\tcreating \"binutils-build\" extra folder" | tee -a $LOGFILE
+			mkdir -v ../binutils-build >> $LOGFILE 2>&1
 			returncheck $?
 			cd ../binutils-build
 			echo -e "\t\tpreparing build" | tee -a $LOGFILE
-			../binutils-2.22/configure --prefix=/tools --with-sysroot=$LFS --with-lib-path=/tools/lib  --target=$LFS_TGT --disable-nls --disable-werror			
+			../binutils-2.22/configure --prefix=/tools --with-sysroot=$LFS --with-lib-path=/tools/lib  --target=$LFS_TGT --disable-nls --disable-werror >> $LOGFILE	
 			returncheck $?
 			echo -e "\t\tmake in progress" | tee -a $LOGFILE
 			make >> $LOGFILE
