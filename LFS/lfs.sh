@@ -452,25 +452,16 @@ elif [ "$USER" == "lfs" ]; then
 	else
 		echo -e "\t\tPackage already processed, skipping."
 	fi
-<<<<<<< HEAD
 	read -p "STOP HERE"
 	#5.4. gcc-4.7.1 - Passe 1
-=======
-	#5.5. gcc-4.7.1 - Passe 1
->>>>>>> 814354a5ec8dac0b28ca38fa82116bb1a996b2cf
 	CURRENTPACKAGE="gcc-4.7.1"
 	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
 	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
 	then
 		returncheck $?
 		#specific actions
-<<<<<<< HEAD
-			echo -e "\t\tPreparing packets for gcc"
-			tar -Jxf ../mpfr-3.1.1.tar.xz >> $LOGFILE
-=======
 			echo -e "\t\tPreparing packets for gcc" | tee -a $LOGFILE
 			tar -Jxf ../mpfr-3.1.1.tar.xz >> $LOGFILE 2>&1
->>>>>>> 814354a5ec8dac0b28ca38fa82116bb1a996b2cf
 			mv -v mpfr-3.1.1 mpfr
 			returncheck $?
 			tar -Jxf ../gmp-5.0.5.tar.xz >> $LOGFILE 2>&1
