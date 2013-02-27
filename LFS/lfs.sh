@@ -197,7 +197,7 @@ preparepackage()
 			fi
 			if ["$3"]
 			then
-				echo -e "\t\$3 is empty" | tee -a $LOGFILE
+				echo -e "\t\t$3 is empty" | tee -a $LOGFILE
 				return 1
 			fi
 		fi
