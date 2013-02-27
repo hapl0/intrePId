@@ -172,8 +172,20 @@ prepare()
 	# $1 = package number
 	# $2 = total packages
 	# $3 = package name (without .tar.gz or similar)
-	echo -e "\t\t$1/$2" | tee -a $LOGFILE
-	echo -e "\t\t$3" | tee -a $LOGFILE
+	echo -e "\t\t$1/$2"
+	echo -e "\t\t$3"
+	if (( $# -eq 3  ))
+	then
+		echo "prepare() must be called with 3 parameters ! (actual : $#)" | tee -a $LOGFILE
+		exit 1
+	else
+		if [ $1 && $2 != [[:digit:]] ]
+		then
+			echo "$1 et $2 ne sont pas des nombres"
+			return 1
+		else
+			if [
+		
 	CURRENTFILENAME=$(ls $3*)
 	if [ ! "$3" ]
 	then
