@@ -111,11 +111,11 @@ download()
 {
 	#$1 = MD5
 	#$2 = filename
-	#$3 = URL
-	#$4 = URL2
-	if (( $# < 3  )) || (( $# >4 ))
+	#$3 = primary URL
+	#$4 = backup URL
+	if (( $# < 3  )) || (( $# > 4 ))
 	then
-		echo "download() must be called with 4 parameters max ! (actual : $#)" | tee -a $LOGFILE
+		echo "download() must be called with 3 or 4 parameters ! (actual : $#)" | tee -a $LOGFILE
 		return 2
 	fi
 	#echo -e "\tFilename :\t$2"
@@ -146,25 +146,54 @@ download()
 		wget "$3" >> $LOGFILE 2>&1
 		if [ ! $? -eq 0 ]
 		then
-			echo -e "\t\terror while downloading the first URL of $2" | tee -a $LOGFILE
+			echo -e "\t\terror while downloading the primary url of $2" | tee -a $LOGFILE
 			if [ "$4" ]
 			then
-				echo -e "\t\try to download backup URL"
+				echo -e "\t\try to download the backup url"
 				wget "$4" >> $LOGFILE 2>&1
 				if [ ! $? -eq 0 ]
 				then
-					echo -e "\t\terror while downloading attempt of $2" | tee -a $LOGFILE
+					echo -e "\t\terror while downloading the backup url of $2" | tee -a $LOGFILE
 					return 1
 				else
 					download $1 $2 $3
 					return $?
 				fi
 			else
-				echo -e "\t\No backup URL"
+				echo -e "\t\No backup url, aborting :("
 				return 1
 			fi
 		fi
 	fi
+}
+
+prepare()
+{
+	# $1 = package number
+	# $2 = total packages
+	# $3 = package name (without .tar.gz or similar)
+	echo -e "\t\t$1/$2"
+	echo -e "\t\t$3"	
+	CURRENTFILENAME=$(ls $3*)
+	if [ -f $CURRENTFILENAME ]
+	then
+		if [ ! -r $CURRENTFILENAME ]
+		then
+			echo -e "\t\t\t$CURRENTFILENAME is not readable ! Stopping now."
+			exit 1
+		fi
+	else
+		echo -e "\t\t\t$CURRENTFILENAME does not exist ! Stopping now."
+		exit 1	
+	fi
+			
+	echo -e "\t\t\tUnpacking..."
+	tar xvf $CURRENTFILENAME
+}
+
+end()
+{
+
 }
 
 
@@ -416,6 +445,8 @@ elif [ "$USER" == "lfs" ]; then
 	#5.4. Binutils-2.22 - Pass 1
 	CURRENTNUMBER=$(($CURRENT+1))
 	CURRENTNAME="binutils-2.22"
+
+	#start
 	CURRENTFILENAME=$(ls $CURRENTNAME*)
 	echo -e "\t\t$CURRENT/$TMPSYSNBFILES"
 	echo -e "\t\tBinutils-2.22 - Pass 1"
@@ -432,7 +463,10 @@ elif [ "$USER" == "lfs" ]; then
 	fi
 			
 	echo -e "\t\t\tUnpacking..."
-	tar xvf 
+	tar xvf $CURRENTFILENAME
+	#end
+	#...
+	#fermeture
 	
 
 
