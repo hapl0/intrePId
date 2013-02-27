@@ -23,12 +23,15 @@ returncheck()
 {
 	if [ $# -eq 0 ]
 	then
-		return
+		return 1
 	fi
 	if [ ! $1 -eq 0 ]
 	then
 		echo "Error code : $1. Stopping now." | tee -a $LOGFILE
+		echo -e "\tPlease check log file : $LOGFILE"
 		exit $1
+	else
+		return 0
 	fi
 }
 
@@ -149,7 +152,7 @@ download()
 			echo -e "\t\terror while downloading the primary url of $2" | tee -a $LOGFILE
 			if [ "$4" ]
 			then
-				echo -e "\t\try to download the backup url"
+				echo -e "\t\new download attempt from backup url"
 				wget "$4" >> $LOGFILE 2>&1
 				if [ ! $? -eq 0 ]
 				then
@@ -167,7 +170,7 @@ download()
 	fi
 }
 
-prepare()
+preparepackage()
 {
 	# $1 = package number
 	# $2 = total packages
@@ -179,7 +182,7 @@ prepare()
 		echo "prepare() must be called with 3 parameters ! (actual : $#)" | tee -a $LOGFILE
 		exit 1
 	else
-		if [ $1 && $2 != [[:digit:]] ]
+		if [[ $1 != [[:digit:]] ]] && [[ $2 != [[:digit:]] ]]
 		then
 			echo "$1 et $2 ne sont pas des nombres"
 			return 1
@@ -206,12 +209,28 @@ prepare()
 			
 	echo -e "\t\t\tUnpacking..." | tee -a $LOGFILE
 	tar xvf $CURRENTFILENAME >> $LOGFILE
-	return $?
+	if [ ! $? -eq 0 ]
+	then
+		echo -e "\t\t\tError while extracting tar !"
+		return 1
+	fi
+	#entering extracted folder
+	cd $3
+	#tmp
+	pwd
+	read -p "Pause"
+	return 0
 }
 
-end()
+endpackage()
 {
-
+	#package name (something-1.0) without .tar.xx
+	# $2+ extra folders to delete
+	cd $LFS/sources
+	#delete folder(s)
+	> "$1.done"
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	return 0
 }
 
 
@@ -461,12 +480,15 @@ elif [ "$USER" == "lfs" ]; then
 	CURRENTNUMBER=1
 
 	#5.4. Binutils-2.22 - Pass 1
-	prepare $CURRENT $TMPSYSNBFILES "binutils-2.22"
-	returncheck $?
-	#specific actions
-	#...
-	#/specific actions
-	end $CURRENT "binutils-2.22"
+	preparepackage $CURRENTNUMBER $TMPSYSNBFILES "binutils-2.22"
+	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
+	then
+		returncheck $?
+		#specific actions
+		#...
+		#/specific actions
+		endpackage "binutils-2.22"
+	fi
 	
 
 
