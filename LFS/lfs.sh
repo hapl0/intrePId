@@ -450,7 +450,7 @@ elif [ "$USER" == "lfs" ]; then
 	else
 		echo -e "\t\tPackage already processed, skipping."
 	fi
-	#5.4. gcc-4.7.1 - Passe 1
+	#5.5. gcc-4.7.1 - Passe 1
 	CURRENTPACKAGE="gcc-4.7.1"
 	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
 	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
@@ -510,15 +510,15 @@ elif [ "$USER" == "lfs" ]; then
 				--disable-libquadmath      \
 				--enable-languages=c       \
 				--with-mpfr-include=$(pwd)/../gcc-4.7.1/mpfr/src \
-				--with-mpfr-lib=$(pwd)/mpfr/src/.libs
+				--with-mpfr-lib=$(pwd)/mpfr/src/.libs >> $LOGFILE 2>&1
 			returncheck $?
-			echo -e "\t\tGCC Compilation" | tee -a $LOGFILE
+			echo -e "\t\tGCC Compilation" | tee -a $LOGFILE 2
 			make
 			returncheck $?
-			echo -e "\t\tInstalling gcc" | tee -a $LOGFILE
+			echo -e "\t\tInstalling gcc" | tee -a $LOGFILE 2
 			make install
 			returncheck $?
-			echo -e "\t\tCreating symbolic link" | tee -a $LOGFILE
+			echo -e "\t\tCreating symbolic link" | tee -a $LOGFILE 2
 			ln -vs libgcc.a `$LFS_TGT-gcc -print-libgcc-file-name | sed 's/libgcc/&_eh/'`
 			returncheck $?
 		#/specific actions
@@ -527,17 +527,17 @@ elif [ "$USER" == "lfs" ]; then
 	else
 		echo -e "\t\tPackage already processed, skipping." 
 	fi
-	#5.4. Linux API Headers
+	#5.6. Linux API Headers
 	CURRENTPACKAGE="linux-3.5.2"
 	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
 	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
 	then
 		returncheck $?
 		#specific actions
-			echo -e "\t\tCheck for old dependency" | tee -a $LOGFILE
+			echo -e "\t\tCheck for old dependency" | tee -a $LOGFILE 2
 			make mrproper
 			returncheck $?
-			echo -e "\t\tExtracting data and move data " | tee -a $LOGFILE
+			echo -e "\t\tExtracting data and move data " | tee -a$LOGFILE 2
 			make headers_check
 			make INSTALL_HDR_PATH=dest headers_install
 			cp -rv dest/include/* /tools/include
@@ -549,11 +549,65 @@ elif [ "$USER" == "lfs" ]; then
 	else
 		echo -e "\t\tPackage already processed, skipping."
 	fi
+	
+	#5.7. Glibc-2.16.0
+	#	CURRENTPACKAGE="glibc-2.16.0"
+	#	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	#	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
+	#	then
+	#		returncheck $?
+			#specific actions	
+		#/specific actions
+	#		read -p "Pause"
+	#		endpackage "$CURRENTPACKAGE"
+	#	else
+	#		echo -e "\t\tPackage already processed, skipping."
+	#	fi
 
-
-	#
-	# LFS - Temporary System /end
-	#
+	#5.8. Binutils-2.22 - Passe 2
+		CURRENTPACKAGE="glibc-2.16.0"
+		preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+		if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
+		then
+			returncheck $?
+			#specific actions	
+			echo -e "\t\tPatching" | tee -a $LOGFILE 2
+			patch -Np1 -i ../binutils-2.22-build_fix-1.patch >> $LOGFILE 2>&1
+			returncheck $?
+			echo -e "\t\tCreating new repertory" | tee -a $LOGFILE 2
+			mkdir -v ../binutils-build 
+			cd ../binutils-build
+			returncheck $?
+			echo -e "\t\tPreparing compilation" | tee -a $LOGFILE 2
+			CC=$LFS_TGT-gcc            \
+			AR=$LFS_TGT-ar             \
+			RANLIB=$LFS_TGT-ranlib     \
+			../binutils-2.22/configure \
+				--prefix=/tools        \
+				--disable-nls          \
+				--with-lib-path=/tools/lib >> $LOGFILE 2>&1
+			returncheck $?
+			echo -e "\t\tCompilation" | tee -a $LOGFILE 2
+			make >> $LOGFILE 2>&1
+			returncheck $?
+			echo -e "\t\tInstallation" | tee -a $LOGFILE 2
+			make install >> $LOGFILE 2>&1
+			returncheck $?
+			echo -e "\t\tPrepare the linker" | tee -a $LOGFILE 2
+			make -C ld clean >> $LOGFILE 2>&1
+			make -C ld LIB_PATH=/usr/lib:/lib >> $LOGFILE 2>&1
+			cp -v ld/ld-new /tools/bin 
+			returncheck $?
+		#/specific actions
+			read -p "Pause"
+			endpackage "$CURRENTPACKAGE"
+		else
+			echo -e "\t\tPackage already processed, skipping."
+	
+	fi
+		#
+		# LFS - Temporary System /end
+		#
 else
 	echo
 	echo " This script must be called as :"
