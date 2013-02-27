@@ -528,10 +528,29 @@ elif [ "$USER" == "lfs" ]; then
 	then
 		returncheck $?
 		#specific actions
-		#...
+			echo -e "\t\tpatching"
+			patch -Np1 -i ../binutils-2.22-build_fix-1.patch | tee -a $LOGFILE
+			returncheck $?
+			echo -e "\t\tcreating \"binutils-build\" folder" | tee -a $LOGFILE
+			mkdir -v ../binutils-build >> $LOGFILE
+			returncheck $?
+			cd ../binutils-build
+			echo -e "\t\tpreparing build" | tee -a $LOGFILE
+			../binutils-2.22/configure --prefix=/tools --with-sysroot=$LFS --with-lib-path=/tools/lib  --target=$LFS_TGT --disable-nls --disable-werror			
+			returncheck $?
+			echo -e "\t\tmake in progress" | tee -a $LOGFILE
+			make >> $LOGFILE
+			returncheck $?
+			echo -e "\t\tadditional changes" | tee -a $LOGFILE
+			case $(uname -m) in
+ 				x86_64) mkdir -v /tools/lib && ln -sv lib /tools/lib64 ;;
+			esac
+			echo -e "\t\tinstalling packet" | tee -a $LOGFILE
+			make install >> $LOGFILE
+			returncheck $?
 		#/specific actions
 		read -p "Pause"
-		endpackage "$CURRENTPACKAGE"
+		endpackage "$CURRENTPACKAGE" "binutils-build"
 	else
 		echo -e "\t\tPackage already processed, skipping."
 	fi
