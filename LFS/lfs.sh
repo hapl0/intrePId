@@ -554,7 +554,130 @@ elif [ "$USER" == "lfs" ]; then
 	else
 		echo -e "\t\tPackage already processed, skipping."
 	fi
-	
+	#5.4. gcc-4.7.1 - Pass 1
+	CURRENTPACKAGE="gcc-4.7.1"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
+	then
+		returncheck $?
+		#specific actions
+			echo -e "\t\tPreparing packets for gcc"
+			tar -Jxf ../mpfr-3.1.1.tar.xz
+			mv -v mpfr-3.1.1 mpfr
+			returncheck $?
+			tar -Jxf ../gmp-5.0.5.tar.xz
+			mv -v gmp-5.0.5 gmp
+			returncheck $?
+			tar -zxf ../mpc-1.0.tar.gz
+			mv -v mpc-1.0 mpc
+			returncheck $?
+			echo -e "\t\tChange the location of the dynamic linker's default GCC to use the one installed in /tools."
+			echo -e "\t\tRemove /usr/include for gcc"
+			for file in \
+			$(find gcc/config -name linux64.h -o -name linux.h -o -name sysv4.h)
+			do
+			  cp -uv $file{,.orig}
+			  sed -e 's@/lib\(64\)\?\(32\)\?/ld@/tools&@g' \
+				  -e 's@/usr@/tools@g' $file.orig > $file
+			  echo '
+			#undef STANDARD_STARTFILE_PREFIX_1
+			#undef STANDARD_STARTFILE_PREFIX_2
+			#define STANDARD_STARTFILE_PREFIX_1 "/tools/lib/"
+			#define STANDARD_STARTFILE_PREFIX_2 ""' >> $file
+			  touch $file.orig
+			done
+			returncheck $?
+			echo -e "\t\tDetection's pile for gcc"
+			sed -i '/k prot/agcc_cv_libc_provides_ssp=yes' gcc/configure
+			returncheck $?
+			echo -e "\t\tCreating directory"
+			mkdir -v ../gcc-build  
+			cd ../gcc-build
+			returncheck $?
+			echo -e "\t\tPreparing gcc compilation"
+			../gcc-4.7.1/configure         \
+				--target=$LFS_TGT          \
+				--prefix=/tools            \
+				--with-sysroot=$LFS        \
+				--with-newlib              \
+				--without-headers          \
+				--with-local-prefix=/tools \
+				--with-native-system-header-dir=/tools/include \
+				--disable-nls              \
+				--disable-shared           \
+				--disable-multilib         \
+				--disable-decimal-float    \
+				--disable-threads          \
+				--disable-libmudflap       \
+				--disable-libssp           \
+				--disable-libgomp          \
+				--disable-libquadmath      \
+				--enable-languages=c       \
+				--with-mpfr-include=$(pwd)/../gcc-4.7.1/mpfr/src \
+				--with-mpfr-lib=$(pwd)/mpfr/src/.libs
+			returncheck $?
+			echo -e "\t\tGCC Compilation"
+			make
+			returncheck $?
+			echo -e "\t\tInstalling gcc"
+			make install
+			returncheck $?
+			echo -e "\t\tCreating symbolic link"
+			ln -vs libgcc.a `$LFS_TGT-gcc -print-libgcc-file-name | sed 's/libgcc/&_eh/'`
+			returncheck $?
+			
+	#5.4. Binutils-2.22 - Pass 1
+	CURRENTPACKAGE="binutils-2.22"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
+	then
+		returncheck $?
+		#specific actions
+			echo -e "\t\tpatching"
+			patch -Np1 -i ../binutils-2.22-build_fix-1.patch | tee -a $LOGFILE
+			returncheck $?
+			echo -e "\t\tcreating \"binutils-build\" folder" | tee -a $LOGFILE
+			mkdir -v ../binutils-build >> $LOGFILE
+			returncheck $?
+			cd ../binutils-build
+			echo -e "\t\tpreparing build" | tee -a $LOGFILE
+			../binutils-2.22/configure --prefix=/tools --with-sysroot=$LFS --with-lib-path=/tools/lib  --target=$LFS_TGT --disable-nls --disable-werror			
+			returncheck $?
+			echo -e "\t\tmake in progress" | tee -a $LOGFILE
+			make >> $LOGFILE
+			returncheck $?
+			echo -e "\t\tadditional changes" | tee -a $LOGFILE
+			case $(uname -m) in
+ 				x86_64) mkdir -v /tools/lib && ln -sv lib /tools/lib64 ;;
+			esac
+			echo -e "\t\tinstalling packet" | tee -a $LOGFILE
+			make install >> $LOGFILE
+			returncheck $?
+		#/specific actions
+		read -p "Pause"
+		endpackage "$CURRENTPACKAGE" "binutils-build"
+	else
+		echo -e "\t\tPackage already processed, skipping."
+	fi
+	#5.4. Linux API Headers
+	CURRENTPACKAGE="linux-3.5.2"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
+	then
+		returncheck $?
+		#specific actions
+			echo -e "\t\tCheck for old dependency"
+			make mrproper
+			returncheck $?
+			echo -e "\t\tExtracting data and move data "
+			make headers_check
+			make INSTALL_HDR_PATH=dest headers_install
+			cp -rv dest/include/* /tools/include
+			returncheck $?
+			
+		#/specific actions
+		read -p "Pause"
+		endpackage "$CURRENTPACKAGE" "binutils-build"
 
 
 	#
