@@ -512,13 +512,13 @@ elif [ "$USER" == "lfs" ]; then
 				--with-mpfr-include=$(pwd)/../gcc-4.7.1/mpfr/src \
 				--with-mpfr-lib=$(pwd)/mpfr/src/.libs >> $LOGFILE 2>&1
 			returncheck $?
-			echo -e "\t\tGCC Compilation" | tee -a $LOGFILE 2
+			echo -e "\t\tGCC Compilation" | tee -a $LOGFILE 
 			make
 			returncheck $?
-			echo -e "\t\tInstalling gcc" | tee -a $LOGFILE 2
+			echo -e "\t\tInstalling gcc" | tee -a $LOGFILE 
 			make install
 			returncheck $?
-			echo -e "\t\tCreating symbolic link" | tee -a $LOGFILE 2
+			echo -e "\t\tCreating symbolic link" | tee -a $LOGFILE 
 			ln -vs libgcc.a `$LFS_TGT-gcc -print-libgcc-file-name | sed 's/libgcc/&_eh/'`
 			returncheck $?
 		#/specific actions
@@ -534,10 +534,10 @@ elif [ "$USER" == "lfs" ]; then
 	then
 		returncheck $?
 		#specific actions
-			echo -e "\t\tCheck for old dependency" | tee -a $LOGFILE 2
+			echo -e "\t\tCheck for old dependency" | tee -a $LOGFILE 
 			make mrproper
 			returncheck $?
-			echo -e "\t\tExtracting data and move data " | tee -a$LOGFILE 2
+			echo -e "\t\tExtracting data and move data " | tee -a$LOGFILE 
 			make headers_check
 			make INSTALL_HDR_PATH=dest headers_install
 			cp -rv dest/include/* /tools/include
@@ -565,20 +565,20 @@ elif [ "$USER" == "lfs" ]; then
 	#	fi
 
 	#5.8. Binutils-2.22 - Passe 2
-		CURRENTPACKAGE="glibc-2.16.0"
+		CURRENTPACKAGE="binutils-2.22"
 		preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
 		if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
 		then
 			returncheck $?
 			#specific actions	
-			echo -e "\t\tPatching" | tee -a $LOGFILE 2
+			echo -e "\t\tPatching" | tee -a $LOGFILE 
 			patch -Np1 -i ../binutils-2.22-build_fix-1.patch >> $LOGFILE 2>&1
 			returncheck $?
-			echo -e "\t\tCreating new repertory" | tee -a $LOGFILE 2
+			echo -e "\t\tCreating new repertory" | tee -a $LOGFILE 
 			mkdir -v ../binutils-build 
 			cd ../binutils-build
 			returncheck $?
-			echo -e "\t\tPreparing compilation" | tee -a $LOGFILE 2
+			echo -e "\t\tPreparing compilation" | tee -a $LOGFILE 
 			CC=$LFS_TGT-gcc            \
 			AR=$LFS_TGT-ar             \
 			RANLIB=$LFS_TGT-ranlib     \
@@ -587,13 +587,13 @@ elif [ "$USER" == "lfs" ]; then
 				--disable-nls          \
 				--with-lib-path=/tools/lib >> $LOGFILE 2>&1
 			returncheck $?
-			echo -e "\t\tCompilation" | tee -a $LOGFILE 2
+			echo -e "\t\tCompilation" | tee -a $LOGFILE 
 			make >> $LOGFILE 2>&1
 			returncheck $?
-			echo -e "\t\tInstallation" | tee -a $LOGFILE 2
+			echo -e "\t\tInstallation" | tee -a $LOGFILE 
 			make install >> $LOGFILE 2>&1
 			returncheck $?
-			echo -e "\t\tPrepare the linker" | tee -a $LOGFILE 2
+			echo -e "\t\tPrepare the linker" | tee -a $LOGFILE 
 			make -C ld clean >> $LOGFILE 2>&1
 			make -C ld LIB_PATH=/usr/lib:/lib >> $LOGFILE 2>&1
 			cp -v ld/ld-new /tools/bin 
