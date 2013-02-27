@@ -112,14 +112,16 @@ download()
 	#$1 = MD5
 	#$2 = filename
 	#$3 = URL
-	if [ ! $# -eq 3 ]
+	#$4 = URL2
+	if (( $# < 3  )) || (( $# >4 ))
 	then
-		echo "download() must be called with 3 parameters ! (actual : $#)" | tee -a $LOGFILE
+		echo "download() must be called with 4 parameters max ! (actual : $#)" | tee -a $LOGFILE
 		return 2
 	fi
 	#echo -e "\tFilename :\t$2"
 	#echo -e "\tMD5 :\t\t$1"
 	#echo -e "\tURL :\t\t$3"
+	#echo -e "\tURL2 :\t\t$4"
 	#read -p "Pause"
 	if [ -f $2 ]
 	then
@@ -144,11 +146,24 @@ download()
 		wget "$3" >> $LOGFILE 2>&1
 		if [ ! $? -eq 0 ]
 		then
-			echo -e "\t\terror while downloading attempt of $2" | tee -a $LOGFILE
-			return 1
+			echo -e "\t\terror while downloading the first URL of $2" | tee -a $LOGFILE
+			if [ "$4" ]
+			then
+				echo -e "\t\try to download backup URL"
+				wget "$4" >> $LOGFILE 2>&1
+				if [ ! $? -eq 0 ]
+				then
+					echo -e "\t\terror while downloading attempt of $2" | tee -a $LOGFILE
+					return 1
+				else
+					download $1 $2 $3
+					return $?
+				fi
+			else
+				echo -e "\t\No backup URL"
+				return 1
+			fi
 		fi
-		download $1 $2 $3
-		return $?
 	fi
 }
 
