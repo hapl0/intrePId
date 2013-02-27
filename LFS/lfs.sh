@@ -35,81 +35,6 @@ returncheck()
 	fi
 }
 
-tmpsys_listgen()
-{
-	SOURCEURLS=wget-list
-	SOURCEURLSHTTP=http://www.linuxfromscratch.org/lfs/view/stable/wget-list
-	SOURCEMD5=md5sums
-	SOURCEMD5HTTP=http://www.linuxfromscratch.org/lfs/view/stable/md5sums
-
-	if [ ! $# -eq 1 ]
-	then
-		echo "tmpsys_listgen have to be called with one parameter (destination file)" | tee -a $LOGFILE
-		return 1
-	fi
-	DESTINATIONFILE=$1
-
-	if [ ! -f "$SOURCEURLS" ]
-	then
-		echo -e "\tDownloading $SOURCEURLS from $SOURCEURLSHTTP" | tee -a $LOGFILE
-		wget --quiet "$SOURCEURLSHTTP"
-		if [ ! $? -eq 0 ]
-		then
-			echo -e "\tError with $SOURCEURLS download attempt."
-			return 1
-		fi
-	fi
-	if [ ! -r "$SOURCEURLS" ]
-	then
-		echo -e "\tError while opening urls source file ($(pwd)/$SOURCEURLS)" | tee -a $LOGFILE
-		return 1
-	fi
-
-	if [ ! -f "$SOURCEMD5" ]
-	then
-		echo -e "\tDownloading $SOURCEMD5 from $SOURCEMD5HTTP" | tee -a $LOGFILE
-		wget --quiet "$SOURCEMD5SHTTP"
-		if [ ! $? -eq 0 ]
-		then
-			echo -e "\tError with $SOURCEMD5 download attempt."
-			return 1
-		fi
-	fi
-	if [ ! -r "$SOURCEMD5" ]
-	then
-		echo -e "\tError while opening md5 source file ($(pwd)/$SOURCEMD5)" | tee -a $LOGFILE
-		return 1
-	fi
-
-	if [ -f "$DESTINATIONFILE" ]
-	then
-		if [ ! -w "$DESTINATIONFILE" ]
-		then
-			echo -e "\tThe destination file is not writable :(" | tee -a $LOGFILE
-			return 1
-		fi
-		rm -f "$DESTINATIONFILE"
-	fi
-
-	URLSLIGNES=$(cat "$SOURCEURLS" | wc -l)
-	MD5LIGNES=$(cat "$SOURCEMD5" | wc -l)
-	if (( $URLSLIGNES != $MD5LIGNES ))
-	then
-		echo -e "\tThe two files do not have same amount of lignes" | tee -a $LOGFILE
-		echo -e "\t\turls : $URLSLIGNES\tmd5s : $MD5LIGNES" | tee -a $LOGFILE
-		return 1
-	fi
-	for ((i=1;i<=$URLSLIGNES;i++))
-	do
-		FIRST=$(head -n $i $SOURCEMD5 | tail -n 1)
-		SECOND=$(head -n $i $SOURCEURLS | tail -n 1)
-		echo "$FIRST  $SECOND" >> "$DESTINATIONFILE"
-	done
-
-	echo -e "\t\t$DESTINATIONFILE generated." | tee -a $LOGFILE
-	return 0
-}
-
 download() 
 {
 	#$1 = MD5
@@ -412,7 +337,9 @@ EOF
 		read -p "        /tools (LFS II-4.2) already exists. Press [Enter] to remove it or [Ctrl]+[C] to stop the script."
 		rm -r /tools
 	fi
+	read -p "LN WAITING"
 	RES=(ln -sv $LFS/tools /)
+	read -p "LN DONE (?)"
 	if [ ! $? -eq 0 ]
 	then
 		echo -e "\tError while creating symbolic link (LFS II-4.2) :"
@@ -428,47 +355,18 @@ EOF
 	fi
 	chmod a+wt $LFS/sources
 
-	#Copying scripts for lfs
-	#echo
-	#echo " * Copying LFS scripts"
-	#if [ ! -f $LFSSCRIPT ]
-	#then
-	#	echo -e "\tCan't find $LFSSCRIPT ! Aborting."
-	#	exit 1
-	#else
-	#	echo -e "\tLFS script found, copying to $LFS"
-	#	cp $LFSSCRIPT $LFS
-	#	if [ ! $? -eq 0 ]
-	#	then
-	#		echo -e "\tError while copying the script"
-	#		exit 1
-	#	fi
-	#	chown lfs $LFS/$LFSSCRIPT
-	#fi
-	#if [ ! -f $TMPSYSSCRIPT ]
-	#then
-	#	echo -e "\tCan't find $TMPSYSSCRIPT."
-	#	read -p "       Skipping, can be an issue during LFS script execution (Press [Enter] to continue)."
-	#else
-	#	echo -e "\t$TMPSYSSCRIPT script found, copying to $LFS"
-	#	cp $TMPSYSSCRIPT $LFS
-	#	if [ ! $? -eq 0 ]
-	#	then
-	#		echo -e "\tError while copying the script"
-	#		exit 1
-	#	fi
-	#	chown lfs $LFS/$TMPSYSSCRIPT
-	#fi
-
 	#launching lfs build
 	echo
 	echo " * Launching LFS script"
 	echo
 	echo
+	read -p "PAUSE"
 	su lfs -c "bash $0"
+
 	#
 	# PreLFS /end
 	#
+
 elif [ "$USER" == "lfs" ]; then
 	echo >> $LOGFILE
 	echo >> $LOGFILE
@@ -499,10 +397,8 @@ elif [ "$USER" == "lfs" ]; then
 	if [ ! -f $TMPSYSINFO ]
 	then
 		echo -e "\t\tCan't find $TMPSYSINFO" | tee -a $LOGFILE
-		echo -e "\t\tGenerating..." | tee -a $LOGFILE
-		tmpsys_listgen $TMPSYSINFO
-		echo | tee -a $LOGFILE
-		returncheck $?
+		echo -e "\t\tIt can be generated using \"tmpsys_listgen.sh\" before launching lfs script" | tee -a $LOGFILE
+		exit 1
 	fi
 	TMPSYSNBFILES=$(cat "$TMPSYSINFO" | wc -l)
 	for (( i=1 ; i<=$TMPSYSNBFILES ; i++ ))
@@ -625,7 +521,7 @@ elif [ "$USER" == "lfs" ]; then
 			echo -e "\t\tCreating symbolic link"
 			ln -vs libgcc.a `$LFS_TGT-gcc -print-libgcc-file-name | sed 's/libgcc/&_eh/'`
 			returncheck $?
-	#/specific actions
+		#/specific actions
 		read -p "Pause"
 		endpackage "$CURRENTPACKAGE" "GCC-4.7.1 - Passe 1"
 	else
