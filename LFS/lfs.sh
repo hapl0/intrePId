@@ -457,18 +457,18 @@ elif [ "$USER" == "lfs" ]; then
 	then
 		returncheck $?
 		#specific actions
-			echo -e "\t\tPreparing packets for gcc"
-			tar -Jxf ../mpfr-3.1.1.tar.xz
+			echo -e "\t\tPreparing packets for gcc" | tee -a $LOGFILE
+			tar -Jxf ../mpfr-3.1.1.tar.xz >> $LOGFILE 2>&1
 			mv -v mpfr-3.1.1 mpfr
 			returncheck $?
-			tar -Jxf ../gmp-5.0.5.tar.xz
+			tar -Jxf ../gmp-5.0.5.tar.xz >> $LOGFILE 2>&1
 			mv -v gmp-5.0.5 gmp
 			returncheck $?
-			tar -zxf ../mpc-1.0.tar.gz
+			tar -zxf ../mpc-1.0.tar.gz >> $LOGFILE 2>&1
 			mv -v mpc-1.0 mpc
 			returncheck $?
-			echo -e "\t\tChange the location of the dynamic linker's default GCC to use the one installed in /tools."
-			echo -e "\t\tRemove /usr/include for gcc"
+			echo -e "\t\tChange the location of the dynamic linker's default GCC to use the one installed in /tools." | tee -a $LOGFILE
+			echo -e "\t\tRemove /usr/include for gcc" | tee -a $LOGFILE
 			for file in \
 			$(find gcc/config -name linux64.h -o -name linux.h -o -name sysv4.h)
 			do
@@ -487,7 +487,7 @@ elif [ "$USER" == "lfs" ]; then
 			sed -i '/k prot/agcc_cv_libc_provides_ssp=yes' gcc/configure
 			returncheck $?
 			echo -e "\t\tCreating directory"
-			mkdir -v ../gcc-build  
+			mkdir -v ../gcc-build  >> $LOGFILE 2>&1
 			cd ../gcc-build
 			returncheck $?
 			echo -e "\t\tPreparing gcc compilation"
@@ -512,20 +512,20 @@ elif [ "$USER" == "lfs" ]; then
 				--with-mpfr-include=$(pwd)/../gcc-4.7.1/mpfr/src \
 				--with-mpfr-lib=$(pwd)/mpfr/src/.libs
 			returncheck $?
-			echo -e "\t\tGCC Compilation"
+			echo -e "\t\tGCC Compilation" | tee -a $LOGFILE
 			make
 			returncheck $?
-			echo -e "\t\tInstalling gcc"
+			echo -e "\t\tInstalling gcc" | tee -a $LOGFILE
 			make install
 			returncheck $?
-			echo -e "\t\tCreating symbolic link"
+			echo -e "\t\tCreating symbolic link" | tee -a $LOGFILE
 			ln -vs libgcc.a `$LFS_TGT-gcc -print-libgcc-file-name | sed 's/libgcc/&_eh/'`
 			returncheck $?
 		#/specific actions
 		read -p "Pause"
 		endpackage "$CURRENTPACKAGE" "GCC-4.7.1 - Passe 1"
 	else
-		echo -e "\t\tPackage already processed, skipping."
+		echo -e "\t\tPackage already processed, skipping." 
 	fi
 	#5.4. Linux API Headers
 	CURRENTPACKAGE="linux-3.5.2"
@@ -534,10 +534,10 @@ elif [ "$USER" == "lfs" ]; then
 	then
 		returncheck $?
 		#specific actions
-			echo -e "\t\tCheck for old dependency"
+			echo -e "\t\tCheck for old dependency" | tee -a $LOGFILE
 			make mrproper
 			returncheck $?
-			echo -e "\t\tExtracting data and move data "
+			echo -e "\t\tExtracting data and move data " | tee -a $LOGFILE
 			make headers_check
 			make INSTALL_HDR_PATH=dest headers_install
 			cp -rv dest/include/* /tools/include
@@ -545,7 +545,7 @@ elif [ "$USER" == "lfs" ]; then
 			
 	#/specific actions
 		read -p "Pause"
-		endpackage "$CURRENTPACKAGE" "Linux header"
+		endpackage "$CURRENTPACKAGE"
 	else
 		echo -e "\t\tPackage already processed, skipping."
 	fi
