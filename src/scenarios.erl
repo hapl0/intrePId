@@ -7,12 +7,13 @@
 main() -> 
     case wf:role(managers) of
         true ->
-            #template { file="./site/templates/1_columns.html" };
+            #template { file="./site/templates/scenarios.html" };
         false ->
             wf:redirect_to_login("/login")
     end.
 
 title() -> "Hello from scenario.erl!".
+
 
 
 list_left () -> 
@@ -25,23 +26,123 @@ list_left () ->
         #listitem{ class="active",body=#link{ text="Scenarios", url="scenarios" }}
     ].
 
-right_body() -> 
+title_body() -> 
     [
-        #panel { style="margin: 50px 100px;", body=[
-            #span { text="Hello from scenario.erl!" },
+        #image {class="pull-left", image="images/DefaultIcon/png/32x32/search.png"},
+        #h3 {text="Scenario"}
+    ].
 
-            #p{},
-            #button { text="Click me!", postback=click },
+    % Binding data stored in a simple list.
+get_data() -> [
+    ["10.0.0.1", {data,1}],
+    ["10.0.0.2", {data,2}],
+    ["10.0.0.3", {data,3}]    
+  ].
 
-            #p{},
-            #panel { id=placeholder }
+get_map() -> 
+    %% Binding map is positional...
+    [
+        titleLabel@text, 
+        remove_ip@postback
+    ].
+left_body() -> 
+    Data_include = [],
+    Map = get_map(),
+    Body = [
+
+        
+        #p{},
+
+        #label {class="label label-success",text="include IP"},
+        #br {},
+        #textbox { id=include_ip, next=submit},
+        #br {},
+        #button {class="btn btn-success ",text="add", id=submit_inculde_ip, postback=add_include_ip},
+        
+        #br {},
+        #br {},
+        #table { id=tableBinding_include, class="table table-striped", rows=[
+
+        
+            #bind { data=Data_include, map=Map, body=#tablerow {cells=[
+            #tablecell { id=titleLabel },
+            #tablecell { body=#button { class="btn btn-danger ",id=remove_ip, text="remove" } }
+            
+            ]}}
+        ]}
+    ],
+        
+    wf:wire(submit_inculde_ip, include_ip, #validate { validators=[
+        #custom { text="", tag=ip_ok, function=fun ip_validator/2 }
+    ]}),
+
+    Body.
+
+
+right_body() -> 
+    Data_exclude = get_data(),
+    Map = get_map(),
+    [
+        #p{},
+
+        #label {class="label label-important",text="exclude IP"},
+        #br {},
+        #textbox { id=exclude_ip, next=submit },
+        
+        #br {},
+        #button {class="btn btn-success ",text="add", id=submit, postback=add_exclude_ip},
+        
+        #br {},
+        #br {},
+        #table { id=tableBinding_exclude, class="table table-striped", rows=[
+        
+            #bind {  data=Data_exclude, map=Map, body=#tablerow {cells=[
+            #tablecell { id=titleLabel },
+            #tablecell { body=#button { class="btn btn-danger ",id=remove_ip, text="remove" } }
+            
+            ]}}
         ]}
     ].
+
+
 	
 logout_site() -> 
     [
          #button { class="btn btn-danger ", id=button, text="Logout", postback=logout}
     ].
+
+event(add_include_ip) ->
+
+
+
+    Data = [
+    [wf:q(include_ip), {data,1}]  
+    ],
+
+    Map = get_map(),
+   
+    wf:update(tableBinding_include, #table { rows= [
+
+            #bind { data=Data, map=Map, body=#tablerow {cells=[
+            #tablecell { id=titleLabel },
+            #tablecell { body=#button { class="btn btn-danger ",id=remove_ip, text="remove" } }
+             
+            ]}}
+        ]}
+    );
+
+
+event(add_exclude_ip) ->
+    wf:logout(),
+    wf:redirect_from_login("/login");
+
+event(remove_include_ip) ->
+    wf:logout(),
+    wf:redirect_from_login("/login");
+
+event(remove_exclude_ip) ->
+    wf:logout(),
+    wf:redirect_from_login("/login");
 	
 event(logout) ->
     wf:logout(),
@@ -49,3 +150,13 @@ event(logout) ->
 
 event(click) ->
     wf:insert_top(placeholder, "<p>You clicked the button!").
+
+
+ip_validator(_Tag, Value) ->   
+    Value1 = string:to_lower(Value),
+    Matches = re:run(Value1, "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$"),
+    case Matches of 
+        nomatch -> false;
+        _ -> true
+    end.
+    
