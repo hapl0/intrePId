@@ -1,16 +1,16 @@
 #!/bin/bash
 
 SOURCEURLS=wget-list
-SOURCEURLSHTTP=http://www.linuxfromscratch.org/lfs/view/stable/wget-list
+SOURCEURLSHTTP='http://www.linuxfromscratch.org/lfs/view/stable/wget-list'
 SOURCEMD5=md5sums
-SOURCEMD5HTTP=http://www.linuxfromscratch.org/lfs/view/stable/md5sums
+SOURCEMD5HTTP='http://www.linuxfromscratch.org/lfs/view/stable/md5sums'
 DESTINATIONFILE=tmpsys_files_details
 
 
 if [ ! -f "$SOURCEURLS" ]
 then
 	echo -e "\tDownloading $SOURCEURLS from $SOURCEURLSHTTP" | tee -a $LOGFILE
-	wget --quiet "$SOURCEURLSHTTP"
+	wget --quiet -O "$SOURCEURLS" "$SOURCEURLSHTTP"
 	if [ ! $? -eq 0 ]
 	then
 		echo -e "\tError with $SOURCEURLS download attempt."
@@ -26,7 +26,7 @@ fi
 if [ ! -f "$SOURCEMD5" ]
 then
 	echo -e "\tDownloading $SOURCEMD5 from $SOURCEMD5HTTP" | tee -a $LOGFILE
-	wget --quiet "$SOURCEMD5SHTTP"
+	wget --quiet -O "$SOURCEMD5" "$SOURCEMD5HTTP"
 	if [ ! $? -eq 0 ]
 	then
 		echo -e "\tError with $SOURCEMD5 download attempt."
