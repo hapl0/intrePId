@@ -4,6 +4,7 @@
 -include_lib("nitrogen_core/include/wf.hrl").
 -include("records.hrl").
 
+
 main() -> 
     case wf:role(managers) of
         true ->
@@ -39,6 +40,8 @@ get_data() -> [
     ["10.0.0.3", {data,3}]    
   ].
 
+
+
 get_map() -> 
     %% Binding map is positional...
     [
@@ -50,37 +53,39 @@ left_body() ->
     Map = get_map(),
     Body = [
 
-        
-        #p{},
-
         #label {class="label label-success",text="include IP"},
         #br {},
         #textbox { id=include_ip, next=submit},
         #br {},
-        #button {class="btn btn-success ",text="add", id=submit_inculde_ip, postback=add_include_ip},
+        #button {class="btn btn-success ",text="add", id=submit_include_ip, postback=add_include_ip},
         
         #br {},
         #br {},
         #table { id=tableBinding_include, class="table table-striped", rows=[
 
         
-            #bind { data=Data_include, map=Map, body=#tablerow {cells=[
+            #bind {data=Data_include, map=Map, body=#tablerow {cells=[
             #tablecell { id=titleLabel },
             #tablecell { body=#button { class="btn btn-danger ",id=remove_ip, text="remove" } }
             
             ]}}
         ]}
+
+
+
     ],
         
-    wf:wire(submit_inculde_ip, include_ip, #validate { validators=[
+    wf:wire(submit_include_ip, include_ip, #validate { validators=[
         #custom { text="", tag=ip_ok, function=fun ip_validator/2 }
     ]}),
+
 
     Body.
 
 
 right_body() -> 
     Data_exclude = get_data(),
+
     Map = get_map(),
     [
         #p{},
@@ -113,15 +118,12 @@ logout_site() ->
 
 event(add_include_ip) ->
 
-
-
-    Data = [
-    [wf:q(include_ip), {data,1}]  
-    ],
-
+    Counter = wf:state_default(counter, 1),
+    Data = wf:state_default(data_include, []),
+    wf:state(data_include,Data:append([wf:q(include_ip), {data,Counter}])),
     Map = get_map(),
    
-    wf:update(tableBinding_include, #table { rows= [
+    wf:update(tableBinding_include, #table {rows= [
 
             #bind { data=Data, map=Map, body=#tablerow {cells=[
             #tablecell { id=titleLabel },
@@ -129,7 +131,8 @@ event(add_include_ip) ->
              
             ]}}
         ]}
-    );
+    ),   
+    wf:state(counter, Counter + 1);
 
 
 event(add_exclude_ip) ->
@@ -144,6 +147,12 @@ event(remove_exclude_ip) ->
     wf:logout(),
     wf:redirect_from_login("/login");
 	
+
+event({data, Data}) ->
+    Message = "Clicked On Data: " ++ wf:to_list(Data),
+    wf:wire(#alert { text=Message }),
+    ok;
+
 event(logout) ->
     wf:logout(),
     wf:redirect_from_login("/login");
@@ -158,5 +167,5 @@ ip_validator(_Tag, Value) ->
     case Matches of 
         nomatch -> false;
         _ -> true
-    end.
+    end. 
     
