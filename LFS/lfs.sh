@@ -449,7 +449,7 @@ mkdir -v ../binutils-build >> $LOGFILE 2>&1
 returncheck $?
 cd ../binutils-build
 echo -e "\t\tpreparing build" | tee -a $LOGFILE
-../binutils-2.23.1/configure --prefix=/tools --with-sysroot=$LFS --with-lib-path=/tools/lib --target=$LFS_TGT --disable-nls --disable-werror >> $LOGFILE 2>&1	
+../binutils-2.23.1/configure --prefix=/tools --with-sysroot=$LFS --with-lib-path=/tools/lib --target=$LFS_TGT --disable-nls --disable-werror >> $LOGFILE 2>&1
 returncheck $?
 echo -e "\t\tmake in progress" | tee -a $LOGFILE
 make >> $LOGFILE 2>&1
