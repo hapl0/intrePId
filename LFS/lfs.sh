@@ -101,9 +101,11 @@ preparepackage()
 	# $1 = package number
 	# $2 = total packages
 	# $3 = package name (without .tar.gz or similar)
+	# $4 = total download
 	# return 0 = OK
 	# return 1 = ERROR
 	# return 2 = OK (already processed)
+	
 	echo -e "\t\t$1/$2"
 	echo -e "\t\t$3"
 	if [ ! $# -eq 3  ]
@@ -418,7 +420,7 @@ elif [ "$USER" == "lfs" ]; then
 	echo -e "\tBuilding sources (check progress by using \"tail -f $LOGFILE\")" | tee -a $LOGFILE
 	echo | tee -a $LOGFILE
 	CURRENTNUMBER=1
-	#calculate total number of .tar.gz here then update preparepackage call (for $2)
+	TMPSYSNBFILES=$(ls $LFS/sources/*.tar.* | wc -l)
 
 	#5.4. Binutils-2.22 - Pass 1
 	CURRENTPACKAGE="binutils-2.22"
@@ -584,7 +586,6 @@ elif [ "$USER" == "lfs" ]; then
 		preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
 		if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
 		then
-			returncheck $?
 			#specific actions	
 			echo -e "\t\tPatching" | tee -a $LOGFILE 
 			patch -Np1 -i ../binutils-2.22-build_fix-1.patch >> $LOGFILE 2>&1
@@ -618,7 +619,44 @@ elif [ "$USER" == "lfs" ]; then
 			endpackage "$CURRENTPACKAGE"
 		else
 			echo -e "\t\tPackage already processed, skipping."
-	
+	#5.9. GCC-4.7.2 - Passe 2
+		CURRENTPACKAGE="gcc-4.7.2"
+		preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+		if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
+		then
+			#specific actions	
+			echo -e "\t\tPatching" | tee -a $LOGFILE 
+			patch -Np1 -i ../binutils-2.22-build_fix-1.patch >> $LOGFILE 2>&1
+			returncheck $?
+			echo -e "\t\tCreating new repertory" | tee -a $LOGFILE 
+			mkdir -v ../binutils-build 
+			cd ../binutils-build
+			returncheck $?
+			echo -e "\t\tPreparing compilation" | tee -a $LOGFILE 
+			CC=$LFS_TGT-gcc            \
+			AR=$LFS_TGT-ar             \
+			RANLIB=$LFS_TGT-ranlib     \
+			../binutils-2.22/configure \
+				--prefix=/tools        \
+				--disable-nls          \
+				--with-lib-path=/tools/lib >> $LOGFILE 2>&1
+			returncheck $?
+			echo -e "\t\tCompilation" | tee -a $LOGFILE 
+			make >> $LOGFILE 2>&1
+			returncheck $?
+			echo -e "\t\tInstallation" | tee -a $LOGFILE 
+			make install >> $LOGFILE 2>&1
+			returncheck $?
+			echo -e "\t\tPrepare the linker" | tee -a $LOGFILE 
+			make -C ld clean >> $LOGFILE 2>&1
+			make -C ld LIB_PATH=/usr/lib:/lib >> $LOGFILE 2>&1
+			cp -v ld/ld-new /tools/bin 
+			returncheck $?
+		#/specific actions
+			read -p "Pause"
+			endpackage "$CURRENTPACKAGE"
+		else
+			echo -e "\t\tPackage already processed, skipping."
 	fi
 		#
 		# LFS - Temporary System /end
