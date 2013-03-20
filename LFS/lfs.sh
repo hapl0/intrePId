@@ -625,33 +625,80 @@ elif [ "$USER" == "lfs" ]; then
 		if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
 		then
 			#specific actions	
-			echo -e "\t\tPatching" | tee -a $LOGFILE 
-			patch -Np1 -i ../binutils-2.22-build_fix-1.patch >> $LOGFILE 2>&1
+			echo -e "\t\tCreating complete version of the internal header" | tee -a $LOGFILE 
+			cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
+				`dirname $($LFS_TGT-gcc -print-libgcc-file-name)`/include-fixed/limits.h >> $LOGFILE 2>&1
 			returncheck $?
-			echo -e "\t\tCreating new repertory" | tee -a $LOGFILE 
-			mkdir -v ../binutils-build 
-			cd ../binutils-build
+			echo -e "\t\tCreating flag for gcc" | tee -a $LOGFILE 
+			cp -v gcc/Makefile.in{,.tmp}
+			sed 's/^T_CFLAGS =$/& -fomit-frame-pointer/' gcc/Makefile.in.tmp \
+			  > gcc/Makefile.in
 			returncheck $?
-			echo -e "\t\tPreparing compilation" | tee -a $LOGFILE 
-			CC=$LFS_TGT-gcc            \
-			AR=$LFS_TGT-ar             \
-			RANLIB=$LFS_TGT-ranlib     \
-			../binutils-2.22/configure \
-				--prefix=/tools        \
-				--disable-nls          \
-				--with-lib-path=/tools/lib >> $LOGFILE 2>&1
+			echo -e "\t\tModificating dynamic link" | tee -a $LOGFILE 
+			for file in \
+				 $(find gcc/config -name linux64.h -o -name linux.h -o -name sysv4.h)
+				do
+				  cp -uv $file{,.orig}
+				  sed -e 's@/lib\(64\)\?\(32\)\?/ld@/tools&@g' \
+				  -e 's@/usr@/tools@g' $file.orig > $file
+				  echo '
+				#undef STANDARD_STARTFILE_PREFIX_1
+				#undef STANDARD_STARTFILE_PREFIX_2
+				#define STANDARD_STARTFILE_PREFIX_1 "/tools/lib/"
+				#define STANDARD_STARTFILE_PREFIX_2 ""' >> $file
+				  touch $file.orig
+				done>> $LOGFILE 2>&1
 			returncheck $?
-			echo -e "\t\tCompilation" | tee -a $LOGFILE 
+			echo -e "\t\tPreparing repository" | tee -a $LOGFILE 
+			tar -Jxf ../mpfr-3.1.1.tar.xz
+			mv -v mpfr-3.1.1 mpfr
+			tar -Jxf ../gmp-5.1.0.tar.xz
+			mv -v gmp-5.1.0 gmp
+			tar -zxf ../mpc-1.0.1.tar.gz
+			mv -v mpc-1.0.1 mpc
+			sed -i 's/BUILD_INFO=info/BUILD_INFO=/' gcc/configure >> $LOGFILE 2>&1
+			returncheck $?
+			echo -e "\t\treating repository" | tee -a $LOGFILE 
+			mkdir -v ../gcc-build
+			cd ../gcc-build >> $LOGFILE 2>&1
+			returncheck $?
+			echo -e "\t\tPreparating Compilation" | tee -a $LOGFILE 
+			CC=$LFS_TGT-gcc \
+			AR=$LFS_TGT-ar                  \
+			RANLIB=$LFS_TGT-ranlib          \
+			../gcc-4.7.2/configure          \
+				--prefix=/tools             \
+				--with-local-prefix=/tools  \
+				--with-native-system-header-dir=/tools/include \
+				--enable-clocale=gnu        \
+				--enable-shared             \
+				--enable-threads=posix      \
+				--enable-__cxa_atexit       \
+				--enable-languages=c,c++    \
+				--disable-libstdcxx-pch     \
+				--disable-multilib          \
+				--disable-bootstrap         \
+				--disable-libgomp           \
+				--with-mpfr-include=$(pwd)/../gcc-4.7.2/mpfr/src \
+				--with-mpfr-lib=$(pwd)/mpfr/src/.libs >> $LOGFILE 2>&1
+			returncheck $?
+			echo -e "\t\tCompilating" | tee -a $LOGFILE
 			make >> $LOGFILE 2>&1
 			returncheck $?
-			echo -e "\t\tInstallation" | tee -a $LOGFILE 
+			echo -e "\t\tInstalling" | tee -a $LOGFILE
 			make install >> $LOGFILE 2>&1
 			returncheck $?
-			echo -e "\t\tPrepare the linker" | tee -a $LOGFILE 
-			make -C ld clean >> $LOGFILE 2>&1
-			make -C ld LIB_PATH=/usr/lib:/lib >> $LOGFILE 2>&1
-			cp -v ld/ld-new /tools/bin 
+			echo -e "\t\tCreating symbolic link" | tee -a $LOGFILE
+			ln -sv gcc /tools/bin/cc >> $LOGFILE 2>&1
 			returncheck $?
+			
+			#####
+			#####
+			#####TESTING GCC
+			#####
+			#####
+			#####
+			
 		#/specific actions
 			read -p "Pause"
 			endpackage "$CURRENTPACKAGE"
