@@ -108,8 +108,8 @@ preparepackage()
 	# return 1 = ERROR
 	# return 2 = OK (already processed)
 	
-	echo -e "\t\t$1/$2"
-	echo -e "\t\t$3"
+	echo -e "\t\t$1/$2" | tee -a $LOGFILE
+	echo -e "\t\t$3" | tee -a $LOGFILE
 	if [ ! $# -eq 3  ]
 	then
 		echo -e "\t\tprepare() must be called with 3 parameters ! (actual : $#)" | tee -a $LOGFILE
@@ -299,6 +299,7 @@ if [ "$USER" == "root" ]; then
 	then
 		echo -e "\tCan't find \"lfs\" user !"
 		exit 1
+		# create user ? :)
 	fi
 	echo -e "\tlfs user found"
 
@@ -574,7 +575,7 @@ echo -e "\t\tpost-configuration" | tee -a $LOGFILE
 cp -rv dest/include/* /tools/include >> $LOGFILE 2>&1
 returncheck $?
 		#/specific actions
-		endpackage "$CURRENTPACKAGE" "binutils-build"
+		endpackage "$CURRENTPACKAGE"
 		returncheck $?
 	else
 		echo -e "\t\tPackage already processed, skipping."
