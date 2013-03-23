@@ -4,6 +4,7 @@ Using :
 	Python2.7
 	Flask
 	Bootstrap
+
 ------------------
 Launch the application using _run.py_
 Prefer using the executable of python located in the virtualenv _flask/bin/python_
