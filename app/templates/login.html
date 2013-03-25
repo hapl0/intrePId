@@ -1,12 +1,33 @@
 <!-- extend from base layout -->
 {% extends "base.html" %}
 
+{% block header %}
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="brand" href="/"><font size="6">intre</font><font color="red" size="10">π</font><font size="6">d</font></a>
+            <ul class="nav">
+                <p></p>
+                <p></p>
+                <li><p class="navbar-text">intrepid [ɪnˈtrɛpɪd]. adj. fearless; daring;</p></li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
-<form action="" method="post" name="login">
-    {{form.hidden_tag()}}
-    <p>
-        {{form.password(size=30,placeholder="Password")}}
-    </p>
-    <p><input type="submit" value="Sign In" class="btn btn-primary"></p>
-</form>
+<div class="row-fluid">
+    <div class="well span4">
+        {% for error in form.errors.password %}
+        <span style="color: red;">{{error}}</span>
+        {% endfor %}
+        <form action="" method="post" name="login">
+            {{form.hidden_tag()}}
+            <p>{{form.password(size=30,placeholder="Password")}}</p>
+            <p><input type="submit" value="Sign In" class="btn btn-primary"></p>
+        </form>
+    </div>
+</div>
+
 {% endblock %}
