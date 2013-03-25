@@ -1,0 +1,47 @@
+<!-- extend from base layout -->
+{% extends "base.html" %}
+
+{% block header %}
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container-fluid">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a class="brand" href="#"><font size="6">intre</font><font color="red" size="10">π</font><font size="6">d</font></a>
+        <div class="nav-collapse collapse">
+
+         <ul class="nav pull-right">
+          <p></p>
+          <p></p>
+          <li><img src="/static/img/DefaultIcon/png/32x32/cpu.png"></li>
+          <li>TODO CPU</li>
+          <li>&nbsp;&nbsp;&nbsp;</li>
+          <li><img src="/static/img/DefaultIcon/png/32x32/ram.png"></li>
+          <li>TODO RAM</li>
+          <li>&nbsp;&nbsp;&nbsp;</li>
+          <li><img src="static/img/DefaultIcon/png/32x32/floppy.png"></li>
+          <li>TODO HDD</li>
+          <li>&nbsp;&nbsp;&nbsp;</li>
+          <li class="btn btn-danger" href="/logout">Logout</li>
+        </ul>
+        <ul class="nav">
+          <p></p>
+          <p></p>
+
+          <li><p class="navbar-text">intrepid [ɪnˈtrɛpɪd]. adj. fearless; daring;</p></li>
+        </ul>
+        
+
+      </div><!--/.nav-collapse -->
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<p>Logged in as {{session['username']}}</p>
+
+{% endblock %}
