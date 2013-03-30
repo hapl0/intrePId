@@ -12,7 +12,7 @@
                 <li><p class="navbar-text">intrepid [ɪnˈtrɛpɪd]. adj. fearless; daring;</p></li>
             </ul>
             <ul class="nav pull-right">
-                <a href="#myModal" role="button" class="btn btn-primary" data-toggle="modal" style="margin-top: 10px">Signin</a>
+                <a href="#myModal" role="button" class="btn btn-primary" data-toggle="modal" style="margin-top: 10px">Login</a>
             </ul>
         </div>
     </div>
@@ -21,7 +21,7 @@
 <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="myModalLabel">Signin</h3>
+    <h3 id="myModalLabel">Login</h3>
   </div>
   <div class="modal-body">
     Please enter your password <br />
@@ -31,7 +31,7 @@
         <form action="" method="post" name="login">
             {{form.hidden_tag()}}
             <p>{{form.password(size=30,placeholder="Password")}}</p>
-            <p><input type="submit" value="Sign In" class="btn btn-primary"</p>
+            <p><input type="submit" value="Login" class="btn btn-primary"</p>
             <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
         </form>
   </div>
