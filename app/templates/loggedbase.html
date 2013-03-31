@@ -44,27 +44,36 @@
 
 	          <li><p class="navbar-text">intrepid [ɪnˈtrɛpɪd]. adj. fearless; daring;</p></li>
 	        </ul>
-	        
-
-	      </div><!--/.nav-collapse -->
+	      </div>
 	    </div>
 	  </div>
 	</div>
-{% endblock %}
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <div class="alert alert-success">
-      <button type="button" class="close" data-dismiss="alert">&times;</button>
-        {% for message in messages %}
-        {{message}}<br />
-        {% endfor %}
-    </div>
-    {% endif %}
-    {% endwith %}
+	{% endblock %}
     <div class="container-fluid">
       <div class="row-fluid">
-        <div class="span12">
-          {% block content %}{% endblock %}
+        <div class="span2">
+      		<div class="well sidebar-nav">
+        		<ul class="nav nav-list">
+          			<li class="nav-header">Menu</li>
+          			{% block menu %}{% include "left_menu.html" %}{% endblock %}
+          		</ul>
+          	</div>
+        </div>
+        <div class="span10">
+        	<div class="clearfix content-heading">
+        		{% with messages = get_flashed_messages() %}
+    			{% if messages %}
+    			<div class="alert alert-success">
+      				<button type="button" class="close" data-dismiss="alert">&times;</button>
+        			{% for message in messages %}
+        			{{message}}<br />
+        			{% endfor %}
+    			</div>
+    			{% endif %}
+    			{% endwith %}
+    			
+          		{% block content %}{% endblock %}
+          	</div>
         </div>
       </div>
     </div>

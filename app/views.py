@@ -24,6 +24,18 @@ def index():
 		flash("You need to login before you go there.")
 		return redirect("/login")
 
+@app.route('/settings')
+def settings():
+	return render_template('settings.html', title = 'IntrePid')
+
+@app.route('/updates')
+def updates():
+	return render_template('updates.html', title = 'IntrePid')
+
+@app.route('/scenarios')
+def scenarios():
+	return render_template('scenarios.html', title = 'IntrePid')
+
 @app.route('/logout')
 def logout():
 	session.pop('username', None)
