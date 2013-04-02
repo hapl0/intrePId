@@ -9,6 +9,17 @@
     <!-- Téléchargé jquery pour faciliter l'accès au site en local (pas de dépendance à un autre site) -->
     <script src="/static/js/bootstrap.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript">
+    function getCpuLoad() {
+      $.ajax({
+      type: "POST",
+      url: "127.0.0.1/5000/stuff",
+      data: { param: text}
+      }).done(function(o) {
+        // Do something
+      });
+    }
+    </script>
   </head>
   <style> body { padding-top: 60px; } </style>
   <body>
@@ -28,7 +39,7 @@
 	          <p></p>
 	          <p></p>
 	          <li><img src="/static/img/DefaultIcon/png/32x32/cpu.png"></li>
-	          <li>TODO CPU</li>
+	          <li>{{cpu}}%</li>
 	          <li>&nbsp;&nbsp;&nbsp;</li>
 	          <li><img src="/static/img/DefaultIcon/png/32x32/ram.png"></li>
 	          <li>TODO RAM</li>
@@ -61,7 +72,7 @@
         </div>
         <div class="span10">
         	<div class="clearfix content-heading">
-        		{% with messages = get_flashed_messages() %}
+        	{% with messages = get_flashed_messages() %}
     			{% if messages %}
     			<div class="alert alert-success">
       				<button type="button" class="close" data-dismiss="alert">&times;</button>
