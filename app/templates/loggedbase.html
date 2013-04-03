@@ -11,16 +11,19 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 		<script type="text/javascript">
-		function updatecpu() {
+		function update_values() {
 			$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 			$.getJSON($SCRIPT_ROOT+"/_stuff",
 				function(data) {
-					$("#cpuload").text(data.result+" %")
-				});	
+					$("#cpuload").text(data.cpu+" %")
+					$("#ram").text(data.ram+" %")
+					$("#disk").text(data.disk+" %")
+				});
 		}	
-		setInterval(updatecpu,2000)
-		window.onload=updatecpu();
+		setInterval(update_values,{{ settings.updatetime }})
+		window.onload=update_values();
 		</script>
+		{% block js%}{% endblock %}
 
 	</head>
 	<style> body { padding-top: 60px; } </style>
@@ -41,13 +44,16 @@
 						<p></p>
 						<p></p>
 						<li><img src="/static/img/DefaultIcon/png/32x32/cpu.png"></li>
-						<li id="cpuload"></li>
+						<li>&nbsp;</li>
+						<li id="cpuload">...</li>
 						<li>&nbsp;&nbsp;&nbsp;</li>
 						<li><img src="/static/img/DefaultIcon/png/32x32/ram.png"></li>
-						<li>TODO RAM</li>
-						<li>&nbsp;&nbsp;&nbsp;</li>
+						<li>&nbsp;</li>
+						<li id="ram">...</li>
+						<li>&nbsp;&nbsp;&nbsp;</li>						
 						<li><img src="static/img/DefaultIcon/png/32x32/floppy.png"></li>
-						<li>TODO HDD</li>
+						<li>&nbsp;</li>
+						<li id="disk">...</li>
 						<li>&nbsp;&nbsp;&nbsp;</li>
 						<li><a href="/logout">Logout</a></li>
 					</ul>
