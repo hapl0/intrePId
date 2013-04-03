@@ -290,6 +290,11 @@ if [ "$USER" == "root" ]; then
 		echo -e "\t$RES"
 		exit 1
 	fi
+		
+	#LFS Requirement
+	echo
+	echo " * Updating host environment"
+	apt-get install -y bash binutils bison bzip2 coreutils diffutils findutils gawk gcc eglibc-source grep gzip m4 make patch perl sed 		tar texinfo xz-utils >> $LOGFILE 2>&1
 
 	#Check LFS user
 	echo
@@ -297,12 +302,13 @@ if [ "$USER" == "root" ]; then
 	LFSUSER=$(cat /etc/passwd | grep lfs | sed -r s/^lfs:.*$/found/ | grep found)
 	if [ ! "$LFSUSER" ]
 	then
-		echo -e "\tCan't find \"lfs\" user !"
-		exit 1
-		# create user ? :)
+		echo -e "\tCreating \"lfs\" user "
+		useradd lfs -m -s /bin/bash -p lfs
+		returncheck $?
+	else
+		echo -e "\tlfs user found"
 	fi
-	echo -e "\tlfs user found"
-
+	
 	#Overwrite LFS user environnement
 	echo
 	echo " * Setting up environnement for lfs user"
