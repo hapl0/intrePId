@@ -1,92 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>IntrePId</title>
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
-    <script src="/static/js/jquery-latest.js"></script>
-    <!-- Téléchargé jquery pour faciliter l'accès au site en local (pas de dépendance à un autre site) -->
-    <script src="/static/js/bootstrap.min.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="text/javascript">
-    function getCpuLoad() {
-      $.ajax({
-      type: "POST",
-      url: "127.0.0.1/5000/stuff",
-      data: { param: text}
-      }).done(function(o) {
-        // Do something
-      });
-    }
-    </script>
-  </head>
-  <style> body { padding-top: 60px; } </style>
-  <body>
-    {% block header %}
-    <div class="navbar navbar-inverse navbar-fixed-top">
-	    <div class="navbar-inner">
-	      <div class="container-fluid">
-	        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-	          <span class="icon-bar"></span>
-	          <span class="icon-bar"></span>
-	          <span class="icon-bar"></span>
-	        </a>
-	        <a class="brand" href="#"><font size="6">intre</font><font color="red" size="10">π</font><font size="6">d</font></a>
-	        <div class="nav-collapse collapse">
+	<head>
+		<title>IntrePId</title>
+		<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+		<link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
+		<script src="/static/js/jquery-latest.js"></script>
+		<!-- Téléchargé jquery pour faciliter l'accès au site en local (pas de dépendance à un autre site) -->
+		<script src="/static/js/bootstrap.min.js"></script>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	         <ul class="nav pull-right">
-	          <p></p>
-	          <p></p>
-	          <li><img src="/static/img/DefaultIcon/png/32x32/cpu.png"></li>
-	          <li>{{cpu}}%</li>
-	          <li>&nbsp;&nbsp;&nbsp;</li>
-	          <li><img src="/static/img/DefaultIcon/png/32x32/ram.png"></li>
-	          <li>TODO RAM</li>
-	          <li>&nbsp;&nbsp;&nbsp;</li>
-	          <li><img src="static/img/DefaultIcon/png/32x32/floppy.png"></li>
-	          <li>TODO HDD</li>
-	          <li>&nbsp;&nbsp;&nbsp;</li>
-	          <li><a href="/logout">Logout</a></li>
-	        </ul>
-	        <ul class="nav">
-	          <p></p>
-	          <p></p>
+		<script type="text/javascript">
+		function updatecpu() {
+			$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+			$.getJSON($SCRIPT_ROOT+"/_stuff",
+				function(data) {
+					$("#cpuload").text(data.result+" %")
+				});	
+		}	
+		setInterval(updatecpu,2000)
+		window.onload=updatecpu();
+		</script>
 
-	          <li><p class="navbar-text">intrepid [ɪnˈtrɛpɪd]. adj. fearless; daring;</p></li>
-	        </ul>
-	      </div>
-	    </div>
-	  </div>
+	</head>
+	<style> body { padding-top: 60px; } </style>
+	<body>
+		{% block header %}
+		<div class="navbar navbar-inverse navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container-fluid">
+					<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</a>
+					<a class="brand" href="#"><font size="6">intre</font><font color="red" size="10">π</font><font size="6">d</font></a>
+					<div class="nav-collapse collapse">
+
+					<ul class="nav pull-right">
+						<p></p>
+						<p></p>
+						<li><img src="/static/img/DefaultIcon/png/32x32/cpu.png"></li>
+						<li id="cpuload"></li>
+						<li>&nbsp;&nbsp;&nbsp;</li>
+						<li><img src="/static/img/DefaultIcon/png/32x32/ram.png"></li>
+						<li>TODO RAM</li>
+						<li>&nbsp;&nbsp;&nbsp;</li>
+						<li><img src="static/img/DefaultIcon/png/32x32/floppy.png"></li>
+						<li>TODO HDD</li>
+						<li>&nbsp;&nbsp;&nbsp;</li>
+						<li><a href="/logout">Logout</a></li>
+					</ul>
+					<ul class="nav">
+						<p></p>
+						<p></p>
+
+						<li><p class="navbar-text">intrepid [ɪnˈtrɛpɪd]. adj. fearless; daring;</p></li>
+					</ul>
+				</div>
+			</div>
+		</div>
 	</div>
 	{% endblock %}
-    <div class="container-fluid">
-      <div class="row-fluid">
-        <div class="span2">
-      		<div class="well sidebar-nav">
-        		<ul class="nav nav-list">
-          			<li class="nav-header">Menu</li>
-          			{% block menu %}{% include "left_menu.html" %}{% endblock %}
-          		</ul>
-          	</div>
-        </div>
-        <div class="span10">
-        	<div class="clearfix content-heading">
-        	{% with messages = get_flashed_messages() %}
-    			{% if messages %}
-    			<div class="alert alert-success">
-      				<button type="button" class="close" data-dismiss="alert">&times;</button>
-        			{% for message in messages %}
-        			{{message}}<br />
-        			{% endfor %}
-    			</div>
-    			{% endif %}
-    			{% endwith %}
-    			
-          		{% block content %}{% endblock %}
-          	</div>
-        </div>
-      </div>
-    </div>
-  </body>
+		<div class="container-fluid">
+			<div class="row-fluid">
+				<div class="span2">
+					<div class="well sidebar-nav">
+						<ul class="nav nav-list">
+							<li class="nav-header">Menu</li>
+							{% block menu %}{% include "left_menu.html" %}{% endblock %}
+						</ul>
+					</div>
+					{% with messages = get_flashed_messages() %}
+					{% if messages %}
+					<div class="alert alert-success">
+						<button type="button" class="close" data-dismiss="alert">&times;</button>
+						{% for message in messages %}
+						{{message}}<br />
+						{% endfor %}
+					</div>
+					{% endif %}
+					{% endwith %}
+				</div>
+				<div class="span10">
+					<div class="clearfix content-heading">
+						{% block content %}{% endblock %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
 </html>

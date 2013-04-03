@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, flash, redirect, session, abort, escape, url_for
+from flask import render_template, flash, redirect, session, abort, escape, url_for, jsonify
 from app import app
 from forms import LoginForm
 from functions import getCpuLoad
@@ -12,7 +12,7 @@ def login():
 	if form.validate_on_submit():
 		if form.password.data == "azerty":
 			session['username'] = "admin"
-			flash("You're now logged in as "+session['username'])
+			flash("You're now logged")
 			return redirect("/index")
 		return redirect("/login")
 	return render_template('login.html', title = 'Sign In', form = form)
@@ -25,9 +25,10 @@ def index():
 		flash("You need to login before you go there.")
 		return redirect("/login")
 
-@app.route('/stuff', methods= ['GET'])
+@app.route('/_stuff', methods= ['GET'])
 def stuff():
-	return getCpuLoad()*100.0
+	result=getCpuLoad()
+	return jsonify(result=result)
 
 @app.route('/settings', methods = ['GET','POST'])
 def settings():
