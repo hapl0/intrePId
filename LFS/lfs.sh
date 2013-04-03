@@ -13,8 +13,8 @@ SWAP=/dev/sda4
 #LFS
 LOGFILE="$LFS/lfs.log"
 TMPSYSINFO=tmpsys_files_details
-PROCESSORNUMBER=5
-exec 2>&1
+NBTHREADS=5
+#exec 2>&1
 #
 # Fx
 #
@@ -28,7 +28,7 @@ returncheck()
 	if [ ! $1 -eq 0 ]
 	then
 		echo "Error code : $1. Stopping now." | tee -a $LOGFILE
-		echo -e "\tYou may have to clean the current step..."
+		echo -e "\tYou may have to clean the current step (check sources/packagename folders like)"
 		echo -e "\tPlease check log file : $LOGFILE"
 		exit $1
 	else
@@ -395,13 +395,15 @@ elif [ "$USER" == "lfs" ]; then
 	echo | tee -a $LOGFILE
 
 	#preparing
-	export MAKEFLAGS="-j $PROCESSORNUMBER"
+	export MAKEFLAGS="-j $NBTHREADS"
 	. ~/.bashrc #get ENV vars
+	#debug
 	echo "makeflags : $MAKEFLAGS"
 	echo "LFS : $LFS"
 	echo "LC_ALL : $LC_ALL" 
 	echo "LFS_TGT : $LFS_TGT"
 	echo "PATH : $PATH"
+	echo
 
 	#
 	# LFS - Temporary System /start
@@ -466,13 +468,13 @@ returncheck $?
 		endpackage "$CURRENTPACKAGE" "binutils-build"
 		returncheck $?
 	else
-		echo -e "\t\tPackage already processed, skipping."
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
 	fi
 	CURRENTNUMBER=$(($CURRENTNUMBER+1))
 	echo | tee -a $LOGFILE
 
 
-	#5.4. gcc-4.7.2 - Passe 1
+	#5.5. gcc-4.7.2 - Passe 1
 	CURRENTPACKAGE="gcc-4.7.2"
 	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
 	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
@@ -550,13 +552,14 @@ returncheck $?
 #/specific actions
 		endpackage "$CURRENTPACKAGE" "gcc-build"
 	else
-		echo -e "\t\tPackage already processed, skipping." 
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE 
 	fi
 	CURRENTNUMBER=$(($CURRENTNUMBER+1))
 	echo | tee -a $LOGFILE
 
 
-	#5.4. Linux-3.8.1 API Headers
+
+	#5.6. Linux-3.8.1 API Headers
 	CURRENTPACKAGE="linux-3.8.1"
 	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
 	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already processed : skipping
@@ -578,10 +581,238 @@ returncheck $?
 		endpackage "$CURRENTPACKAGE"
 		returncheck $?
 	else
-		echo -e "\t\tPackage already processed, skipping."
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
 	fi
 	CURRENTNUMBER=$(($CURRENTNUMBER+1))
 	echo | tee -a $LOGFILE
+
+
+
+	#5.7. Glibc-2.17
+	CURRENTPACKAGE="glibc-2.17"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already processed : skipping
+	then
+		#specific actions
+echo -e "\t\tcheck headers" | tee -a $LOGFILE
+if [ ! -r /usr/include/rpc/types.h ]; then
+  su -c 'mkdir -p /usr/include/rpc'
+  returncheck $?
+  su -c 'cp -v sunrpc/rpc/*.h /usr/include/rpc'
+  returncheck $?
+fi
+echo -e "\t\tprepare build folder" | tee -a $LOGFILE
+mkdir ../glibc-build
+returncheck $?
+cd ../glibc-build
+echo -e "\t\tconfigure" | tee -a $LOGFILE
+../glibc-2.17/configure                             \
+      --prefix=/tools                                 \
+      --host=$LFS_TGT                                 \
+      --build=$(../glibc-2.17/scripts/config.guess) \
+      --disable-profile                               \
+      --enable-kernel=2.6.25                          \
+      --with-headers=/tools/include                   \
+      libc_cv_forced_unwind=yes                       \
+      libc_cv_ctors_header=yes                        \
+      libc_cv_c_cleanup=yes >> $LOGFILE 2>&1
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tinstall" | tee -a $LOGFILE
+make install >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\ttest" | tee -a $LOGFILE
+echo 'main(){}' > dummy.c
+$LFS_TGT-gcc dummy.c
+TEST=$(readelf -l a.out | grep ': /tools' | sed -r 's:/tools/lib(64)?/ld-linux(-x86-64)?\.so\.2:yay:' | grep yay)
+rm -v dummy.c a.out >> $LOGFILE 2>&1
+if [ ! "$TEST" ]
+then
+	echo -e "\t\t\terror with check" >> $LOGFILE 2>&1
+	returncheck 1
+else
+	echo -e "\t\t\tcheck ok" >> $LOGFILE 2>&1
+fi
+		#/specific actions
+		endpackage "$CURRENTPACKAGE" "glibc-build"
+		returncheck $?
+	else
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+
+	#5.8. Binutils-2.23.1 - Pass 2
+	if [ ! -f "$LFS/sources/binutils-2.23.1-pass2.tar.bz2" ]
+	then
+		echo " *preparing*"
+		echo "adapting because of same package processed two times" >> $LOGFILE 2>&1
+		tar xf binutils-2.23.1.tar.bz2 >> $LOGFILE 2>&1
+		returncheck $?
+		mv binutils-2.23.1/ binutils-2.23.1-pass2 >> $LOGFILE 2>&1
+		returncheck $?
+		tar czf binutils-2.23.1-pass2.tar.bz2 binutils-2.23.1-pass2/ >> $LOGFILE 2>&1
+		returncheck $?
+		rm -r binutils-2.23.1-pass2/ >> $LOGFILE 2>&1
+		returncheck $?
+	fi
+	CURRENTPACKAGE="binutils-2.23.1-pass2"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already processed : skipping
+	then
+		#specific actions
+echo -e "\t\tprepare" | tee -a $LOGFILE
+mkdir -v ../binutils-build >> $LOGFILE 2>&1
+returncheck $?
+cd ../binutils-build
+returncheck $?
+echo -e "\t\tconfigure" | tee -a $LOGFILE
+CC=$LFS_TGT-gcc            \
+AR=$LFS_TGT-ar             \
+RANLIB=$LFS_TGT-ranlib     \
+../binutils-2.23.1-pass2/configure \
+    --prefix=/tools        \
+    --disable-nls          \
+    --with-lib-path=/tools/lib >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tinstall" | tee -a $LOGFILE
+make install >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tprepare the linker for the 'Re-adjusting' phase in the next packet" | tee -a $LOGFILE
+make -C ld clean >> $LOGFILE 2>&1
+returncheck $?
+make -C ld LIB_PATH=/usr/lib:/lib >> $LOGFILE 2>&1
+returncheck $?
+cp -v ld/ld-new /tools/bin >> $LOGFILE 2>&1
+returncheck $?
+		#/specific actions
+		endpackage "$CURRENTPACKAGE" "binutils-build"
+		returncheck $?
+	else
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+
+	#5.9. GCC-4.7.2 - Pass 2
+	if [ ! -f "$LFS/sources/gcc-4.7.2-pass2.tar.bz2" ]
+	then
+		echo " *preparing*"
+		echo "adapting because of same package processed two times" >> $LOGFILE 2>&1
+		tar xf gcc-4.7.2.tar.bz2 >> $LOGFILE 2>&1
+		returncheck $?
+		mv gcc-4.7.2/ gcc-4.7.2-pass2 >> $LOGFILE 2>&1
+		returncheck $?
+		tar czf gcc-4.7.2-pass2.tar.bz2 gcc-4.7.2-pass2/ >> $LOGFILE 2>&1
+		returncheck $?
+		rm -r gcc-4.7.2-pass2/ >> $LOGFILE 2>&1
+		returncheck $?
+	fi
+	CURRENTPACKAGE="gcc-4.7.2-pass2"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already processed : skipping
+	then
+		#specific actions
+echo -e "\t\tcreate full headers" | tee -a $LOGFILE
+cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
+  `dirname $($LFS_TGT-gcc -print-libgcc-file-name)`/include-fixed/limits.h
+returncheck $?
+#echo -e "\t\tfor x86" | tee -a $LOGFILE
+#cp -v gcc/Makefile.in{,.tmp}
+#sed 's/^T_CFLAGS =$/& -fomit-frame-pointer/' gcc/Makefile.in.tmp \
+#  > gcc/Makefile.in
+echo -e "\t\tdynamic linker location" | tee -a $LOGFILE
+for file in \
+ $(find gcc/config -name linux64.h -o -name linux.h -o -name sysv4.h)
+do
+  cp -uv $file{,.orig} >> $LOGFILE 2>&1
+  sed -e 's@/lib\(64\)\?\(32\)\?/ld@/tools&@g' \
+  -e 's@/usr@/tools@g' $file.orig > $file
+  echo '
+#undef STANDARD_STARTFILE_PREFIX_1
+#undef STANDARD_STARTFILE_PREFIX_2
+#define STANDARD_STARTFILE_PREFIX_1 "/tools/lib/"
+#define STANDARD_STARTFILE_PREFIX_2 ""' >> $file
+  touch $file.orig
+done
+echo -e "\t\tadditional packages" | tee -a $LOGFILE
+(tar -Jxf ../mpfr-3.1.1.tar.xz
+mv -v mpfr-3.1.1 mpfr
+tar -Jxf ../gmp-5.1.1.tar.xz
+mv -v gmp-5.1.1 gmp
+tar -zxf ../mpc-1.0.1.tar.gz
+mv -v mpc-1.0.1 mpc ) >> $LOGFILE 2>&1
+echo -e "\t\tadditional conf" | tee -a $LOGFILE
+sed -i 's/BUILD_INFO=info/BUILD_INFO=/' gcc/configure
+returncheck $?
+mkdir -v ../gcc-build >> $LOGFILE 2>&1
+returncheck $?
+cd ../gcc-build
+returncheck $?
+echo -e "\t\tconfigure" | tee -a $LOGFILE
+CC=$LFS_TGT-gcc \
+AR=$LFS_TGT-ar                  \
+RANLIB=$LFS_TGT-ranlib          \
+../gcc-4.7.2-pass2/configure          \
+    --prefix=/tools             \
+    --with-local-prefix=/tools  \
+    --with-native-system-header-dir=/tools/include \
+    --enable-clocale=gnu        \
+    --enable-shared             \
+    --enable-threads=posix      \
+    --enable-__cxa_atexit       \
+    --enable-languages=c,c++    \
+    --disable-libstdcxx-pch     \
+    --disable-multilib          \
+    --disable-bootstrap         \
+    --disable-libgomp           \
+    --with-mpfr-include=$(pwd)/../gcc-4.7.2-pass2/mpfr/src \
+    --with-mpfr-lib=$(pwd)/mpfr/src/.libs >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tx86_64 hotfix" | tee -a $LOGFILE
+case $(uname -m) in
+  x86_64) mkdir -v /tools/lib && ln -sv lib /tools/lib64 ;;
+esac
+echo -e "\t\tmake install" | tee -a $LOGFILE
+make install >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tsymlink cc" | tee -a $LOGFILE
+ln -sv gcc /tools/bin/cc >> $LOGFILE 2>&1
+echo -e "\t\ttest" | tee -a $LOGFILE
+echo 'main(){}' > dummy.c
+$LFS_TGT-gcc dummy.c
+TEST=$(readelf -l a.out | grep ': /tools' | sed -r 's:/tools/lib(64)?/ld-linux(-x86-64)?\.so\.2:yay:' | grep yay)
+rm -v dummy.c a.out >> $LOGFILE 2>&1
+if [ ! "$TEST" ]
+then
+	echo -e "\t\t\terror with check" >> $LOGFILE 2>&1
+	returncheck 1
+else
+	echo -e "\t\t\tcheck ok" >> $LOGFILE 2>&1
+fi
+
+		#/specific actions
+		endpackage "$CURRENTPACKAGE" "gcc-build"
+		returncheck $?
+	else
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+
 
 
 
