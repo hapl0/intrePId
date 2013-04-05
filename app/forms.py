@@ -11,3 +11,6 @@ class SettingForm(Form):
 
 class IpScenarioForm(Form):
 	include = TextField('updatetime')
+
+class TermForm(Form):
+	command = TextField('command')

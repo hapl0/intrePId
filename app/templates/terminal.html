@@ -1,0 +1,29 @@
+<!-- extend from base layout -->
+{% extends "loggedbase.html" %}
+
+{% block js %}
+<script type="text/javascript">
+function update_values() {
+			$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+			$.getJSON($SCRIPT_ROOT+"/_stuff",
+				function(data) {
+					$("#cpuload").text(data.cpu+" %")
+					$("#ram").text(data.ram+" %")
+					$("#disk").text(data.disk+" %")
+				});
+		}	
+</script>
+{% endblock %}
+
+{% block content %}
+
+<h3><img class="pull-left" src="/static/img/DefaultIcon/png/32x32/search.png">Terminal</h3>
+<form action="" method="post" name="terminal">
+	<div class="input-append">
+		{{form.hidden_tag()}}
+		{{form.command(size=30,placeholder="Command")}}
+		<input type="submit" value="Send" class="btn btn-primary">
+	</div>
+	<p>{{res |safe}}</p>
+</form>
+{% endblock %}

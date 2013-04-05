@@ -1,16 +1,25 @@
-import time, psutil 
+import time
+from psutil import cpu_percent, virtual_memory, disk_usage
+from flask import flash, session
 
 def getCpuLoad():
     """ Returns the CPU Load """
-    load = psutil.cpu_percent(interval=1, percpu=False)
+    load = cpu_percent(interval=1, percpu=False)
     return load
 
 def getVmem():
     """ Returns the Ram percentage """
-    mem = psutil.virtual_memory().percent
+    mem = virtual_memory().percent
     return mem
 
 def getDisk():
     """ Returns the Disk usage """
-    disk = psutil.disk_usage('/').percent
+    disk = disk_usage('/').percent
     return disk
+
+def validateLogin():
+    if 'username' in session:
+        return True
+    else:
+        flash("You need to log in")
+        return False

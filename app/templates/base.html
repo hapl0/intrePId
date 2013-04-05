@@ -9,17 +9,25 @@
     <!-- Téléchargé jquery pour faciliter l'accès au site en local (pas de dépendance à un autre site) -->
     <script src="/static/js/bootstrap.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript">
+    window.setTimeout(function() {
+        $(".alert").fadeTo(500, 0).slideUp(500, function(){
+          $(this).remove(); 
+        });
+      }, 3000);
+    </script>
   </head>
   <style> body { padding-top: 60px; } </style>
   <body>
     {% block header %}{% endblock %}
     {% with messages = get_flashed_messages() %}
     {% if messages %}
-    <div class="alert alert-success">
-      <button type="button" class="close" data-dismiss="alert">&times;</button>
-        {% for message in messages %}
-        {{message}}<br />
-        {% endfor %}
+    <div class="span3">
+      <div class="alert alert-success">
+          {% for message in messages %}
+          {{message}}<br />
+          {% endfor %}
+      </div>
     </div>
     {% endif %}
     {% endwith %}
