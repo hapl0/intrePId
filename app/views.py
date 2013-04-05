@@ -64,11 +64,12 @@ def term():
 	if validateLogin():
 		form = TermForm()
 		if form.validate_on_submit():
-			string = form.command.data.encode('utf-8').split()
-			output = subprocess.check_output(string)
-			output = output.replace("\n","<br />")
-			flash("Command sent")
-			return render_template('terminal.html', title = 'IntrePid', settings = globalsettings, form = form, res=output)
+			if form.command.data:
+				string = form.command.data.encode('utf-8').split()
+				output = subprocess.check_output(string)
+				output = output.replace("\n","<br />")
+				flash("Command sent")
+				return render_template('terminal.html', title = 'IntrePid', settings = globalsettings, form = form, res=output)
 		return render_template('terminal.html', title = 'IntrePid', settings = globalsettings, form = form)
 	else:
 		return redirect('/')

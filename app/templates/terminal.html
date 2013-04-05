@@ -17,13 +17,33 @@ function update_values() {
 
 {% block content %}
 
-<h3><img class="pull-left" src="/static/img/DefaultIcon/png/32x32/search.png">Terminal</h3>
+<h3><img class="pull-left" src="/static/img/DefaultIcon/png/32x32/terminal.png">Terminal</h3>
 <form action="" method="post" name="terminal">
 	<div class="input-append">
 		{{form.hidden_tag()}}
 		{{form.command(size=30,placeholder="Command")}}
 		<input type="submit" value="Send" class="btn btn-primary">
+	</div><br />
+	{% if res %}
+	<div class="well">
+		<p>{{res |safe}}</p>
 	</div>
-	<p>{{res |safe}}</p>
+	{% endif %}
+	<a href="#myModal" role="button" class="btn btn-primary btn-small" data-toggle="modal">Help</a>
 </form>
+
+<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Help about the terminal</h3>
+  </div>
+  <div class="modal-body">
+  	<h4>What is the Intrepid Terminal</h4>
+  	<p>In that section of the site you can command directly the raspberry pi via unix commands.<br />
+  		By the way, no need to press the send button, you can also type on the enter key.</p>
+  	<h4>Examples</h4>
+  	<p><b>ls : </b><br />ls is a simple command that you can use to list the content of a directory<br />
+  	<b>/usr/bin/nmap : </b><i>Could be used as nmap directly</i><br />You can use nmap in that terminal ;)</p>
+  </div>
+</div>
 {% endblock %}
