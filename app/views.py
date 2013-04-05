@@ -64,12 +64,8 @@ def term():
 	if validateLogin():
 		form = TermForm()
 		if form.validate_on_submit():
-			stuff=form.command.data.split()
-			if len(stuff) > 1:
-				output = subprocess.check_output([stuff[0],stuff[1]])
-			else :
-				output = subprocess.check_output([form.command.data])
-			print output
+			string = form.command.data.encode('utf-8').split()
+			output = subprocess.check_output(string)
 			output = output.replace("\n","<br />")
 			flash("Command sent")
 			return render_template('terminal.html', title = 'IntrePid', settings = globalsettings, form = form, res=output)
