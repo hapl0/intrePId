@@ -3,30 +3,38 @@
 
 {% block js %}
 <script type="text/javascript">
-window.onload = function() {
-	$('#help-updatetime').popover()
-	$('a#default-updatetime').bind('click', function() {
-	document.getElementById('updatetime').value="2000";
-	})
-}
+	window.onload = function() {
+		$('#help-updatetime').popover()
+		$('#help-currentpassword').popover()
+		$('a#default-updatetime').bind('click', function() {
+		document.getElementById('updatetime').value="2000";
+		})
+	}
 </script>
 {% endblock %}
 
 {% block content %}
 <h3><img class="pull-left" src="/static/img/DefaultIcon/png/32x32/preferences.png">Settings</h3>
-{% for error in form.errors.password %}
-	<span style="color: red;">{{error}}</span>
-{% endfor %}
 <div class="row-fluid">
-	<h4>Interface</h4>
-	<div class="input-append">
-		<form action="" method="post" name="setting">
+	<form action="" method="post" name="setting">
+		<h4>Interface</h4>
+		<div class="input-append">
 	    	{{form.hidden_tag()}}
 	    	{{form.updatetime(size=30,placeholder="Refresh Time")}}
-	    	<input type="submit" value="Save" class="btn btn-primary">
 	    	<a id="default-updatetime" class="btn btn-primary">Default</a>
-	    	<a id="help-updatetime" class="btn btn-primary" data-toggle="popover" title="" data-content="Refreshing data (CPU, RAM and Disk) frequency. Must be in milliseconds. Current value : {{ settings.updatetime }} ms" data-original-title="Refresh Time">Help</a>
-		</form>
-	</div>
+	    	<a id="help-updatetime" class="btn btn-primary" data-toggle="popover" title="" data-html="true" data-content="Refreshing data (CPU, RAM and Disk) frequency. Must be in milliseconds. Keep in mind that higher refresh rate means higher CPU consumption.<br />Current value : {{ settings.updatetime }} ms" data-original-title="Refresh Time">Help</a>
+		</div>
+		<br />
+		<h4>Change Password</h4>
+		<div class="input-append">
+	    	{{form.hidden_tag()}}
+	    	{{form.currentpassword(size=30,placeholder="Current Password")}}
+	    	<a id="help-currentpassword" class="btn btn-primary" data-toggle="popover" title="" data-html="true" data-content="Changes the password to access the webapp. No effect right now.<br />Trollface : Current value : {{ settings.password }}" data-original-title="Password">Help</a>
+		</div>
+		<br />
+		{{form.newpassword(size=30,placeholder="New Password")}}<br />
+		{{form.confirmpassword(size=30,placeholder="Confirm New Password")}}
+		<p><input type="submit" value="Save" class="btn btn-primary"></p>
+	</form>
 </div>
 {% endblock %}

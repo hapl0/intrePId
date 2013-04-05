@@ -4,4 +4,10 @@ class LoginForm(Form):
     password = PasswordField('password', validators = [Required()])
 
 class SettingForm(Form):
-	updatetime = TextField('updatetime', validators = [NumberRange(min=1000, max=None, message="A lower value than 1 second will slow down the interface.")])
+	updatetime = TextField('updatetime')
+	currentpassword = PasswordField('currentpassword')
+	newpassword = PasswordField('newpassword')
+	confirmpassword = PasswordField('confirmpassword')
+
+class IpScenarioForm(Form):
+	include = TextField('updatetime')

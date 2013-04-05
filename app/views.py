@@ -8,7 +8,8 @@ from functions import getCpuLoad, getVmem, getDisk
 class settings(object):
 	""" Settings class"""
 	def __init__(self, data):
-		self.updatetime=data
+		self.updatetime = data
+		self.password = "azerty"
 
 globalsettings = settings(data="2000")
 
@@ -17,7 +18,7 @@ globalsettings = settings(data="2000")
 def login():
 	form = LoginForm()
 	if form.validate_on_submit():
-		if form.password.data == "azerty":
+		if form.password.data == globalsettings.password:
 			session['username'] = "admin"
 			flash("You're now logged")
 			return redirect("/index")
@@ -43,8 +44,8 @@ def stuff():
 def settings():
 	form = SettingForm()
 	if form.validate_on_submit():
-		if form.updatetime.data != globalsettings.updatetime:
-			globalsettings.updatetime=form.updatetime.data
+		if form.updatetime.data and form.updatetime.data != globalsettings.updatetime:
+			globalsettings.updatetime = form.updatetime.data
 			flash("Changes saved")
 	return render_template('settings.html', title = 'IntrePid', settings = globalsettings, form=form)
 
