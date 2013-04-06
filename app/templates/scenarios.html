@@ -4,4 +4,32 @@
 {% block content %}
 
 <h3><img class="pull-left" src="/static/img/DefaultIcon/png/32x32/search.png"> Scenarios</h3>
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span6">
+			<form action="" method="post" name="includeIPs">
+				<div class="input-append">
+					{% for error in form.errors.ipincluded %}
+        			<span style="color: red;">{{error}}</span>
+        			{% endfor %}
+					{{form.hidden_tag()}}
+					{{form.ipincluded(size=30,placeholder="Include IP")}}
+					<input type="submit" value="Add" class="btn btn-primary">
+				</div>
+			</form>
+		</div>
+		<div class="span6">
+			<form action="" method="post" name="excludeIPs">
+				<div class="input-append">
+					{% for error in form.errors.ipexcluded %}
+        			<span style="color: red;">{{error}}</span>
+        			{% endfor %}
+					{{form.hidden_tag()}}
+					{{form.ipexcluded(size=30,placeholder="Exclude IP")}}
+					<input type="submit" value="Add" class="btn btn-primary">
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 {% endblock %}

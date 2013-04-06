@@ -1,5 +1,5 @@
 from flask.ext.wtf import Form, TextField, BooleanField, PasswordField
-from flask.ext.wtf import Required, NumberRange
+from flask.ext.wtf import Required, NumberRange, IPAddress
 class LoginForm(Form):
     password = PasswordField('password', validators = [Required()])
 
@@ -14,3 +14,7 @@ class IpScenarioForm(Form):
 
 class TermForm(Form):
 	command = TextField('command')
+
+class IpForm(Form):
+	ipincluded = TextField('ipincluded')
+	ipexcluded = TextField('ipexcluded')

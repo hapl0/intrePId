@@ -2,7 +2,7 @@
 
 from flask import render_template, flash, redirect, session, abort, escape, url_for, jsonify
 from app import app
-from forms import LoginForm, SettingForm, TermForm
+from forms import LoginForm, SettingForm, TermForm, IpForm
 from functions import getCpuLoad, getVmem, getDisk, validateLogin
 import subprocess
 
@@ -14,9 +14,18 @@ class settings(object):
 
 globalsettings = settings(data="2000")
 
+class usedip(object):
+	def __init__(self):
+		self.includedip = ""
+		self.excludeip = ""
+
+
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
+	if validateLogin():
+		flash("Already logged in")
+		return redirect('/index')
 	form = LoginForm()
 	if form.validate_on_submit():
 		if form.password.data == globalsettings.password:
@@ -41,7 +50,7 @@ def settings():
 			if form.updatetime.data and form.updatetime.data != globalsettings.updatetime:
 				globalsettings.updatetime = form.updatetime.data
 				flash("Changes saved")
-		return render_template('settings.html', title = 'IntrePid', settings = globalsettings, form=form)
+		return render_template('settings.html', title = 'IntrePid', settings = globalsettings, form = form)
 	else:
 		return redirect('/')
 
@@ -55,7 +64,10 @@ def updates():
 @app.route('/scenarios', methods = ['GET','POST'])
 def scenarios():
 	if validateLogin():
-		return render_template('scenarios.html', title = 'IntrePid', settings = globalsettings)
+		form = IpForm()
+		if form.validate_on_submit():
+			flash("Saved")
+		return render_template('scenarios.html', title = 'IntrePid', settings = globalsettings, form = form)
 	else:
 		return redirect('/')
 
