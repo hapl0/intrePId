@@ -18,6 +18,7 @@ def getDisk():
     return disk
 
 def validateLogin():
+    """ Validates if logged in or not. True or False+Flash message """
     if 'username' in session:
         return True
     else:

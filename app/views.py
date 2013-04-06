@@ -15,11 +15,16 @@ class settings(object):
 globalsettings = settings(data="2000")
 
 class usedip(object):
+	""" Tables with IPs """
 	def __init__(self):
 		self.includedip = ""
 		self.excludeip = ""
 
 
+# App routes and application
+
+# Login page
+# Associated with login.html
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -35,6 +40,8 @@ def login():
 		return redirect("/")
 	return render_template('login.html', title = 'Sign In', form = form)
 
+# Index page
+# Associated with index.html
 @app.route('/index', methods = ['GET','POST'])
 def index():
 	if validateLogin():
@@ -42,6 +49,8 @@ def index():
 	else:
 		return redirect("/")
 
+# Settings page
+# Associated with settings.html and updates the setting class "globalsettings"
 @app.route('/settings', methods = ['GET','POST'])
 def settings():
 	if validateLogin():
@@ -54,6 +63,8 @@ def settings():
 	else:
 		return redirect('/')
 
+# Updates page
+# Associated to updates.html
 @app.route('/updates', methods = ['GET','POST'])
 def updates():
 	if validateLogin():
@@ -61,6 +72,8 @@ def updates():
 	else:
 		return redirect('/')
 
+# Scenarios page
+# Associated with scenarios.html
 @app.route('/scenarios', methods = ['GET','POST'])
 def scenarios():
 	if validateLogin():
@@ -71,6 +84,8 @@ def scenarios():
 	else:
 		return redirect('/')
 
+# Terminal page
+# Associated to terminal.html
 @app.route('/term', methods = ['GET', 'POST'])
 def term():
 	if validateLogin():
@@ -86,7 +101,7 @@ def term():
 	else:
 		return redirect('/')
 
-
+# Logout routine
 @app.route('/logout')
 def logout():
 	session.pop('username', None)
