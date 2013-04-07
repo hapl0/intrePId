@@ -3,4 +3,31 @@
 
 {% block content %}
 <h3><img class="pull-left" src="/static/img/DefaultIcon/png/32x32/home.png">Home</h3>
+<div class="accordion" id="accordion2">
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+        Informations
+      </a>
+    </div>
+    <div id="collapseOne" class="accordion-body collapse in">
+      <div class="accordion-inner">
+      	{{info.uname}}<br />
+      	{{info.uptime}}
+      </div>
+    </div>
+  </div>
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
+        Network
+      </a>
+    </div>
+    <div id="collapseTwo" class="accordion-body collapse">
+      <div class="accordion-inner">
+      	{{info.network |safe}}
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

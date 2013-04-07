@@ -20,6 +20,13 @@ class usedip(object):
 		self.includedip = ""
 		self.excludeip = ""
 
+class sysinfo(object):
+	""" System informations for index """
+	def __init__(self):
+		self.uname = subprocess.check_output(['uname','-a'])
+		self.network = subprocess.check_output(['ifconfig', '-a']).replace("\n","<br />")
+		self.uptime = subprocess.check_output(['uptime'])
+
 
 # App routes and application
 
@@ -45,7 +52,8 @@ def login():
 @app.route('/index', methods = ['GET','POST'])
 def index():
 	if validateLogin():
-		return render_template('index.html', title = 'IntrePid', settings = globalsettings)
+		info = sysinfo()
+		return render_template('index.html', title = 'IntrePid', settings = globalsettings, info = info)
 	else:
 		return redirect("/")
 
