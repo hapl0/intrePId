@@ -27,6 +27,13 @@ class sysinfo(object):
 		self.network = subprocess.check_output(['ifconfig', '-a']).replace("\n","<br />")
 		self.uptime = subprocess.check_output(['uptime'])
 
+	def update(self):
+		self.uname = subprocess.check_output(['uname','-a'])
+		self.network = subprocess.check_output(['ifconfig', '-a']).replace("\n","<br />")
+		self.uptime = subprocess.check_output(['uptime'])
+
+# System informations
+info = sysinfo()
 
 # App routes and application
 
@@ -52,7 +59,7 @@ def login():
 @app.route('/index', methods = ['GET','POST'])
 def index():
 	if validateLogin():
-		info = sysinfo()
+		info.update()
 		return render_template('index.html', title = 'IntrePid', settings = globalsettings, info = info)
 	else:
 		return redirect("/")
@@ -123,3 +130,8 @@ def stuff():
 	ram=round(getVmem())
 	disk=round(getDisk())
 	return jsonify(cpu=cpu, ram=ram, disk=disk)
+
+@app.route('/_sysinfo', methods= ['GET'])
+def _sysinfo():
+	info.update()
+	return jsonify(sysinf = info.uname, sysinf1 = info.uptime, net = info.network)
