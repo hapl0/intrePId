@@ -4,17 +4,17 @@ class LoginForm(Form):
     password = PasswordField('password', validators = [Required()])
 
 class SettingForm(Form):
-	updatetime = TextField('updatetime')
-	currentpassword = PasswordField('currentpassword')
-	newpassword = PasswordField('newpassword')
-	confirmpassword = PasswordField('confirmpassword')
+    updatetime = TextField('updatetime')
+    currentpassword = PasswordField('currentpassword')
+    newpassword = PasswordField('newpassword')
+    confirmpassword = PasswordField('confirmpassword')
 
 class IpScenarioForm(Form):
-	include = TextField('updatetime')
+    include = TextField('updatetime')
 
 class TermForm(Form):
-	command = TextField('command')
+    command = TextField('command')
 
 class IpForm(Form):
-	ipincluded = TextField('ipincluded')
-	ipexcluded = TextField('ipexcluded')
+    ipincluded = TextField('ipincluded')
+    ipexcluded = TextField('ipexcluded')
