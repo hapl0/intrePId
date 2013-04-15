@@ -22,5 +22,4 @@ def validateLogin():
     if 'username' in session:
         return True
     else:
-        flash("You need to log in")
         return False

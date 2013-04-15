@@ -12,6 +12,8 @@
 					{% for error in form.errors.ipincluded %}
         			<span style="color: red;">{{error}}</span>
         			{% endfor %}
+        			<span class="label label-info">Include IP</span>
+        			<br />
 					{{form.hidden_tag()}}
 					{{form.ipincluded(size=30,placeholder="Include IP")}}
 					<input type="submit" value="Add" class="btn btn-primary">
@@ -24,6 +26,8 @@
 					{% for error in form.errors.ipexcluded %}
         			<span style="color: red;">{{error}}</span>
         			{% endfor %}
+        			<span class="label label-important">Include IP</span>
+        			<br />
 					{{form.hidden_tag()}}
 					{{form.ipexcluded(size=30,placeholder="Exclude IP")}}
 					<input type="submit" value="Add" class="btn btn-primary">
@@ -31,5 +35,10 @@
 			</form>
 		</div>
 	</div>
+	<!-- Check if some IP have been included -->
+	<ul class="pager">
+  		<li><a href="#">Previous</a></li>
+  		<li><a href="#">Next</a></li>
+	</ul>
 </div>
 {% endblock %}

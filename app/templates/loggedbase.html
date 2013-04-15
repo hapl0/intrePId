@@ -10,6 +10,17 @@
 		<script src="/static/js/bootstrap.min.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+		<style type="text/css">
+			.pull-right .dropdown-menu:after {
+			    left: auto;
+			    right: 13px;
+			}
+			.pull-right .dropdown-menu {
+			    left: auto;
+			    right: 0;
+			}
+		</style>
+
 		<script type="text/javascript">
 		function update_values() {
 			$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
@@ -22,7 +33,8 @@
 		}	
 		setInterval(update_values,{{ settings.updatetime }})
 		window.onload= function() {
-			update_values();
+			update_values()
+			$("#logout").tooltip()
 		}
 		window.setTimeout(function() {
     		$(".alert").fadeTo(500, 0).slideUp(500, function(){
@@ -62,7 +74,7 @@
 						<li>&nbsp;</li>
 						<li id="disk">...</li>
 						<li>&nbsp;&nbsp;&nbsp;</li>
-						<li><a href="/logout">Logout</a></li>
+						<li><div class="btn-group"><a class="btn btn-small btn-danger" href="/logout" id="logout" data-toggle="tooltip" data-placement="bottom" title data-original-title="First daba"><i class="icon-off icon-white"></i></a></div></li>
 					</ul>
 					<ul class="nav">
 						<p></p>

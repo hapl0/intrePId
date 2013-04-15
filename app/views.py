@@ -24,7 +24,7 @@ class Sysinfo(object):
         self.update()
 
     def update(self):
-        self.uname = subprocess.check_output(['uname','-a'])
+        #self.uname = subprocess.check_output(['uname','-a'])
         self.network = subprocess.check_output(['ifconfig', '-a']).replace("\n","<br />")
         self.uptime = subprocess.check_output(['uptime'])
 
