@@ -1,0 +1,51 @@
+<!-- extend from base layout -->
+{% extends "loggedbase.html" %}
+
+{% block js %}
+<script type="text/javascript">
+  function initab() {
+	$('#myTab a').click(function (e) {
+	  e.preventDefault();
+	  $(this).tab('show');
+	})
+	$('#myTab a:first').tab('show');
+  }
+
+  window.onload= function() {
+	initab();
+  }
+</script>
+{% endblock %}
+
+{% block content %}
+<h3>Type of Scenario</h3>
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#preset" data-toggle="tab"><i class="icon-search"></i> Preset Scan</a></li>
+  <li><a href="#scan" data-toggle="tab"><i class="icon-cog"></i> Custom Scan</a></li>
+  <li><a href="#others" data-toggle="tab"><i class="icon-list"></i> Others</a></li>
+</ul>
+
+<div class="tab-content">
+	<div class="tab-pane fade in active" id="preset">
+		<p>Select a preset</p>
+		<div class="btn-group">
+			<button class="btn">Action</button>
+			<button class="btn dropdown-toggle" data-toggle="dropdown">
+				<span class="caret"></span>
+			</button>
+		  <ul class="dropdown-menu">
+			<li><a href="#">Stuff</a></li>
+			<li><a href="#">Stuff</a></li>
+		  </ul>
+		</div>
+		<br /><br /><br /><br /><br /><br />
+	</div>
+  <div class="tab-pane fade in" id="scan">ComeOn</div>
+  <div class="tab-pane fade in" id="others">ComeOn</div>
+</div>
+
+<br />
+<ul class="pager pull-left">
+	<li><a href="/scenarios">&larr; Previous Step</a></li>
+</ul>
+{% endblock%}

@@ -16,9 +16,26 @@
         			<br />
 					{{form.hidden_tag()}}
 					{{form.ipincluded(size=30,placeholder="Include IP")}}
-					<input type="submit" value="Add" class="btn btn-primary">
+					<button type="submit" class="btn btn-primary"><i class="icon-plus icon-white"></i>
+					</button>
 				</div>
+				<br />
+				{% with ips = ips %}
+				{% if ips %}
+				{% for include in ips.includedip %}
+				<span><a href="/scenarios/remove_include?id={{loop.index0}}"><i class="icon-minus-sign"></i></a>  {{include}}</span><br />
+				{% endfor %}
+				{% endif %}
+				{% endwith %}
 			</form>
+			<!-- Check if some IP have been included -->
+			{% with ips = ips %}
+			{% if ips.includedip %}
+			<ul class="pager pull-left">
+	  			<li><a href="/scenarios/type">Next Step &rarr;</a></li>
+			</ul>
+			{% endif%}
+			{% endwith %}
 		</div>
 		<div class="span6">
 			<form action="" method="post" name="excludeIPs">
@@ -26,19 +43,23 @@
 					{% for error in form.errors.ipexcluded %}
         			<span style="color: red;">{{error}}</span>
         			{% endfor %}
-        			<span class="label label-important">Include IP</span>
+        			<span class="label label-important">Exclude IP</span>
         			<br />
 					{{form.hidden_tag()}}
 					{{form.ipexcluded(size=30,placeholder="Exclude IP")}}
-					<input type="submit" value="Add" class="btn btn-primary">
+					<button type="submit" class="btn btn-primary"><i class="icon-plus icon-white"></i>
+					</button>
 				</div>
+				<br />
+				{% with ips = ips %}
+				{% if ips %}
+				{% for exclude in ips.excludedip %}
+				<span><a href="/scenarios/remove_exclude?id={{loop.index0}}"><i class="icon-minus-sign"></i></a>  {{exclude}}</span><br />
+				{% endfor %}
+				{% endif %}
+				{% endwith %}
 			</form>
 		</div>
 	</div>
-	<!-- Check if some IP have been included -->
-	<ul class="pager">
-  		<li><a href="#">Previous</a></li>
-  		<li><a href="#">Next</a></li>
-	</ul>
 </div>
 {% endblock %}

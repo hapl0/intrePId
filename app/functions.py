@@ -1,6 +1,7 @@
 import time
 from psutil import cpu_percent, virtual_memory, disk_usage
 from flask import flash, session
+import re
 
 def getCpuLoad():
     """ Returns the CPU Load """
@@ -22,4 +23,27 @@ def validateLogin():
     if 'username' in session:
         return True
     else:
+        return False
+
+def checkIpString(ip):
+    """ Validates if this is an IP Adress with a mask or not """
+    slashes = len(re.findall("/",ip))
+    if slashes > 1:
+        flash("Too many slashes")
+        return False
+        
+    if slashes == 1:
+        temp = ip.split("/")
+        ip = temp[0]
+        mask = temp[1]
+        if re.search("^[1-32]", mask):
+            return True
+        else:
+            flash("Invalid Mask")
+            return False
+
+    if re.search("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",ip):
+        return True
+    else:
+        flash("Invalid IP")
         return False

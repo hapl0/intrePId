@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, flash, redirect, session, abort, escape, url_for, jsonify
+from flask import render_template, flash, redirect, session, abort, escape, url_for, jsonify, request
+from werkzeug import secure_filename
 from app import app
 from forms import LoginForm, SettingForm, TermForm, IpForm
-from functions import getCpuLoad, getVmem, getDisk, validateLogin
+from functions import getCpuLoad, getVmem, getDisk, validateLogin, checkIpString
 import subprocess
 
 class Settings(object):
@@ -15,22 +16,23 @@ class Settings(object):
 class Usedip(object):
     """ Tables with IPs """
     def __init__(self):
-        self.includedip = ""
-        self.excludeip = ""
+        self.includedip = []
+        self.excludedip = []
 
 class Sysinfo(object):
     """ System informations for index """
     def __init__(self):
+        self.uname = subprocess.check_output(['uname','-a'])
         self.update()
 
     def update(self):
-        #self.uname = subprocess.check_output(['uname','-a'])
         self.network = subprocess.check_output(['ifconfig', '-a']).replace("\n","<br />")
         self.uptime = subprocess.check_output(['uptime'])
 
 # System informations
 globalsettings = Settings(data="2000")
 info = Sysinfo()
+ips = Usedip()
 
 # App routes and application
 
@@ -91,10 +93,51 @@ def scenarios():
     if validateLogin():
         form = IpForm()
         if form.validate_on_submit():
-            flash("Saved")
-        return render_template('scenarios.html', title = 'IntrePid', settings = globalsettings, form = form)
+            if form.ipincluded.data:
+                if checkIpString(form.ipincluded.data):
+                    if form.ipincluded.data in ips.excludedip:
+                        flash("IP is in the exclusion list")
+                    else:
+                        if form.ipincluded.data in ips.includedip:
+                            flash("IP already added")
+                        else:
+                            ips.includedip.append(form.ipincluded.data)
+                            flash("Saved")
+                else:
+                    flash("Failed")
+            if form.ipexcluded.data:
+                if checkIpString(form.ipexcluded.data):
+                    if form.ipexcluded.data in ips.includedip:
+                        flash("IP is in the inclusion list")
+                    else:
+                        if form.ipexcluded.data in ips.excludedip:
+                            flash("IP already added")
+                        else:
+                            ips.excludedip.append(form.ipexcluded.data)
+                            flash("Saved")
+                else:
+                    flash("Failed")
+            return render_template('scenarios.html', title = 'IntrePid', settings = globalsettings, form = form, ips = ips)
+        return render_template('scenarios.html', title = 'IntrePid', settings = globalsettings, form = form, ips=ips)
     else:
         return redirect('/')
+
+@app.route('/scenarios/remove_include', methods = ['GET', 'POST'])
+def remove_include():
+    ips.includedip.pop(int(request.args.get('id')))
+    flash("Removed")
+    return redirect('/scenarios')
+
+
+@app.route('/scenarios/remove_exclude', methods = ['GET', 'POST'])
+def remove_exclude():
+    ips.excludedip.pop(int(request.args.get('id')))
+    flash("Removed")
+    return redirect('/scenarios')
+
+@app.route('/scenarios/type', methods = ['GET', 'POST'])
+def type():
+    return render_template('type.html',title = 'IntrePid', settings = globalsettings)
 
 # Terminal page
 # Associated to terminal.html
