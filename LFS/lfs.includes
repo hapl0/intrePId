@@ -1,0 +1,204 @@
+#
+# Vars
+#
+
+#PreLFS
+LFSPART=/dev/sda3
+LFSFS=ext3
+LFS=/mnt/lfs #mount point
+SWAP=/dev/sda4
+
+#LFS
+LOGFILE="$LFS/lfs.log"
+TMPSYSINFO=tmpsys_files_details
+NBTHREADS=5
+#exec 2>&1
+
+
+#
+# Fx
+#
+
+returncheck()
+{
+	if [ $# -eq 0 ]
+	then
+		return 1
+	fi
+	if [ ! $1 -eq 0 ]
+	then
+		echo "Error code : $1. Stopping now." | tee -a $LOGFILE
+		echo -e "\tYou may have to clean the current step (check sources/packagename folders like)"
+		echo -e "\tPlease check log file : $LOGFILE"
+		exit $1
+	else
+		return 0
+	fi
+}
+
+download() 
+{
+	#$1 = MD5
+	#$2 = filename
+	#$3 = primary URL
+	#$4 = backup URL
+	if (( $# < 3  )) || (( $# > 4 ))
+	then
+		echo "download() must be called with 3 or 4 parameters ! (actual : $#)" | tee -a $LOGFILE
+		return 2
+	fi
+	#echo -e "\tFilename :\t$2"
+	#echo -e "\tMD5 :\t\t$1"
+	#echo -e "\tURL :\t\t$3"
+	#echo -e "\tURL2 :\t\t$4"
+	#read -p "Pause"
+	if [ -f $2 ]
+	then
+		echo -e "\t\t$2 found, checking md5" | tee -a $LOGFILE
+		echo "$1  $2" > tempmd5 #double space !
+		md5sum -c tempmd5 >> $LOGFILE 2>&1
+		if [ ! $? -eq 0 ]
+		then
+			echo -e "\t\tinvalid md5 hash for $2" | tee -a $LOGFILE
+			rm -f $2
+			rm tempmd5
+			download $1 $2 $3 $4
+			RTRNCODE=$?
+		else
+			echo -e "\t\tvalid md5 hash for $2" | tee -a $LOGFILE
+			rm tempmd5
+			RTRNCODE=0
+		fi
+		return $RTRNCODE
+	else
+		echo -e "\t\tdownloading $2" | tee -a $LOGFILE
+		wget "$3" >> $LOGFILE 2>&1
+		if [ ! $? -eq 0 ]
+		then
+			echo -e "\t\terror while downloading the primary url of $2" | tee -a $LOGFILE
+			if [ "$4" ]
+			then
+				echo -e "\t\new download attempt from backup url"
+				wget "$4" >> $LOGFILE 2>&1
+				if [ ! $? -eq 0 ]
+				then
+					echo -e "\t\terror while downloading the backup url of $2" | tee -a $LOGFILE
+					return 1
+				else
+					download $1 $2 $3 $4
+					return $?
+				fi
+			else
+				echo -e "\t\tno backup url :("
+				return 1
+			fi
+		else
+			download $1 $2 $3 $4
+			return $?	
+		fi
+	fi
+}
+
+preparepackage()
+{
+	# $1 = package number
+	# $2 = total packages
+	# $3 = package name (without .tar.gz or similar)
+	# return 0 = OK
+	# return 1 = ERROR
+	# return 2 = OK (already processed)
+	
+	echo -e "\t\t$1/$2" | tee -a $LOGFILE
+	echo -e "\t\t$3" | tee -a $LOGFILE
+	if [ ! $# -eq 3  ]
+	then
+		echo -e "\t\tprepare() must be called with 3 parameters ! (actual : $#)" | tee -a $LOGFILE
+		return 1
+	else
+		if ! [[ "$1" =~ ^[0-9]+$ ]] || ! [[ "$2" =~ ^[0-9]+$ ]]
+		then
+			echo -e "\t\t$1 or $2 (or both) is not a number" | tee -a $LOGFILE
+			return 1
+		else
+			if [[ $1 -gt $2 ]]
+			then 
+				echo -e "\t\ttotal packages appears to be incorrect (CURRENT:$1 TOTAL:$2)" | tee -a $LOGFILE
+				return 1
+			fi
+			if [ ! "$3" ]
+			then
+				echo -e "\t\tpackage name is empty" | tee -a $LOGFILE
+				return 1
+			fi
+		fi
+	fi
+	#check if package already processed
+	if [ -f "$3.done" ]
+	then 
+		return 2
+	fi
+	#start processing package
+	CURRENTFILENAME=$(ls | grep "$3.tar")
+	if [ ! "$CURRENTFILENAME" ]
+	then
+		echo -e "\t\tcan't find an archive name for $3 package :(" | tee -a $LOGFILE
+		return 1
+	fi
+	if [ -f "$CURRENTFILENAME" ]
+	then
+		if [ ! -r "$CURRENTFILENAME" ]
+		then
+			echo -e "\t\t$CURRENTFILENAME is not readable !" | tee -a $LOGFILE
+			return 1
+		fi
+	else
+		echo -e "\t\t$CURRENTFILENAME does not exist !" | tee -a $LOGFILE
+		return 1	
+	fi
+			
+	echo -e "\t\tunpacking" | tee -a $LOGFILE
+	tar xf $CURRENTFILENAME >> $LOGFILE 2>&1
+	if [ ! $? -eq 0 ]
+	then
+		echo -e "\t\terror while extracting tar !" | tee -a $LOGFILE
+		return 1
+	fi
+	#entering extracted folder
+	cd $3
+	return 0
+}
+
+endpackage()
+{
+	# $1= package name (something-1.0) without .tar.xx : first folder to delete
+	# $2+ = extra folders to delete
+	#return 0 = OK
+	#return 1 = ERROR
+	if (( $# < 1 ))
+	then
+		echo -e "\t\tendpackage() must be called with at least one parameter !" | tee -a $LOGFILE
+		return 1
+	fi
+	if [ ! "$1" ]
+	then
+		echo -e "\t\tendpackage() can not be called with an empty name !" | tee -a $LOGFILE
+		return 1
+	fi
+	#starting
+	PACKAGE=$1
+	cd $LFS/sources
+	while (( $# > 0 ))
+	do
+		if [ -d "$1" ]
+		then
+			echo -e "\t\tdeleting \"$1\" folder" | tee -a $LOGFILE
+			rm -f -r $1
+		else
+			echo -e "\t\tcan't find a folder called \"$1\" for deletion !" | tee -a $LOGFILE
+			return 1
+		fi
+		shift
+	done
+	touch "$PACKAGE.done"
+	return 0
+}
