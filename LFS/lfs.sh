@@ -115,19 +115,19 @@ preparepackage()
 		echo -e "\t\tprepare() must be called with 3 parameters ! (actual : $#)" | tee -a $LOGFILE
 		return 1
 	else
-		if [[ $1 != [[:digit:]] ]] && [[ $2 != [[:digit:]] ]]
+		if ! [[ "$1" =~ ^[0-9]+$ ]] || ! [[ "$2" =~ ^[0-9]+$ ]]
 		then
-			echo -e "\t\t$1 et $2 are not numbers" | tee -a $LOGFILE
+			echo -e "\t\t$1 or $2 (or both) is not a number" | tee -a $LOGFILE
 			return 1
 		else
-			if [[ $1 > $2 ]]
+			if [[ $1 -gt $2 ]]
 			then 
 				echo -e "\t\ttotal packages appears to be incorrect (CURRENT:$1 TOTAL:$2)" | tee -a $LOGFILE
 				return 1
 			fi
 			if [ ! "$3" ]
 			then
-				echo -e "\t\t$3 is empty" | tee -a $LOGFILE
+				echo -e "\t\tpackage name is empty" | tee -a $LOGFILE
 				return 1
 			fi
 		fi
@@ -294,7 +294,8 @@ if [ "$USER" == "root" ]; then
 	#LFS Requirement
 	echo
 	echo " * Updating host environment"
-	apt-get install -y bash binutils bison bzip2 coreutils diffutils findutils gawk gcc eglibc-source grep gzip m4 make patch perl sed 		tar texinfo xz-utils >> $LOGFILE 2>&1
+	apt-get install -y bash binutils bison bzip2 coreutils diffutils findutils gawk gcc eglibc-source grep gzip m4 make patch perl sed tar texinfo xz-utils >> $LOGFILE 2>&1
+	returncheck $?
 
 	#Check LFS user
 	echo
@@ -303,7 +304,7 @@ if [ "$USER" == "root" ]; then
 	if [ ! "$LFSUSER" ]
 	then
 		echo -e "\tCreating \"lfs\" user "
-		useradd lfs -m -s /bin/bash -p lfs
+		useradd lfs -m -s "/bin/bash" -p lfs
 		returncheck $?
 	else
 		echo -e "\tlfs user found"
@@ -389,7 +390,6 @@ EOF
 elif [ "$USER" == "lfs" ]; then
 	echo >> $LOGFILE 2>&1
 	echo >> $LOGFILE 2>&1
-	echo >> $LOGFILE 2>&1
 	date >> $LOGFILE 2>&1
 	echo >> $LOGFILE 2>&1
 	#
@@ -444,13 +444,15 @@ elif [ "$USER" == "lfs" ]; then
 	echo -e "\tBuilding sources (check progress by using \"tail -f $LOGFILE\")" | tee -a $LOGFILE
 	echo | tee -a $LOGFILE
 	CURRENTNUMBER=1
-	TMPSYSNBFILES=$(ls $LFS/sources/*.tar.* | wc -l)
+	#TMPSYSNBFILES=$(ls $LFS/sources/*.tar.* | wc -l)
+	TMPSYSNBFILES=29
 
 
 	#5.4. Binutils-2.23.1 - Pass 1
 	CURRENTPACKAGE="binutils-2.23.1"
 	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
-	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already processed : skipping
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ]
 	then
 		#specific actions
 echo -e "\t\tcreating \"binutils-build\" extra folder" | tee -a $LOGFILE
@@ -473,8 +475,12 @@ returncheck $?
 		#/specific actions
 		endpackage "$CURRENTPACKAGE" "binutils-build"
 		returncheck $?
-	else
+	elif [ $RETURNCODE -eq 2 ]
+	then
 		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
 	fi
 	CURRENTNUMBER=$(($CURRENTNUMBER+1))
 	echo | tee -a $LOGFILE
@@ -483,7 +489,8 @@ returncheck $?
 	#5.5. gcc-4.7.2 - Passe 1
 	CURRENTPACKAGE="gcc-4.7.2"
 	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
-	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already process : skipping
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ]
 	then
 #specific actions
 echo -e "\t\tPreparing packets for gcc" | tee -a $LOGFILE
@@ -557,8 +564,12 @@ ln -sv libgcc.a `$LFS_TGT-gcc -print-libgcc-file-name | sed 's/libgcc/&_eh/'` >>
 returncheck $?
 #/specific actions
 		endpackage "$CURRENTPACKAGE" "gcc-build"
+	elif [ $RETURNCODE -eq 2 ]
+	then
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
 	else
-		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE 
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
 	fi
 	CURRENTNUMBER=$(($CURRENTNUMBER+1))
 	echo | tee -a $LOGFILE
@@ -568,7 +579,8 @@ returncheck $?
 	#5.6. Linux-3.8.1 API Headers
 	CURRENTPACKAGE="linux-3.8.1"
 	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
-	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already processed : skipping
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ]
 	then
 		#specific actions
 echo -e "\t\tmake mrproper" | tee -a $LOGFILE
@@ -586,8 +598,12 @@ returncheck $?
 		#/specific actions
 		endpackage "$CURRENTPACKAGE"
 		returncheck $?
-	else
+	elif [ $RETURNCODE -eq 2 ]
+	then
 		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
 	fi
 	CURRENTNUMBER=$(($CURRENTNUMBER+1))
 	echo | tee -a $LOGFILE
@@ -597,7 +613,8 @@ returncheck $?
 	#5.7. Glibc-2.17
 	CURRENTPACKAGE="glibc-2.17"
 	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
-	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already processed : skipping
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ]
 	then
 		#specific actions
 echo -e "\t\tcheck headers" | tee -a $LOGFILE
@@ -643,8 +660,12 @@ fi
 		#/specific actions
 		endpackage "$CURRENTPACKAGE" "glibc-build"
 		returncheck $?
-	else
+	elif [ $RETURNCODE -eq 2 ]
+	then
 		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
 	fi
 	CURRENTNUMBER=$(($CURRENTNUMBER+1))
 	echo | tee -a $LOGFILE
@@ -667,7 +688,8 @@ fi
 	fi
 	CURRENTPACKAGE="binutils-2.23.1-pass2"
 	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
-	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already processed : skipping
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ]
 	then
 		#specific actions
 echo -e "\t\tprepare" | tee -a $LOGFILE
@@ -682,7 +704,9 @@ RANLIB=$LFS_TGT-ranlib     \
 ../binutils-2.23.1-pass2/configure \
     --prefix=/tools        \
     --disable-nls          \
+    --with-sysroot	   \
     --with-lib-path=/tools/lib >> $LOGFILE 2>&1
+#--with-sysroot http://www.mail-archive.com/lfs-dev@linuxfromscratch.org/msg18513.html
 returncheck $?
 echo -e "\t\tmake" | tee -a $LOGFILE
 make >> $LOGFILE 2>&1
@@ -700,8 +724,12 @@ returncheck $?
 		#/specific actions
 		endpackage "$CURRENTPACKAGE" "binutils-build"
 		returncheck $?
-	else
+	elif [ $RETURNCODE -eq 2 ]
+	then
 		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
 	fi
 	CURRENTNUMBER=$(($CURRENTNUMBER+1))
 	echo | tee -a $LOGFILE
@@ -724,20 +752,21 @@ returncheck $?
 	fi
 	CURRENTPACKAGE="gcc-4.7.2-pass2"
 	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
-	if [ ! $? -eq 2 ] #if return 2 from preparepackage, package already processed : skipping
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ]
 	then
 		#specific actions
 echo -e "\t\tcreate full headers" | tee -a $LOGFILE
 cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
   `dirname $($LFS_TGT-gcc -print-libgcc-file-name)`/include-fixed/limits.h
 returncheck $?
-#echo -e "\t\tfor x86" | tee -a $LOGFILE
-#cp -v gcc/Makefile.in{,.tmp}
-#sed 's/^T_CFLAGS =$/& -fomit-frame-pointer/' gcc/Makefile.in.tmp \
-#  > gcc/Makefile.in
+echo -e "\t\tfor x86" | tee -a $LOGFILE
+cp -v gcc/Makefile.in{,.tmp} >> $LOGFILE 2>&1
+returncheck $?
+sed 's/^T_CFLAGS =$/& -fomit-frame-pointer/' gcc/Makefile.in.tmp > gcc/Makefile.in
+returncheck $?
 echo -e "\t\tdynamic linker location" | tee -a $LOGFILE
-for file in \
- $(find gcc/config -name linux64.h -o -name linux.h -o -name sysv4.h)
+for file in $(find gcc/config -name linux64.h -o -name linux.h -o -name sysv4.h)
 do
   cp -uv $file{,.orig} >> $LOGFILE 2>&1
   sed -e 's@/lib\(64\)\?\(32\)\?/ld@/tools&@g' \
@@ -767,7 +796,7 @@ echo -e "\t\tconfigure" | tee -a $LOGFILE
 CC=$LFS_TGT-gcc \
 AR=$LFS_TGT-ar                  \
 RANLIB=$LFS_TGT-ranlib          \
-../gcc-4.7.2-pass2/configure          \
+../gcc-4.7.2-pass2/configure    \
     --prefix=/tools             \
     --with-local-prefix=/tools  \
     --with-native-system-header-dir=/tools/include \
@@ -807,12 +836,392 @@ then
 else
 	echo -e "\t\t\tcheck ok" >> $LOGFILE 2>&1
 fi
-
 		#/specific actions
 		endpackage "$CURRENTPACKAGE" "gcc-build"
 		returncheck $?
-	else
+	elif [ $RETURNCODE -eq 2 ]
+	then
 		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+	#5.10. Tcl-8.6.0
+	cp -f "tcl8.6.0-src.tar.gz" "tcl8.6.0.tar.gz"
+	CURRENTPACKAGE="tcl8.6.0"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ]
+	then
+		#specific actions
+echo -e "\t\tconfigure" | tee -a $LOGFILE
+cd unix
+returncheck $?
+./configure --prefix=/tools >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tinstall" | tee -a $LOGFILE
+make install >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tpost-config" | tee -a $LOGFILE
+chmod -v u+w /tools/lib/libtcl8.6.so >> $LOGFILE 2>&1
+returncheck $?
+make install-private-headers >> $LOGFILE 2>&1
+returncheck $?
+ln -sv tclsh8.6 /tools/bin/tclsh >> $LOGFILE 2>&1
+returncheck $?
+
+		#/specific actions
+		endpackage "$CURRENTPACKAGE"
+		returncheck $?
+	elif [ $RETURNCODE -eq 2 ]
+	then
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+	#5.11. Expect-5.45
+	CURRENTPACKAGE="expect5.45"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ] #if return 2 from preparepackage, package already processed : skipping
+	then
+		#specific actions
+echo -e "\t\tpreconfig" | tee -a $LOGFILE
+cp -v configure{,.orig} >> $LOGFILE 2>&1
+returncheck $?
+sed 's:/usr/local/bin:/bin:' configure.orig > configure
+returncheck $?
+echo -e "\t\tconfiguration" | tee -a $LOGFILE
+./configure --prefix=/tools --with-tcl=/tools/lib --with-tclinclude=/tools/include >> $LOGFILE 2>&1
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+echo -e "\t\tinstall" | tee -a $LOGFILE
+make SCRIPTS="" install >> $LOGFILE 2>&1
+		#/specific actions
+		endpackage "$CURRENTPACKAGE"
+		returncheck $?
+	elif [ $RETURNCODE -eq 2 ]
+	then
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+	#5.12. DejaGNU-1.5
+	CURRENTPACKAGE="dejagnu-1.5"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ] #if return 2 from preparepackage, package already processed : skipping
+	then
+		#specific actions
+echo -e "\t\tconfigure" | tee -a $LOGFILE
+./configure --prefix=/tools >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tmake install" | tee -a $LOGFILE
+make install >> $LOGFILE 2>&1
+returncheck $?
+		#/specific actions
+		endpackage "$CURRENTPACKAGE"
+		returncheck $?
+	elif [ $RETURNCODE -eq 2 ]
+	then
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+	#5.13. Check-0.9.9
+	#http://www.mail-archive.com/lfs-dev@linuxfromscratch.org/msg18513.html
+	CURRENTPACKAGE="check-0.9.9"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ]
+	then
+		#specific actions
+echo -e "\t\tconfigure" | tee -a $LOGFILE
+./configure --prefix=/tools >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tinstall" | tee -a $LOGFILE
+make install >> $LOGFILE 2>&1
+returncheck $?
+		#/specific actions
+		endpackage "$CURRENTPACKAGE"
+		returncheck $?
+	elif [ $RETURNCODE -eq 2 ]
+	then
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+	#5.14. Ncurses-5.9
+	CURRENTPACKAGE="ncurses-5.9"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ] #if return 2 from preparepackage, package already processed : skipping
+	then
+		#specific actions
+echo -e "\t\tconfigure" | tee -a $LOGFILE
+./configure --prefix=/tools --with-shared --without-debug --without-ada --enable-overwrite >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tinstall" | tee -a $LOGFILE
+make install >> $LOGFILE 2>&1
+returncheck $?
+		#/specific actions
+		endpackage "$CURRENTPACKAGE"
+		returncheck $?
+	elif [ $RETURNCODE -eq 2 ]
+	then
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+	#5.15. Bash-4.2
+	CURRENTPACKAGE="bash-4.2"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ] #if return 2 from preparepackage, package already processed : skipping
+	then
+		#specific actions
+echo -e "\t\tpatch" | tee -a $LOGFILE
+patch -Np1 -i ../bash-4.2-fixes-11.patch >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tconfigure" | tee -a $LOGFILE
+./configure --prefix=/tools --without-bash-malloc >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tinstall" | tee -a $LOGFILE
+make install >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tpost-config" | tee -a $LOGFILE
+ln -sv bash /tools/bin/sh >> $LOGFILE 2>&1
+returncheck $?
+		#/specific actions
+		endpackage "$CURRENTPACKAGE"
+		returncheck $?
+	elif [ $RETURNCODE -eq 2 ]
+	then
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+	#5.16. Bzip2-1.0.6
+	CURRENTPACKAGE="bzip2-1.0.6"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ]
+	then
+		#specific actions
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tinstall" | tee -a $LOGFILE
+make PREFIX=/tools install >> $LOGFILE 2>&1
+returncheck $?
+		#/specific actions
+		endpackage "$CURRENTPACKAGE"
+		returncheck $?
+	elif [ $RETURNCODE -eq 2 ]
+	then
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+	#5.17. Coreutils-8.21
+	CURRENTPACKAGE="coreutils-8.21"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ]
+	then
+		#specific actions
+echo -e "\t\tconfigure" | tee -a $LOGFILE
+./configure --prefix=/tools --enable-install-program=hostname >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tinstall" | tee -a $LOGFILE
+make install >> $LOGFILE 2>&1
+returncheck $?
+		#/specific actions
+		endpackage "$CURRENTPACKAGE"
+		returncheck $?
+	elif [ $RETURNCODE -eq 2 ]
+	then
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+	#5.18. Diffutils-3.2
+	CURRENTPACKAGE="diffutils-3.2"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ]
+	then
+		#specific actions
+echo -e "\t\tfix an incompatibility between this package and Glibc-2.17" | tee -a $LOGFILE
+sed -i -e '/gets is a/d' lib/stdio.in.h
+returncheck $?
+echo -e "\t\tconfigure" | tee -a $LOGFILE
+./configure --prefix=/tools >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tinstall" | tee -a $LOGFILE
+make install >> $LOGFILE 2>&1
+returncheck $?
+		#/specific actions
+		endpackage "$CURRENTPACKAGE"
+		returncheck $?
+	elif [ $RETURNCODE -eq 2 ]
+	then
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+	#5.19. File-5.13
+	CURRENTPACKAGE="file-5.13"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ]
+	then
+		#specific actions
+echo -e "\t\tconfigure" | tee -a $LOGFILE
+./configure --prefix=/tools >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tinstall" | tee -a $LOGFILE
+make install >> $LOGFILE 2>&1
+returncheck $?
+		#/specific actions
+		endpackage "$CURRENTPACKAGE"
+		returncheck $?
+	elif [ $RETURNCODE -eq 2 ]
+	then
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+	#5.20. Findutils-4.4.2
+	CURRENTPACKAGE="findutils-4.4.2"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ]
+	then
+		#specific actions
+echo -e "\t\tconfigure" | tee -a $LOGFILE
+./configure --prefix=/tools >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tinstall" | tee -a $LOGFILE
+make install >> $LOGFILE 2>&1
+returncheck $?
+		#/specific actions
+		endpackage "$CURRENTPACKAGE"
+		returncheck $?
+	elif [ $RETURNCODE -eq 2 ]
+	then
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
+
+
+	#5.21. Gawk-4.0.2
+	CURRENTPACKAGE="gawk-4.0.2"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ]
+	then
+		#specific actions
+echo -e "\t\tconfigure" | tee -a $LOGFILE
+./configure --prefix=/tools >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tinstall" | tee -a $LOGFILE
+make install >> $LOGFILE 2>&1
+returncheck $?
+		#/specific actions
+		endpackage "$CURRENTPACKAGE"
+		returncheck $?
+	elif [ $RETURNCODE -eq 2 ]
+	then
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
 	fi
 	CURRENTNUMBER=$(($CURRENTNUMBER+1))
 	echo | tee -a $LOGFILE
@@ -832,3 +1241,39 @@ else
 	echo -e "\tlfs  -> skip preLFS checks and run directly LFS script"
 	echo
 fi
+exit 0
+
+
+
+
+
+##SAMPLE PACKET PROCESS
+
+	#5.14. Ncurses-5.9
+	CURRENTPACKAGE="ncurses-5.9"
+	preparepackage "$CURRENTNUMBER" "$TMPSYSNBFILES" "$CURRENTPACKAGE"
+	RETURNCODE=$?
+	if [ $RETURNCODE -eq 0 ] #if return 2 from preparepackage, package already processed : skipping
+	then
+		#specific actions
+echo -e "\t\tconfigure" | tee -a $LOGFILE
+./configure --prefix=/tools --with-shared --without-debug --without-ada --enable-overwrite >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tmake" | tee -a $LOGFILE
+make >> $LOGFILE 2>&1
+returncheck $?
+echo -e "\t\tinstall" | tee -a $LOGFILE
+make install >> $LOGFILE 2>&1
+returncheck $?
+		#/specific actions
+		endpackage "$CURRENTPACKAGE"
+		returncheck $?
+	elif [ $RETURNCODE -eq 2 ]
+	then
+		echo -e "\t\tPackage already processed, skipping." | tee -a $LOGFILE
+	else
+		echo -e "\t\tError while preparing $CURRENTPACKAGE archive" | tee -a $LOGFILE
+		returncheck 1
+	fi
+	CURRENTNUMBER=$(($CURRENTNUMBER+1))
+	echo | tee -a $LOGFILE
