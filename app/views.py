@@ -137,7 +137,7 @@ def remove_exclude():
 
 @app.route('/scenarios/type', methods = ['GET', 'POST'])
 def type():
-    return render_template('type.html',title = 'IntrePid', settings = globalsettings)
+    return render_template('type.html',title = 'IntrePid', settings = globalsettings, ips = ips)
 
 # Terminal page
 # Associated to terminal.html
