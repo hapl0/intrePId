@@ -36,7 +36,7 @@
 					<div class="well form-inline">
 						{{include}}
 						<span class="pull-right">
-						<select>
+						<select id='sel{{loop.index0}}'>
 							<option>Intense Scan</option>
 							<option>Intense Scan plus UDP</option>
 							<option>Intense Scan, all TCP Ports</option>
@@ -46,7 +46,7 @@
 							<option>Quick Scan Plus</option>
 							<option>Quick Traceroute</option></li>
 						</select>
-						<button href="#"><i class="icon-plus-sign"></i></button>
+						<a class="btn" href="/scenarios/_addObject?id={{loop.index0}}"><i class="icon-plus-sign"></i></a>
 					</span>
 					</div>
 					{% endfor %}

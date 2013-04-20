@@ -3,5 +3,9 @@
 {% block content %}
 
 <h3>Scenario Manager</h3>
-
+{% with scenario = scenario %}
+{% for scenarobj in scenario %}
+	<p>{{scenarobj}}</p>
+{% endfor %}
+{% endwith %}
 {% endblock %}

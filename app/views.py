@@ -4,40 +4,15 @@ from flask import render_template, flash, redirect, session, abort, escape, url_
 from werkzeug import secure_filename
 from app import app
 from forms import LoginForm, SettingForm, TermForm, IpForm
-from functions import getCpuLoad, getVmem, getDisk, validateLogin, checkIpString
+from functions import getCpuLoad, getVmem, getDisk, validateLogin, checkIpString, Settings, Sysinfo, Usedip, ScenarioObject
 import subprocess
-
-class Settings(object):
-    """ Settings class"""
-    def __init__(self, data):
-        self.updatetime = data
-        self.password = "azerty"
-
-class Usedip(object):
-    """ Tables with IPs """
-    def __init__(self):
-        self.includedip = []
-        self.excludedip = []
-
-class Sysinfo(object):
-    """ System informations for index """
-    def __init__(self):
-        self.uname = subprocess.check_output(['uname','-a'])
-        self.update()
-
-    def update(self):
-        self.network = subprocess.check_output(['ifconfig', '-a']).replace("\n","<br />")
-        self.uptime = subprocess.check_output(['uptime'])
-
-class Scenario(object):
-    """ Scenario object used to manage the scenarios """
-    #TODO: Fonction pour remplir l'objet avec un XML utilisateur 
 
 # System informations
 # TODO: Initialize settings with XML data
 globalsettings = Settings(data="2000")
 info = Sysinfo()
 ips = Usedip()
+scenario = []
 
 # App routes and application
 
@@ -151,10 +126,17 @@ def type():
         flash('No target specified')
         return redirect('/scenarios')
 
+@app.route('/scenarios/_addObject', methods = ['GET', 'POST'])
+def addObject():
+    scenario.append([ips.includedip[int(request.args.get('id'))],request.args.get('cmd')])
+    return redirect('/scenarios/type')
+
+
+# Scenario Manager
 @app.route('/scenarios/manager', methods = ['GET', 'POST'])
 def manager():
     if ips.includedip:
-        return render_template('manager.html', title = 'IntrePId', settings = globalsettings, ips = ips)
+        return render_template('manager.html', title = 'IntrePId', settings = globalsettings, ips = ips, scenario = scenario)
     else:
         flash('No target specified')
         return redirect('/scenarios')

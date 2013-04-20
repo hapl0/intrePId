@@ -1,7 +1,38 @@
 import time
 from psutil import cpu_percent, virtual_memory, disk_usage
 from flask import flash, session
+import subprocess
 import re
+
+class Settings(object):
+    """ Settings class"""
+    def __init__(self, data):
+        self.updatetime = data
+        self.password = "azerty"
+
+class Usedip(object):
+    """ Tables with IPs """
+    def __init__(self):
+        self.includedip = []
+        self.excludedip = []
+
+class Sysinfo(object):
+    """ System informations for index """
+    def __init__(self):
+        self.uname = subprocess.check_output(['uname','-a'])
+        self.update()
+
+    def update(self):
+        self.network = subprocess.check_output(['ifconfig', '-a']).replace("\n","<br />")
+        self.uptime = subprocess.check_output(['uptime'])
+
+class ScenarioObject(object):
+    """ An item to add in the Scenario list """
+
+    def __init__(self):
+        self.target = None
+        self.command = None
+
 
 def getCpuLoad():
     """ Returns the CPU Load """
