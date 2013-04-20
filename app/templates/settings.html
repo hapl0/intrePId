@@ -9,6 +9,7 @@
 		$('a#default-updatetime').bind('click', function() {
 		document.getElementById('updatetime').value="2000";
 		})
+		$("#logout").tooltip();
 	}
 </script>
 {% endblock %}
@@ -18,13 +19,13 @@
 <div class="container-fluid">
 	<div class="row-fluid">
 		<form action="" method="post" name="setting">
-			<h4>Interface</h4>
+			<h4>Interface </h4>
 			<div class="input-append">
 		    	{{form.hidden_tag()}}
 		    	{{form.updatetime(size=30,placeholder="Refresh Time")}}
 		    	<a id="default-updatetime" class="btn btn-primary">Default</a>
-		    	<a id="help-updatetime" class="btn btn-primary" data-toggle="popover" title="" data-html="true" data-content="Refreshing data (CPU, RAM and Disk) frequency. Must be in milliseconds. Keep in mind that higher refresh rate means higher CPU consumption.<br />Current value : {{ settings.updatetime }} ms" data-original-title="Refresh Time">Help</a>
-			</div>
+		    </div>
+		    <a id="help-updatetime" role="button" data-trigger="hover" data-toggle="popover" title="" data-html="true" data-content="Refreshing data (CPU, RAM and Disk) frequency. Must be in milliseconds. Keep in mind that higher refresh rate means higher CPU consumption.<br />Current value : {{ settings.updatetime }} ms" data-original-title="Refresh Time"><i class="icon-question-sign"></i></a>
 			<br />
 			<h4>Change Password</h4>
 			<div class="input-append">

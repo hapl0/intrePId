@@ -17,7 +17,7 @@ function update_values() {
 
 {% block content %}
 
-<h3><img class="pull-left" src="/static/img/DefaultIcon/png/32x32/terminal.png">Terminal</h3>
+<h3><img class="pull-left" src="/static/img/DefaultIcon/png/32x32/terminal.png"> Terminal <a href="#myModal" role="button" data-toggle="modal"><i class="icon-question-sign"></i></a></h3>
 <form action="" method="post" name="terminal">
 	<div class="input-append">
 		{{form.hidden_tag()}}
@@ -29,7 +29,7 @@ function update_values() {
 		<p>{{res |safe}}</p>
 	</div>
 	{% endif %}
-	<a href="#myModal" role="button" class="btn btn-primary btn-small" data-toggle="modal">Help</a>
+	<!-- <a href="#myModal" role="button" class="btn btn-primary btn-small" data-toggle="modal">Help</a> -->
 </form>
 
 <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

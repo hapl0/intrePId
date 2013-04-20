@@ -24,6 +24,7 @@
   window.onload= function() {
     $("a#refresh").bind('click', update);
     initab();
+    $("#logout").tooltip();
   }
 </script>
 {% endblock %}
@@ -35,6 +36,7 @@
   <li class="active"><a href="#sysinfo" data-toggle="tab"><i class="icon-search"></i> System Information</a></li>
   <li><a href="#network" data-toggle="tab"><i class="icon-signal"></i> Network</a></li>
   <li><a id="refresh" href="#"><i class="icon-refresh"></i> Refresh</a></li>
+  <li class="pull-right"><a href="#help" data-toggle="tab"><i class="icon-flag"></i> Tutorial</a></li>
 </ul>
 
 <div class="tab-content">
@@ -42,6 +44,11 @@
     <strong>Uname</strong><br /><span id="uname">{{info.uname}}</span><br /><br />
     <strong>Uptime</strong><br /><span id="uptime">{{info.uptime}}</span></div>
   <div class="tab-pane fade in" id="network">{{info.network |safe}}</div>
+  <div class="tab-pane fade in" id="help">
+    <h4>HowTo</h4>
+    <strong>Use the IntrePId webapp to monitor your Raspberry ?</strong><br />
+    <p>With this webapp you can/will be able to update your softwares and stuff blablabla </p>
+  </div>
 </div>
 
 {% endblock %}

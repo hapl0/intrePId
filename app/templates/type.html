@@ -13,11 +13,6 @@
 
   window.onload= function() {
 	initab();
-	$(".dropdown-menu li a").click(function(){
-    
-    $(".btn:first-child").text($(this).text());
-    $(".btn:first-child").val($(this).text());
-  	});
   }
 </script>
 {% endblock %}
@@ -38,26 +33,24 @@
 					<h4>Presets Attribution</h4>
 					{% with ips = ips %}
 					{% for include in ips.includedip %}
-					{{include}}<br />
-					<div class="btn-group" id="boutongroup">
-				  		<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-				    		Action
-				    		<span class="caret"></span>
-				  		</a>
-						<ul class="dropdown-menu">
-							<li><a href="#">Intense Scan</a></li>
-							<li><a href="#">Intense Scan plus UDP</a></li>
-							<li><a href="#">Intense Scan, all TCP Ports</a></li>
-							<li><a href="#">Intense Scan, no Ping</a></li>
-							<li><a href="#">Ping Scan</a></li>
-							<li><a href="#">Quick Scan</a></li>
-							<li><a href="#">Quick Scan Plus</a></li>
-							<li><a href="#">Quick Traceroute</a></li>
-						</ul>
+					<div class="well form-inline">
+						{{include}}
+						<span class="pull-right">
+						<select>
+							<option>Intense Scan</option>
+							<option>Intense Scan plus UDP</option>
+							<option>Intense Scan, all TCP Ports</option>
+							<option>Intense Scan, no Ping</option>
+							<option>Ping Scan</option>
+							<option>Quick Scan</option>
+							<option>Quick Scan Plus</option>
+							<option>Quick Traceroute</option></li>
+						</select>
+						<button href="#"><i class="icon-plus-sign"></i></button>
+					</span>
 					</div>
 					{% endfor %}
 					{% endwith %}
-					<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
 				</div>
 	<div class="span6">
 		<h4>Presets Informations</h4>
@@ -71,7 +64,7 @@
 		    <div id="collapseOne" class="accordion-body collapse">
 		      <div class="accordion-inner">
 		        An intense, comprehensive scan. Enables OS detection, version detection, script scanning, and traceroute. Without root privileges only version detection and script scanning are run. This is considered an intrusive scan. <br />
-		      	Example : <em>nmap -T4 -A -v [target]</em>
+		      	Preset : nmap -T4 -A -v [target]</em>
 		      </div>
 		    </div>
 		  </div>
@@ -84,7 +77,7 @@
 		    <div id="collapseTwo" class="accordion-body collapse">
 		      <div class="accordion-inner">
 		        Does OS detection, version detection, script scanning, and traceroute in addition to scanning TCP and UDP ports.<br />
-		        Example : <em>nmap -sS -sU -T4 -A -v [target]</em>
+		        Preset : nmap -sS -sU -T4 -A -v [target]
 		      </div>
 		    </div>
 		  </div>
@@ -97,7 +90,7 @@
 		    <div id="collapseThree" class="accordion-body collapse">
 		      <div class="accordion-inner">
 		        Scans all TCP ports, then does OS detection, version detection, script scanning, and traceroute.<br />
-		        Example : <em>nmap -p 1-65535 -T4 -A -v [target]</em>
+		        Preset : nmap -p 1-65535 -T4 -A -v [target]
 		      </div>
 		    </div>
 		  </div>
@@ -110,7 +103,7 @@
 		    <div id="collapseFour" class="accordion-body collapse">
 		      <div class="accordion-inner">
 		        Does an intense scan without checking to see if targets are up first. This can be useful when a target seems to ignore the usual host discovery probes.<br />
-		        Example : <em>nmap -T4 -A -v -Pn [target]</em>
+		        Preset : nmap -T4 -A -v -Pn [target]
 		      </div>
 		    </div>
 		  </div>
@@ -123,7 +116,7 @@
 		    <div id="collapseFive" class="accordion-body collapse">
 		      <div class="accordion-inner">
 		        This scan only finds which targets are up and does not port scan them.<br />
-		        Example : <em>nmap -sn [target]</em>
+		        Preset : nmap -sn [target]
 		      </div>
 		    </div>
 		  </div>
@@ -136,7 +129,7 @@
 		    <div id="collapseSix" class="accordion-body collapse">
 		      <div class="accordion-inner">
 		      	This scan is faster than a normal scan because it uses the aggressive timing template and scans fewer ports.<br />
-		        Example : <em>nmap -T4 -F [target]</em>
+		        Preset : nmap -T4 -F [target]
 		      </div>
 		    </div>
 		  </div>
@@ -149,7 +142,7 @@
 		    <div id="collapseSeven" class="accordion-body collapse">
 		      <div class="accordion-inner">
 		      	A quick scan plus OS and version detection.<br />
-		      	Example : <em>nmap -sV -T4 -O -F --version-light [target]</em>
+		      	Preset : nmap -sV -T4 -O -F --version-light [target]
 		      </div>
 		    </div>
 		  </div>
@@ -162,7 +155,7 @@
 		    <div id="collapseEight" class="accordion-body collapse">
 		      <div class="accordion-inner">
 		      	Traces the paths to targets without doing a full port scan on them.<br />
-		      	Example : <em>nmap -sn --traceroute [target]</em>
+		      	Preset : nmap -sn --traceroute [target]
 		      </div>
 		    </div>
 		  </div>

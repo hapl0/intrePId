@@ -29,7 +29,12 @@ class Sysinfo(object):
         self.network = subprocess.check_output(['ifconfig', '-a']).replace("\n","<br />")
         self.uptime = subprocess.check_output(['uptime'])
 
+class Scenario(object):
+    """ Scenario object used to manage the scenarios """
+    #TODO: Fonction pour remplir l'objet avec un XML utilisateur 
+
 # System informations
+# TODO: Initialize settings with XML data
 globalsettings = Settings(data="2000")
 info = Sysinfo()
 ips = Usedip()
@@ -58,8 +63,8 @@ def login():
 @app.route('/index', methods = ['GET','POST'])
 def index():
     if validateLogin():
-        info.update()
-        return render_template('index.html', title = 'IntrePid', settings = globalsettings, info = info)
+        info.update() # Updates the info on the homepage (network and uptime)
+        return render_template('index.html', title = 'IntrePid', settings = globalsettings, info = info, ips = ips)
     else:
         return redirect("/")
 
@@ -73,7 +78,7 @@ def settings():
             if form.updatetime.data and form.updatetime.data != globalsettings.updatetime:
                 globalsettings.updatetime = form.updatetime.data
                 flash("Changes saved")
-        return render_template('settings.html', title = 'IntrePid', settings = globalsettings, form = form)
+        return render_template('settings.html', title = 'IntrePid', settings = globalsettings, form = form, ips = ips)
     else:
         return redirect('/')
 
@@ -82,12 +87,13 @@ def settings():
 @app.route('/updates', methods = ['GET','POST'])
 def updates():
     if validateLogin():
-        return render_template('updates.html', title = 'IntrePid', settings = globalsettings)
+        return render_template('updates.html', title = 'IntrePid', settings = globalsettings, ips = ips)
     else:
         return redirect('/')
 
 # Scenarios page
 # Associated with scenarios.html
+# Methods associated below
 @app.route('/scenarios', methods = ['GET','POST'])
 def scenarios():
     if validateLogin():
@@ -122,22 +128,38 @@ def scenarios():
     else:
         return redirect('/')
 
+# Request to remove an included IP
 @app.route('/scenarios/remove_include', methods = ['GET', 'POST'])
 def remove_include():
     ips.includedip.pop(int(request.args.get('id')))
     flash("Removed")
     return redirect('/scenarios')
 
-
+# Request to remove an Excluded IP
 @app.route('/scenarios/remove_exclude', methods = ['GET', 'POST'])
 def remove_exclude():
     ips.excludedip.pop(int(request.args.get('id')))
     flash("Removed")
     return redirect('/scenarios')
 
+# Creating a custom scenario attributing scans to targets
 @app.route('/scenarios/type', methods = ['GET', 'POST'])
 def type():
-    return render_template('type.html',title = 'IntrePid', settings = globalsettings, ips = ips)
+    if ips.includedip:
+        return render_template('type.html',title = 'IntrePId', settings = globalsettings, ips = ips)
+    else:
+        flash('No target specified')
+        return redirect('/scenarios')
+
+@app.route('/scenarios/manager', methods = ['GET', 'POST'])
+def manager():
+    if ips.includedip:
+        return render_template('manager.html', title = 'IntrePId', settings = globalsettings, ips = ips)
+    else:
+        flash('No target specified')
+        return redirect('/scenarios')
+
+
 
 # Terminal page
 # Associated to terminal.html
@@ -151,8 +173,8 @@ def term():
                 output = subprocess.check_output(string)
                 output = output.replace("\n","<br />")
                 flash("Command sent")
-                return render_template('terminal.html', title = 'IntrePid', settings = globalsettings, form = form, res=output)
-        return render_template('terminal.html', title = 'IntrePid', settings = globalsettings, form = form)
+                return render_template('terminal.html', title = 'IntrePid', settings = globalsettings, form = form, res=output, ips = ips)
+        return render_template('terminal.html', title = 'IntrePid', settings = globalsettings, form = form, ips = ips)
     else:
         return redirect('/')
 
@@ -163,7 +185,7 @@ def logout():
     return redirect('/')
 
 # Ajax requests
-
+# Updates CPU, RAM and Disk on request
 @app.route('/_stuff', methods= ['GET'])
 def stuff():
     cpu=round(getCpuLoad())
@@ -171,6 +193,7 @@ def stuff():
     disk=round(getDisk())
     return jsonify(cpu=cpu, ram=ram, disk=disk)
 
+# Updates System Info (info = SysInfo()) on request
 @app.route('/_sysinfo', methods= ['GET'])
 def _sysinfo():
     info.update()
