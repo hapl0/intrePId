@@ -11,12 +11,12 @@
                 <p></p>
                 <li><p class="navbar-text">intrepid [ɪnˈtrɛpɪd]. adj. fearless; daring;</p></li>
             </ul>
-            <ul class="nav pull-right input-append" style="margin-top: 5px">
-                <form action="" method="post" name="login">
+
+            <form class="navbar-form pull-right" action="" method="post" name="login" style="margin-top: 5px">
                 {{form.hidden_tag()}}
                 {{form.password(size=30,placeholder="Password")}}
                 <input type="submit" value="Login" class="btn btn-primary">
-            </ul>
+            </form>
         </div>
     </div>
 </div>
