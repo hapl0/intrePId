@@ -22,6 +22,7 @@
 		</style>
 
 		<script type="text/javascript">
+		// Custom query to get the current values of cpu/ram/disk
 		function update_values() {
 			$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 			$.getJSON($SCRIPT_ROOT+"/_stuff",
@@ -31,11 +32,13 @@
 					$("#disk").text(data.disk+" %")
 				});
 		}	
+		// Updates values according to user's preferences
 		setInterval(update_values,{{ settings.updatetime }})
 		window.onload= function() {
 			update_values();
 			$("#logout").tooltip();
 		}
+		// Removes the alerts after 5s
 		window.setTimeout(function() {
     		$(".alert").fadeTo(500, 0).slideUp(500, function(){
       		$(this).remove(); 
@@ -92,7 +95,6 @@
 					{% with messages = get_flashed_messages() %}
 					{% if messages %}
 					<div class="alert alert-success">
-						<button type="button" class="close" data-dismiss="alert">&times;</button>
 						{% for message in messages %}
 						{{message}}<br />
 						{% endfor %}

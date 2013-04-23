@@ -7,19 +7,19 @@ import re
 class Settings(object):
     """ Settings class"""
     def __init__(self, data):
-        self.updatetime = data
-        self.password = "azerty"
+        self.updatetime = data # Update frequency of cpu/ram/disk
+        self.password = "azerty" # Password
 
 class Usedip(object):
     """ Tables with IPs """
     def __init__(self):
-        self.includedip = []
+        self.includedip = [] 
         self.excludedip = []
 
 class Sysinfo(object):
     """ System informations for index """
     def __init__(self):
-        self.uname = subprocess.check_output(['uname','-a'])
+        self.uname = subprocess.check_output(['uname','-a']) # Not necessary to reload
         self.update()
 
     def update(self):

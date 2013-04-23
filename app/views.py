@@ -37,6 +37,7 @@ def login():
 # Associated with index.html
 @app.route('/index', methods = ['GET','POST'])
 def index():
+    # Validate login on each page so that a not logged in user can not access it
     if validateLogin():
         info.update() # Updates the info on the homepage (network and uptime)
         return render_template('index.html', title = 'IntrePid', settings = globalsettings, info = info, ips = ips)
@@ -74,6 +75,8 @@ def scenarios():
     if validateLogin():
         form = IpForm()
         if form.validate_on_submit():
+            # Validating IP and multiple checks + error messages
+            # Check for included IPs
             if form.ipincluded.data:
                 if checkIpString(form.ipincluded.data):
                     if form.ipincluded.data in ips.excludedip:
@@ -84,8 +87,7 @@ def scenarios():
                         else:
                             ips.includedip.append(form.ipincluded.data)
                             flash("Saved")
-                else:
-                    flash("Failed")
+            # Check for excluded IPs
             if form.ipexcluded.data:
                 if checkIpString(form.ipexcluded.data):
                     if form.ipexcluded.data in ips.includedip:
@@ -96,14 +98,12 @@ def scenarios():
                         else:
                             ips.excludedip.append(form.ipexcluded.data)
                             flash("Saved")
-                else:
-                    flash("Failed")
-            return render_template('scenarios.html', title = 'IntrePid', settings = globalsettings, form = form, ips = ips)
         return render_template('scenarios.html', title = 'IntrePid', settings = globalsettings, form = form, ips=ips)
     else:
         return redirect('/')
 
 # Request to remove an included IP
+# Expects an argument ex : /scenarios/remove_include?id=...
 @app.route('/scenarios/remove_include', methods = ['GET', 'POST'])
 def remove_include():
     ips.includedip.pop(int(request.args.get('id')))
@@ -111,6 +111,7 @@ def remove_include():
     return redirect('/scenarios')
 
 # Request to remove an Excluded IP
+# Same as remove_include
 @app.route('/scenarios/remove_exclude', methods = ['GET', 'POST'])
 def remove_exclude():
     ips.excludedip.pop(int(request.args.get('id')))
@@ -120,11 +121,14 @@ def remove_exclude():
 # Creating a custom scenario attributing scans to targets
 @app.route('/scenarios/type', methods = ['GET', 'POST'])
 def type():
-    if ips.includedip:
-        return render_template('type.html',title = 'IntrePId', settings = globalsettings, ips = ips)
+    if validateLogin():
+        if ips.includedip:
+            return render_template('type.html',title = 'IntrePId', settings = globalsettings, ips = ips)
+        else:
+            flash('No target specified')
+            return redirect('/scenarios')
     else:
-        flash('No target specified')
-        return redirect('/scenarios')
+        return redirect('/')
 
 @app.route('/scenarios/_addObject', methods = ['GET', 'POST'])
 def addObject():
@@ -135,13 +139,14 @@ def addObject():
 # Scenario Manager
 @app.route('/scenarios/manager', methods = ['GET', 'POST'])
 def manager():
-    if ips.includedip:
-        return render_template('manager.html', title = 'IntrePId', settings = globalsettings, ips = ips, scenario = scenario)
+    if validateLogin():
+        if ips.includedip:
+            return render_template('manager.html', title = 'IntrePId', settings = globalsettings, ips = ips, scenario = scenario)
+        else:
+            flash('No target specified')
+            return redirect('/scenarios')
     else:
-        flash('No target specified')
-        return redirect('/scenarios')
-
-
+        return redirect('/')
 
 # Terminal page
 # Associated to terminal.html
