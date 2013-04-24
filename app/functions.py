@@ -32,6 +32,7 @@ class ScenarioObject(object):
     def __init__(self):
         self.target = None
         self.command = None
+        self.type = None
 
 
 def getCpuLoad():

@@ -14,6 +14,8 @@ info = Sysinfo()
 ips = Usedip()
 scenario = []
 
+presets = {'Intense Scan':'nmap -T4 -A -v','Intense Scan plus UDP':'nmap -sS -sU -T4 -A -v'}
+
 # App routes and application
 
 # Login page
@@ -132,7 +134,13 @@ def type():
 
 @app.route('/scenarios/_addObject', methods = ['GET', 'POST'])
 def addObject():
-    scenario.append([ips.includedip[int(request.args.get('id'))],request.args.get('cmd')])
+    newobject = ScenarioObject()
+    newobject.target = ips.includedip[int(request.args.get('id'))]
+    newobject.type = request.args.get('cmd')
+    if request.args.get('cmd') in presets:
+        newobject.command = presets[request.args.get('cmd')]
+    scenario.append(newobject)
+    flash("Saved in the manager")
     return redirect('/scenarios/type')
 
 

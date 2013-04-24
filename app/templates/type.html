@@ -14,6 +14,11 @@
   window.onload= function() {
 	initab();
   }
+
+  function updateButton(value1){
+  	$('#btn'+value1).attr('href', "/scenarios/_addObject?id="+value1+"&cmd="+$('#sel'+value1).val()); 
+  }
+
 </script>
 {% endblock %}
 
@@ -36,7 +41,7 @@
 					<div class="well form-inline">
 						{{include}}
 						<span class="pull-right">
-						<select id='sel{{loop.index0}}'>
+						<select onchange="updateButton({{loop.index0}})" id='sel{{loop.index0}}'>
 							<option>Intense Scan</option>
 							<option>Intense Scan plus UDP</option>
 							<option>Intense Scan, all TCP Ports</option>
@@ -46,7 +51,7 @@
 							<option>Quick Scan Plus</option>
 							<option>Quick Traceroute</option>
 						</select>
-						<a class="btn" href="/scenarios/_addObject?id={{loop.index0}}"><i class="icon-plus-sign"></i></a>
+						<a id="btn{{loop.index0}}"class="btn" href="/scenarios/_addObject?id={{loop.index0}}&cmd=Intense Scan"><i class="icon-plus-sign"></i></a>
 					</span>
 					</div>
 					{% endfor %}
@@ -164,8 +169,8 @@
 	</div>
 </div>
 </div>
-  <div class="tab-pane fade in" id="scan">ComeOn</div>
-  <div class="tab-pane fade in" id="others">ComeOn</div>
+  <div class="tab-pane fade in" id="scan"><h1>TODO</h1></div>
+  <div class="tab-pane fade in" id="others"><h1>TODO</h1></div>
 </div>
 
 <br />
