@@ -9,6 +9,7 @@ class Settings(object):
     def __init__(self, data):
         self.updatetime = data # Update frequency of cpu/ram/disk
         self.password = "azerty" # Password
+        self.interface = "eth0"
 
 class Usedip(object):
     """ Tables with IPs """
@@ -20,10 +21,10 @@ class Sysinfo(object):
     """ System informations for index """
     def __init__(self):
         self.uname = subprocess.check_output(['uname','-a']) # Not necessary to reload
-        self.update()
+        self.update("eth0")
 
-    def update(self):
-        self.network = subprocess.check_output(['ifconfig', '-a']).replace("\n","<br />")
+    def update(self, interface):
+        self.network = subprocess.check_output(['ip', 'a', 's', 'dev', interface]).replace("\n","<br />")
         self.uptime = subprocess.check_output(['uptime'])
 
 class ScenarioObject(object):

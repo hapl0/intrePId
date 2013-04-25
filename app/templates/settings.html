@@ -19,7 +19,7 @@
 <div class="container-fluid">
 	<div class="row-fluid">
 		<form action="" method="post" name="setting">
-			<h4>Interface </h4>
+			<h4>Graphical Interface</h4>
 			<div class="input-append">
 		    	{{form.hidden_tag()}}
 		    	{{form.updatetime(size=30,placeholder="Refresh Time")}}
@@ -36,6 +36,8 @@
 			<br />
 			{{form.newpassword(size=30,placeholder="New Password")}}<br />
 			{{form.confirmpassword(size=30,placeholder="Confirm New Password")}}
+			<h4>Set Network Interface</h4>
+			{{form.interface(size=30,placeholder="New interface")}}
 			<p><input type="submit" value="Save" class="btn btn-primary"></p>
 		</form>
 	</div>

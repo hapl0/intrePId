@@ -8,6 +8,7 @@ class SettingForm(Form):
     currentpassword = PasswordField('currentpassword')
     newpassword = PasswordField('newpassword')
     confirmpassword = PasswordField('confirmpassword')
+    interface = TextField('interface')
 
 class IpScenarioForm(Form):
     include = TextField('updatetime')

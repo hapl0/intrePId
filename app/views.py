@@ -6,6 +6,8 @@ from app import app
 from forms import LoginForm, SettingForm, TermForm, IpForm
 from functions import getCpuLoad, getVmem, getDisk, validateLogin, checkIpString, Settings, Sysinfo, Usedip, ScenarioObject
 import subprocess
+import nmap
+
 
 # System informations
 # TODO: Initialize settings with XML data
@@ -41,7 +43,7 @@ def login():
 def index():
     # Validate login on each page so that a not logged in user can not access it
     if validateLogin():
-        info.update() # Updates the info on the homepage (network and uptime)
+        info.update(globalsettings.interface) # Updates the info on the homepage (network and uptime)
         return render_template('index.html', title = 'IntrePid', settings = globalsettings, info = info, ips = ips)
     else:
         return redirect("/")
@@ -53,7 +55,7 @@ def settings():
     if validateLogin():
         form = SettingForm()
         if form.validate_on_submit():
-            if form.updatetime.data and form.updatetime.data != globalsettings.updatetime:
+            if form.updatetime.data != globalsettings.updatetime:
                 globalsettings.updatetime = form.updatetime.data
                 flash("Changes saved")
         return render_template('settings.html', title = 'IntrePid', settings = globalsettings, form = form, ips = ips)
@@ -191,5 +193,5 @@ def stuff():
 # Updates System Info (info = SysInfo()) on request
 @app.route('/_sysinfo', methods= ['GET'])
 def _sysinfo():
-    info.update()
+    info.update(globalsettings.interface)
     return jsonify(uname = info.uname, uptime = info.uptime, net = info.network)
