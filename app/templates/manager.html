@@ -1,18 +1,37 @@
 {% extends "loggedbase.html" %}
 
+{% block js %}
+<script type="text/javascript">
+	window.onload= function() {
+		$(".collapse").collapse()
+		$('#launch-settings').popover()
+  	}
+</script>
+{% endblock %}
+
 {% block content %}
 
 <h3>Scenario Manager</h3>
+<form>
+<span class="btn-group">
+	<a class="btn btn-primary" data-toggle="collapse" data-target="#collapse-settings">Settings</a><a type="submit" class="btn btn-primary">Launch everything <i class="icon-chevron-right icon-white"></i></a>
+</span>
+<div id="collapse-settings" class="collapse fade well">
+{{ form.concurrent }}
+</div>
+</form>
 <div class="container-fluid">
 	<div class="row-fluid">
-		<div class="span6">
+		<div class="span10">
 			<table class="table table-hover">
 				<tbody>
 					<tr>
 						<th>Target</th>
 						<th>Type</th>
 						<th>Command</th>
+						<th>Status</th>
 						<th>Control</th>
+						<th>Results</th>
 					</tr>
 					{% with scenario = scenario %}
 					{% for scenarobj in scenario %}
@@ -20,6 +39,7 @@
 						<td>{{scenarobj.target}}</td>
 						<td>{{scenarobj.type}}</td>
 						<td>{{scenarobj.command}}</td>
+						<td>{{scenarobj.status}}</td>
 						<td>
 							{% if loop.index0 != 0 %}
 							<a href='#'><i class="icon-arrow-up"></i></a>
@@ -33,9 +53,15 @@
 							{% endif %}
 							<a href='#'><i class="icon-remove"></i></a>
 						</td>
+						<td><a href="#{{loop.index0}}" data-toggle="collapse" data-target="#collapse{{loop.index0}}"><i class="icon-chevron-right"></i></a></td>
 					</tr>
 					{% endfor %}
 					{% endwith %}
+					<!-- TODO 
+					<td id="collapse{{loop.index0}}" class="well collapse"> 
+						STUFF 
+					</td>
+					-->
 				</tbody>
 			</table>
 		</div>

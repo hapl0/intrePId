@@ -34,7 +34,7 @@ class ScenarioObject(object):
         self.target = None
         self.command = None
         self.type = None
-
+        self.status = "Stopped"
 
 def getCpuLoad():
     """ Returns the CPU Load """

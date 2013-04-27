@@ -1,4 +1,4 @@
-from flask.ext.wtf import Form, TextField, BooleanField, PasswordField
+from flask.ext.wtf import Form, TextField, BooleanField, PasswordField, RadioField
 from flask.ext.wtf import Required, NumberRange, IPAddress
 class LoginForm(Form):
     password = PasswordField('password', validators = [Required()])
@@ -19,3 +19,6 @@ class TermForm(Form):
 class IpForm(Form):
     ipincluded = TextField('ipincluded')
     ipexcluded = TextField('ipexcluded')
+
+class LaunchSettings(Form):
+    concurrent = RadioField(u'Concurrent Scans', choices=[('y', 'Yes'), ('n', 'No')])
