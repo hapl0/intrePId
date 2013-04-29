@@ -18,6 +18,7 @@ scenario = []
 
 presets = {'Intense Scan':'nmap -T4 -A -v',
 'Intense Scan plus UDP':'nmap -sS -sU -T4 -A -v',
+'Intense Scan, all TCP Ports':'nmap -p 1-65535 -T4 -A -v',
 'Intense Scan, no Ping':'nmap -T4 -A -v -Pn',
 'Ping Scan':'nmap -sn',
 'Quick Scan':'nmap -T4 -F',
@@ -182,6 +183,13 @@ def downObj():
     index = int(request.args.get('id'))
     scenario.pop(index)
     return redirect('/scenarios/manager')
+
+@app.route('/scenarios/manager/_startSingle')
+def startSingle():
+    index = int(request.args.get('id'))
+    scenario[index].status = "Working"
+    return redirect('/scenarios/manager')
+
 
 
 
