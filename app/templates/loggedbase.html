@@ -92,6 +92,13 @@
 		<div class="container-fluid">
 			<div class="row-fluid">
 				<div class="span2">
+
+					<div class="well sidebar-nav">
+						<ul class="nav nav-list">
+							{% block menu %}{% include "left_menu.html" %}{% endblock %}
+						</ul>
+					</div>
+
 					{% with messages = get_flashed_messages() %}
 					{% if messages %}
 					<div class="alert alert-success">
@@ -101,11 +108,7 @@
 					</div>
 					{% endif %}
 					{% endwith %}
-					<div class="well sidebar-nav">
-						<ul class="nav nav-list">
-							{% block menu %}{% include "left_menu.html" %}{% endblock %}
-						</ul>
-					</div>
+				
 				</div>
 				<div class="span10">
 					<div class="clearfix content-heading">
