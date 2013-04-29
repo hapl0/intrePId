@@ -16,7 +16,13 @@ info = Sysinfo()
 ips = Usedip()
 scenario = []
 
-presets = {'Intense Scan':'nmap -T4 -A -v','Intense Scan plus UDP':'nmap -sS -sU -T4 -A -v'}
+presets = {'Intense Scan':'nmap -T4 -A -v',
+'Intense Scan plus UDP':'nmap -sS -sU -T4 -A -v',
+'Intense Scan, no Ping':'nmap -T4 -A -v -Pn',
+'Ping Scan':'nmap -sn',
+'Quick Scan':'nmap -T4 -F',
+'Quick Scan Plus':'nmap -sV -T4 -O -F --version-light',
+'Quick Traceroute':'nmap -sn --traceroute'}
 
 # App routes and application
 
@@ -158,6 +164,26 @@ def manager():
             return redirect('/scenarios')
     else:
         return redirect('/')
+
+@app.route('/scenarios/manager/_upObj')
+def upObj():
+    index = int(request.args.get('id'))
+    scenario[index], scenario[index-1] = scenario[index-1], scenario[index]
+    return redirect('/scenarios/manager')
+
+@app.route('/scenarios/manager/_downObj')
+def downObj():
+    index = int(request.args.get('id'))
+    scenario[index], scenario[index+1] = scenario[index+1], scenario[index]
+    return redirect('/scenarios/manager')
+
+@app.route('/scenarios/manager/_delObj')
+def downObj():
+    index = int(request.args.get('id'))
+    scenario.pop(index)
+    return redirect('/scenarios/manager')
+
+
 
 # Terminal page
 # Associated to terminal.html
