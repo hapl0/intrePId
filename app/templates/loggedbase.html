@@ -91,13 +91,13 @@
 	{% endblock %}
 		<div class="container-fluid">
 			<div class="row-fluid">
-				<div class="span2">
+				<div class="span2 bs-docs-sidebar">
 
-					<div class="well sidebar-nav">
-						<ul class="nav nav-list">
-							{% block menu %}{% include "left_menu.html" %}{% endblock %}
-						</ul>
-					</div>
+					
+					<ul class="nav nav-tabs nav-stacked">
+						{% block menu %}{% include "left_menu.html" %}{% endblock %}
+					</ul>
+					
 
 					{% with messages = get_flashed_messages() %}
 					{% if messages %}
