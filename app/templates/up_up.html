@@ -1,0 +1,14 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body>{% extends 'up_squelette.html' %}
+<div>
+  		{% block main %}
+			<h2>Choisissez un scénario (xml seulement) à Uploader :</h2>
+			<form action="" method="post" enctype="multipart/form-data">
+			    <label for="fic">Fichier</label><input id="fic" name="fic" type="file">
+
+			     <input id="btsub" value="Uploader" type="submit">
+			</form>
+			<br>
+			<a href="/liste/">Liste</a>
+			{% endblock %}</body></html>
+</div>
