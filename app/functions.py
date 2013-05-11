@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import time
 from psutil import cpu_percent, virtual_memory, disk_usage
 from flask import flash, session
