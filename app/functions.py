@@ -80,3 +80,7 @@ def checkIpString(ip):
     else:
         flash("Invalid IP")
         return False
+        
+def extension_ok(nomfic):
+    """ Renvoie True si le fichier possède une extension d'image valide. """
+    return '.' in nomfic and nomfic.rsplit('.', 1)[1] in ('xml')
