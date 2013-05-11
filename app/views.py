@@ -247,14 +247,14 @@ def upload():
                 flash(u'Ce fichier ne porte pas une extension autorisée !', 'error')
         else:
            flash(u'Vous avez oublié le fichier !', 'error')
-    return render_template('up_up.html')
+    return render_template('up_up.html', settings = globalsettings, ips = ips)
 
 @app.route('/liste/')
 def liste_upped():
 #    if request.args.get('subject','') == "liste":
 #        flash(u'requet GET', 'error')
     scenario = [xml for xml in os.listdir(DOSSIER_UPS) if extension_ok(xml)] # la liste des images dans le dossier
-    return render_template('up_liste.html', scenario=scenario)
+    return render_template('up_liste.html', scenario=scenario ,settings = globalsettings, ips = ips)
 
 @app.route('/liste/open/')
 def cat_f():
@@ -262,8 +262,9 @@ def cat_f():
     f_open = open(DOSSIER_UPS + nom , "r")
     file = f_open.read()
     dom = parseString(file)
+
     xmlTag = dom.getElementsByTagName('runstats')[0].toxml()
-    return render_template('up_liste.html', nom=xmlTag)
+    return render_template('up_liste.html', nom=xmlTag, settings = globalsettings, ips = ips , dom=dom)
 
 if __name__ == '__main__':
     app.run(debug=True)
