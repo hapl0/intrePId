@@ -4,10 +4,11 @@ from flask import render_template, flash, redirect, session, abort, escape, url_
 from werkzeug import secure_filename
 from app import app
 from forms import LoginForm, SettingForm, TermForm, IpForm, LaunchSettings
-from functions import getCpuLoad, getVmem, getDisk, validateLogin, checkIpString, Settings, Sysinfo, Usedip, ScenarioObject
+from functions import getCpuLoad, getVmem, getDisk, validateLogin, checkIpString, Settings, Sysinfo, Usedip, ScenarioObject, extension_ok
 import subprocess
 import nmap
-
+import os
+from xml.dom.minidom import parseString
 
 # System informations
 # TODO: Initialize settings with XML data
@@ -230,3 +231,39 @@ def stuff():
 def _sysinfo():
     info.update(globalsettings.interface)
     return jsonify(uname = info.uname, uptime = info.uptime, net = info.network)
+
+# Update scenario in XML
+DOSSIER_UPS = '/home/duck/intrepid/ups/'
+@app.route('/scenario/upload', methods=['GET','POST'])
+def upload():
+    if request.method == 'POST':
+        f = request.files['fic']
+        if f: # on vérifie qu'un fichier a bien été envoyé
+            if extension_ok(f.filename): # on vérifie que son extension est valide
+                nom = secure_filename(f.filename)
+                f.save(DOSSIER_UPS + nom)
+                flash(u'Fichier uploader', 'error')
+            else:
+                flash(u'Ce fichier ne porte pas une extension autorisée !', 'error')
+        else:
+           flash(u'Vous avez oublié le fichier !', 'error')
+    return render_template('up_up.html')
+
+@app.route('/liste/')
+def liste_upped():
+#    if request.args.get('subject','') == "liste":
+#        flash(u'requet GET', 'error')
+    scenario = [xml for xml in os.listdir(DOSSIER_UPS) if extension_ok(xml)] # la liste des images dans le dossier
+    return render_template('up_liste.html', scenario=scenario)
+
+@app.route('/liste/open/')
+def cat_f():
+    nom = request.args.get('file','')
+    f_open = open(DOSSIER_UPS + nom , "r")
+    file = f_open.read()
+    dom = parseString(file)
+    xmlTag = dom.getElementsByTagName('runstats')[0].toxml()
+    return render_template('up_liste.html', nom=xmlTag)
+
+if __name__ == '__main__':
+    app.run(debug=True)
