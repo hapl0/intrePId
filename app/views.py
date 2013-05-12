@@ -233,7 +233,7 @@ def _sysinfo():
     return jsonify(uname = info.uname, uptime = info.uptime, net = info.network)
 
 # Update scenario in XML
-DOSSIER_UPS = '/home/duck/intrepid/ups/'
+DOSSIER_UPS = 'ups/'
 @app.route('/scenario/upload', methods=['GET','POST'])
 def upload():
     if request.method == 'POST':
@@ -265,6 +265,12 @@ def cat_f():
 
     xmlTag = dom.getElementsByTagName('runstats')[0].toxml()
     return render_template('up_liste.html', nom=xmlTag, settings = globalsettings, ips = ips , dom=dom)
+
+@app.route('/liste/delete/')
+def deletefile():
+    nom = request.args.get('id','')
+    os.remove(DOSSIER_UPS + nom)
+    return redirect ('/liste/')
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -9,7 +9,10 @@
     <h2>liste des scénario</h2>
     <ul class="fichiers">
     {% for xml in scenario %}
-        <li><a href="/liste/open/?file={{ xml }}">{{ xml }}</a></li>
+	<div>
+      	<li><a href="/liste/open/?file={{ xml }}">{{ xml }}</a></li> <a class="btn btn primary" href="/liste/delete/?id={{ xml }}">delete</a>
+        </div>
+
     {% endfor %}
     </ul>
 {% endif %}
