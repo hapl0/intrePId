@@ -67,15 +67,15 @@
 						<p></p>
 						<li><img src="/static/img/DefaultIcon/png/32x32/cpu.png"></li>
 						<li>&nbsp;</li>
-						<li><font id ="cpuload" color="white">...</font><br />CPU</li>
+						<li><font id ="cpuload" color="white">...</font><br /><font color="#C0C0C0">CPU</font></li>
 						<li>&nbsp;&nbsp;&nbsp;</li>
 						<li><img src="/static/img/DefaultIcon/png/32x32/ram.png"></li>
 						<li>&nbsp;</li>
-						<li><font id ="ram" color="white">...</font><br />RAM</li>
+						<li><font id ="ram" color="white">...</font><br /><font color="#C0C0C0">RAM</font></li>
 						<li>&nbsp;&nbsp;&nbsp;</li>						
 						<li><img src="/static/img/DefaultIcon/png/32x32/floppy.png"></li>
 						<li>&nbsp;</li>
-						<li><font id ="disk" color="white">...</font><br />Disk</li>
+						<li><font id ="disk" color="white">...</font><br /><font color="#C0C0C0">Disk</font></li>
 						<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
 						<li><div><a class="btn btn-small btn-danger" href="/logout" id="logout" data-toggle="tooltip" data-placement="bottom" title data-original-title="Logout"><i class="icon-off icon-white"></i></a></div></li>
 					</ul>
@@ -93,9 +93,34 @@
 			<div class="row-fluid">
 				<div class="span2 bs-docs-sidebar">
 
-					
-					<ul class="nav nav-tabs nav-stacked">
-						{% block menu %}{% include "left_menu.html" %}{% endblock %}
+				
+					<ul class="nav nav-pills nav-stacked">
+						{% block menu %}
+						{% set active_page = active_page|default('index') -%}
+
+						
+
+						<li{% if active_page == 'index' %} class="active"{% endif %}><a href="/index"><i class="icon-chevron-right"></i>Home</a></li>
+						<li{% if active_page == 'settings' %} class="active"{% endif %}><a href="/settings"><i class="icon-chevron-right"></i>Settings</a></li>
+						
+						<li class="divider"></li>
+
+						<li{% if active_page == 'scenarios' %} class="active"{% endif %}><a href="/scenarios"><i class="icon-chevron-right"></i>Scenarios</a></li>
+						{% with ips = ips %}
+							{% if ips.includedip %}
+							<li{% if active_page == 'type' %} class="active"{% endif %}><a href="/scenarios/type">&nbsp&nbsp<i class="icon-chevron-right"></i>Type</a></li>
+							<li{% if active_page == 'manager' %} class="active"{% endif %}><a href="/scenarios/manager">&nbsp&nbsp<i class="icon-chevron-right"></i>Manager</a></li>
+							{% else %}	
+							<li class="disabled"><a href="/scenarios/type">&nbsp&nbsp<i class="icon-chevron-right"></i>Type</a></li>
+							<li class="disabled"><a href="/scenarios/manager">&nbsp&nbsp<i class="icon-chevron-right"></i>Manager</a></li>
+							{% endif %}
+						{% endwith %}
+
+						<li class="divider"></li>
+
+						<li{% if active_page == 'updates' %} class="active"{% endif %}><a href="/updates"><i class="icon-chevron-right"></i>Updates</a></li>
+						<li{% if active_page == 'term' %} class="active"{% endif %}><a href="/term"><i class="icon-chevron-right"></i>Terminal</a></li>
+						{% endblock %}
 					</ul>
 					
 
