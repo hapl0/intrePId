@@ -173,7 +173,10 @@ def manager():
 @app.route('/scenarios/manager/_upObj')
 def upObj():
     index = int(request.args.get('id'))
-    scenario[index], scenario[index-1] = scenario[index-1], scenario[index]
+    try:
+        scenario[index], scenario[index-1] = scenario[index-1], scenario[index]
+    except IndexError:
+        flash(u"Can't move that item")
     return redirect('/scenarios/manager')
 
 @app.route('/scenarios/manager/_downObj')
@@ -183,9 +186,12 @@ def downObj():
     return redirect('/scenarios/manager')
 
 @app.route('/scenarios/manager/_delObj')
-def downObj():
+def delObj():
     index = int(request.args.get('id'))
-    scenario.pop(index)
+    if scenario[index]: 
+        scenario.pop(index)
+    else:
+        flash(u"That element doesn't exist anymore")
     return redirect('/scenarios/manager')
 
 @app.route('/scenarios/manager/_startSingle')
