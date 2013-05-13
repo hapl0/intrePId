@@ -12,6 +12,8 @@ from xml.dom.minidom import parseString
 
 # System informations
 # TODO: Initialize settings with XML data
+# TODO: Or Initialize settings with Shelve
+DOSSIER_UPS = 'ups/'
 globalsettings = Settings(data="2000")
 info = Sysinfo()
 ips = Usedip()
@@ -155,15 +157,16 @@ def addObject():
 
 
 # Scenario Manager
+# Associated to manager.html
 @app.route('/scenarios/manager', methods = ['GET', 'POST'])
 def manager():
     if validateLogin():
-        if ips.includedip:
+        if ips.includedip and scenario:
             form = LaunchSettings()
             return render_template('manager.html', title = 'IntrePId', settings = globalsettings, ips = ips, scenario = scenario, form = form)
         else:
-            flash('No target specified')
-            return redirect('/scenarios')
+            flash('No scenario object specified')
+            return redirect('/scenarios/type')
     else:
         return redirect('/')
 
@@ -190,8 +193,6 @@ def startSingle():
     index = int(request.args.get('id'))
     scenario[index].status = "Working"
     return redirect('/scenarios/manager')
-
-
 
 
 # Terminal page
@@ -226,14 +227,13 @@ def stuff():
     disk=round(getDisk())
     return jsonify(cpu=cpu, ram=ram, disk=disk)
 
-# Updates System Info (info = SysInfo()) on request
+# Updates System Info (info = SysInfo()) on request)
 @app.route('/_sysinfo', methods= ['GET'])
 def _sysinfo():
     info.update(globalsettings.interface)
     return jsonify(uname = info.uname, uptime = info.uptime, net = info.network)
 
 # Update scenario in XML
-DOSSIER_UPS = 'ups/'
 @app.route('/scenario/upload', methods=['GET','POST'])
 def upload():
     if request.method == 'POST':
@@ -242,12 +242,12 @@ def upload():
             if extension_ok(f.filename): # on vérifie que son extension est valide
                 nom = secure_filename(f.filename)
                 f.save(DOSSIER_UPS + nom)
-                flash(u'Fichier uploader', 'error')
+                flash(u'Fichier uploadé', 'error')
             else:
                 flash(u'Ce fichier ne porte pas une extension autorisée !', 'error')
         else:
            flash(u'Vous avez oublié le fichier !', 'error')
-    return render_template('up_up.html', settings = globalsettings, ips = ips)
+    return render_template('upload.html', settings = globalsettings, ips = ips)
 
 @app.route('/liste/')
 def liste_upped():
