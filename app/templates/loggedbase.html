@@ -100,26 +100,26 @@
 
 						
 
-						<li{% if active_page == 'index' %} class="active"{% endif %}><a href="/index"><i class="icon-chevron-right"></i>Home</a></li>
-						<li{% if active_page == 'settings' %} class="active"{% endif %}><a href="/settings"><i class="icon-chevron-right"></i>Settings</a></li>
+						<li{% if active_page == 'index' %} class="active"{% endif %}><a href="/index"><i class="icon-chevron-right"></i> Home</a></li>
+						<li{% if active_page == 'settings' %} class="active"{% endif %}><a href="/settings"><i class="icon-chevron-right"></i> Settings</a></li>
 						
 						<li class="divider"></li>
 
-						<li{% if active_page == 'scenarios' %} class="active"{% endif %}><a href="/scenarios"><i class="icon-chevron-right"></i>Scenarios</a></li>
+						<li{% if active_page == 'scenarios' %} class="active"{% endif %}><a href="/scenarios"><i class="icon-chevron-right"></i> Scenarios</a></li>
 						{% with ips = ips %}
 							{% if ips.includedip %}
-							<li{% if active_page == 'type' %} class="active"{% endif %}><a href="/scenarios/type">&nbsp&nbsp<i class="icon-chevron-right"></i>Type</a></li>
-							<li{% if active_page == 'manager' %} class="active"{% endif %}><a href="/scenarios/manager">&nbsp&nbsp<i class="icon-chevron-right"></i>Manager</a></li>
+							<li{% if active_page == 'type' %} class="active"{% endif %}><a href="/scenarios/type">&nbsp&nbsp<i class="icon-chevron-right"></i> Type</a></li>
+							<li{% if active_page == 'manager' %} class="active"{% endif %}><a href="/scenarios/manager">&nbsp&nbsp<i class="icon-chevron-right"></i> Manager</a></li>
 							{% else %}	
-							<li class="disabled"><a href="/scenarios/type">&nbsp&nbsp<i class="icon-chevron-right"></i>Type</a></li>
-							<li class="disabled"><a href="/scenarios/manager">&nbsp&nbsp<i class="icon-chevron-right"></i>Manager</a></li>
+							<li class="disabled"><a href="/scenarios/type">&nbsp&nbsp<i class="icon-chevron-right"></i> Type</a></li>
+							<li class="disabled"><a href="/scenarios/manager">&nbsp&nbsp<i class="icon-chevron-right"></i> Manager</a></li>
 							{% endif %}
 						{% endwith %}
 
 						<li class="divider"></li>
 
-						<li{% if active_page == 'updates' %} class="active"{% endif %}><a href="/updates"><i class="icon-chevron-right"></i>Updates</a></li>
-						<li{% if active_page == 'term' %} class="active"{% endif %}><a href="/term"><i class="icon-chevron-right"></i>Terminal</a></li>
+						<li{% if active_page == 'updates' %} class="active"{% endif %}><a href="/updates"><i class="icon-chevron-right"></i> Updates</a></li>
+						<li{% if active_page == 'term' %} class="active"{% endif %}><a href="/term"><i class="icon-chevron-right"></i> Terminal</a></li>
 						{% endblock %}
 					</ul>
 					
