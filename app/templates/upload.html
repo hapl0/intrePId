@@ -1,0 +1,17 @@
+<!-- extend from base layout -->
+{% extends "loggedbase.html" %}
+
+{% block content %}
+<div>
+			{% block main %}
+			<h2>Choisissez un scénario (xml seulement) à Uploader :</h2>
+			<form action="" method="post" enctype="multipart/form-data">
+			    <label for="fic">Fichier</label><input id="fic" name="fic" type="file">
+
+			     <input class="btn btn primary" value="Uploader" type="submit">
+			</form>
+			<br>
+			<a href="/liste/">Liste</a>
+			{% endblock %}
+{% endblock %}
+</div>
