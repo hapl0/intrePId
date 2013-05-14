@@ -126,7 +126,7 @@ def scenarios():
                         nom = secure_filename(f.filename)
                         f.save(DOSSIER_UPS+nom)
                         flash(u'File uploaded', 'info')
-                        return redirect("/scenarios")
+                        return redirect("/scenarios#select")
                     else:
                         flash(u'Wrong extension (only *.xml)', 'error')
                 else:
@@ -287,4 +287,4 @@ def download():
 def deletefile():
     nom = request.args.get('id','')
     os.remove(DOSSIER_UPS + nom)
-    return redirect ('/scenarios')
+    return redirect ('/scenarios#select')
