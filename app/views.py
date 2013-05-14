@@ -13,11 +13,16 @@ from xml.dom.minidom import parseString
 # System informations
 # TODO: Initialize settings with XML data
 # TODO: Or Initialize settings with Shelve
-DOSSIER_UPS = 'ups/'
+
+# Cwd a supprimer en prod
+cwd = os.getcwd()
+DOSSIER_UPS = os.getcwd()+"/app/ups/"
 globalsettings = Settings(data="2000")
 info = Sysinfo()
 ips = Usedip()
 scenario = []
+
+print(DOSSIER_UPS)
 
 presets = {'Intense Scan':'nmap -T4 -A -v',
 'Intense Scan plus UDP':'nmap -sS -sU -T4 -A -v',
@@ -36,13 +41,13 @@ presets = {'Intense Scan':'nmap -T4 -A -v',
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
     if validateLogin():
-        flash("Already logged in")
+        flash(u"Already logged in")
         return redirect('/index')
     form = LoginForm()
     if form.validate_on_submit():
         if form.password.data == globalsettings.password:
             session['username'] = "admin"
-            flash("You're now logged")
+            flash(u"You're now logged")
             return redirect("/index")
         return redirect("/")
     return render_template('login.html', title = 'Sign In', form = form)
@@ -67,7 +72,7 @@ def settings():
         if form.validate_on_submit():
             if form.updatetime.data != globalsettings.updatetime:
                 globalsettings.updatetime = form.updatetime.data
-                flash("Changes saved")
+                flash(u"Changes saved")
         return render_template('settings.html', title = 'IntrePid', settings = globalsettings, form = form, ips = ips)
     else:
         return redirect('/')
@@ -94,24 +99,24 @@ def scenarios():
             if form.ipincluded.data:
                 if checkIpString(form.ipincluded.data):
                     if form.ipincluded.data in ips.excludedip:
-                        flash("IP is in the exclusion list")
+                        flash(u"IP is in the exclusion list")
                     else:
                         if form.ipincluded.data in ips.includedip:
-                            flash("IP already added")
+                            flash(u"IP already added")
                         else:
                             ips.includedip.append(form.ipincluded.data)
-                            flash("Saved")
+                            flash(u"Saved")
             # Check for excluded IPs
             if form.ipexcluded.data:
                 if checkIpString(form.ipexcluded.data):
                     if form.ipexcluded.data in ips.includedip:
-                        flash("IP is in the inclusion list")
+                        flash(u"IP is in the inclusion list")
                     else:
                         if form.ipexcluded.data in ips.excludedip:
-                            flash("IP already added")
+                            flash(u"IP already added")
                         else:
                             ips.excludedip.append(form.ipexcluded.data)
-                            flash("Saved")
+                            flash(u"Saved")
         return render_template('scenarios.html', title = 'IntrePid', settings = globalsettings, form = form, ips=ips)
     else:
         return redirect('/')
@@ -121,7 +126,7 @@ def scenarios():
 @app.route('/scenarios/remove_include', methods = ['GET', 'POST'])
 def remove_include():
     ips.includedip.pop(int(request.args.get('id')))
-    flash("Removed")
+    flash(u"Removed")
     return redirect('/scenarios')
 
 # Request to remove an Excluded IP
@@ -129,7 +134,7 @@ def remove_include():
 @app.route('/scenarios/remove_exclude', methods = ['GET', 'POST'])
 def remove_exclude():
     ips.excludedip.pop(int(request.args.get('id')))
-    flash("Removed")
+    flash(u"Removed")
     return redirect('/scenarios')
 
 # Creating a custom scenario attributing scans to targets
@@ -139,7 +144,7 @@ def type():
         if ips.includedip:
             return render_template('type.html',title = 'IntrePId', settings = globalsettings, ips = ips)
         else:
-            flash('No target specified')
+            flash(u"No target specified")
             return redirect('/scenarios')
     else:
         return redirect('/')
@@ -152,7 +157,7 @@ def addObject():
     if request.args.get('cmd') in presets:
         newobject.command = presets[request.args.get('cmd')]
     scenario.append(newobject)
-    flash("Saved in the manager")
+    flash(u"Saved in the manager")
     return redirect('/scenarios/type')
 
 
@@ -165,7 +170,7 @@ def manager():
             form = LaunchSettings()
             return render_template('manager.html', title = 'IntrePId', settings = globalsettings, ips = ips, scenario = scenario, form = form)
         else:
-            flash('No scenario object specified')
+            flash(u"No scenario object specified")
             return redirect('/scenarios/type')
     else:
         return redirect('/')
@@ -175,22 +180,25 @@ def upObj():
     index = int(request.args.get('id'))
     try:
         scenario[index], scenario[index-1] = scenario[index-1], scenario[index]
-    except IndexError:
+    except:
         flash(u"Can't move that item")
     return redirect('/scenarios/manager')
 
 @app.route('/scenarios/manager/_downObj')
 def downObj():
     index = int(request.args.get('id'))
-    scenario[index], scenario[index+1] = scenario[index+1], scenario[index]
+    try:
+        scenario[index], scenario[index+1] = scenario[index+1], scenario[index]
+    except:
+        flash(u"Can't move that item")
     return redirect('/scenarios/manager')
 
 @app.route('/scenarios/manager/_delObj')
 def delObj():
     index = int(request.args.get('id'))
-    if scenario[index]: 
+    try:
         scenario.pop(index)
-    else:
+    except:
         flash(u"That element doesn't exist anymore")
     return redirect('/scenarios/manager')
 
@@ -212,7 +220,7 @@ def term():
                 string = form.command.data.encode('utf-8').split()
                 output = subprocess.check_output(string)
                 output = output.replace("\n","<br />")
-                flash("Command sent")
+                flash(u"Command sent")
                 return render_template('terminal.html', title = 'IntrePid', settings = globalsettings, form = form, res=output, ips = ips)
         return render_template('terminal.html', title = 'IntrePid', settings = globalsettings, form = form, ips = ips)
     else:
@@ -239,6 +247,11 @@ def _sysinfo():
     info.update(globalsettings.interface)
     return jsonify(uname = info.uname, uptime = info.uptime, net = info.network)
 
+#######################
+#                     #
+#  TODO MOTHERFUCKER  #
+#                     #
+#######################
 # Update scenario in XML
 @app.route('/scenario/upload', methods=['GET','POST'])
 def upload():
@@ -247,7 +260,7 @@ def upload():
         if f: # on vérifie qu'un fichier a bien été envoyé
             if extension_ok(f.filename): # on vérifie que son extension est valide
                 nom = secure_filename(f.filename)
-                f.save(DOSSIER_UPS + nom)
+                f.save(DOSSIER_UPS+nom)
                 flash(u'Fichier uploadé', 'error')
             else:
                 flash(u'Ce fichier ne porte pas une extension autorisée !', 'error')
@@ -277,6 +290,3 @@ def deletefile():
     nom = request.args.get('id','')
     os.remove(DOSSIER_UPS + nom)
     return redirect ('/liste/')
-
-if __name__ == '__main__':
-    app.run(debug=True)
