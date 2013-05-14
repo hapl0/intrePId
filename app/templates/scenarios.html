@@ -20,8 +20,7 @@ $(function(){
 <hr style="border-width: 5px 0; margin: 5px 0;">
 <ul class="nav nav-tabs">
 	<li class="active"><a href="#create" data-toggle="tab"><i class="icon-search"></i> Create</a></li>
-	<li><a href="#select" data-toggle="tab"><i class="icon-signal"></i> Select Uploaded XML</a></li>
-	<li><a href="#upload" data-toggle="tab"><i class="icon-refresh"></i> Upload XML</a></li>
+	<li><a href="#select" data-toggle="tab"><i class="icon-play-circle"></i> XML</a></li>
 </ul>
 
 <div class="tab-content">
@@ -111,12 +110,9 @@ $(function(){
 		<p>You didn't upload a file</p>
 
 		{% endif %}
-	</div>
-
-	<div class="tab-pane fade in" id="upload">
 		<form class="inline-form" action="" method="post" enctype="multipart/form-data">
 			<div class="fileupload fileupload-new" data-provides="fileupload">
-				<span class="btn btn-file"><span class="fileupload-new">Select file</span>
+				<span class="btn btn-file"><span class="fileupload-new"><i class="icon-upload"></i> Upload File</span>
 				<span class="fileupload-exists">Change</span>
 				<input id="fic" name="fic" type="file" /></span>&nbsp;
 				<span class="fileupload-preview"></span>
@@ -125,6 +121,7 @@ $(function(){
 			</div>
 		</form>
 	</div>
+
 </div>
 
 
