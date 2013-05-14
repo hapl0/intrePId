@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, flash, redirect, session, abort, escape, url_for, jsonify, request
+from flask import render_template, flash, redirect, session, abort, escape, url_for, jsonify, request, send_from_directory
 from werkzeug import secure_filename
 from app import app
 from forms import LoginForm, SettingForm, TermForm, IpForm, LaunchSettings
@@ -92,19 +92,7 @@ def updates():
 @app.route('/scenarios', methods = ['GET','POST'])
 def scenarios():
     if validateLogin():
-
-        if request.method == 'POST':
-            f = request.files['fic']
-            if f: # on vérifie qu'un fichier a bien été envoyé
-                if extension_ok(f.filename): # on vérifie que son extension est valide
-                    nom = secure_filename(f.filename)
-                    f.save(DOSSIER_UPS+nom)
-                    flash(u'File uploaded', 'info')
-                else:
-                    flash(u'Wrong extension (only *.xml)', 'error')
-            else:
-                flash(u'No file top upload', 'error')
-
+        xmlist = [xml for xml in os.listdir(DOSSIER_UPS) if extension_ok(xml)]
         form = IpForm()
         if form.validate_on_submit():
             # Validating IP and multiple checks + error messages
@@ -130,7 +118,20 @@ def scenarios():
                         else:
                             ips.excludedip.append(form.ipexcluded.data)
                             flash(u"Saved", 'info')
-        return render_template('scenarios.html', title = 'IntrePid', settings = globalsettings, form = form, ips=ips)
+        else:
+            if request.method == 'POST':
+                f = request.files['fic']
+                if f:
+                    if extension_ok(f.filename):
+                        nom = secure_filename(f.filename)
+                        f.save(DOSSIER_UPS+nom)
+                        flash(u'File uploaded', 'info')
+                        return redirect("/scenarios")
+                    else:
+                        flash(u'Wrong extension (only *.xml)', 'error')
+                else:
+                    flash(u'No file to upload', 'error')
+        return render_template('scenarios.html', title = 'IntrePid', settings = globalsettings, form = form, ips=ips, xmlist=xmlist)
     else:
         return redirect('/')
 
@@ -266,27 +267,6 @@ def _sysinfo():
 #                     #
 #######################
 # Update scenario in XML
-@app.route('/scenario', methods=['GET','POST'])
-def upload():
-    if request.method == 'POST':
-        f = request.files['fic']
-        if f: # on vérifie qu'un fichier a bien été envoyé
-            if extension_ok(f.filename): # on vérifie que son extension est valide
-                nom = secure_filename(f.filename)
-                f.save(DOSSIER_UPS+nom)
-                flash(u'File uploaded', 'info')
-            else:
-                flash(u'Wrong extension (only *.xml)', 'error')
-        else:
-           flash(u'No file top upload', 'error')
-    return render_template('scenarios.html', settings = globalsettings, ips = ips)
-
-@app.route('/liste/')
-def liste_upped():
-#    if request.args.get('subject','') == "liste":
-#        flash(u'requet GET', 'error')
-    scenario = [xml for xml in os.listdir(DOSSIER_UPS) if extension_ok(xml)] # la liste des images dans le dossier
-    return render_template('up_liste.html', scenario=scenario ,settings = globalsettings, ips = ips)
 
 @app.route('/liste/open/')
 def cat_f():
@@ -298,8 +278,13 @@ def cat_f():
     xmlTag = dom.getElementsByTagName('runstats')[0].toxml()
     return render_template('up_liste.html', nom=xmlTag, settings = globalsettings, ips = ips , dom=dom)
 
+@app.route('/liste/download')
+def download():
+    nom = request.args.get('file')
+    return send_from_directory(DOSSIER_UPS, nom)
+
 @app.route('/liste/delete/')
 def deletefile():
     nom = request.args.get('id','')
     os.remove(DOSSIER_UPS + nom)
-    return redirect ('/liste/')
+    return redirect ('/scenarios')

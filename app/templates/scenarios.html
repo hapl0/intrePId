@@ -3,74 +3,118 @@
 {% set active_page = "scenarios" %}
 
 {% block content %}
+
 <h3><img class="pull-left" src="/static/img/DefaultIcon/png/32x32/search.png"> Scenarios</h3>
-<hr  style="border-width: 5px 0; margin: 5px 0;">
-<h4>Upload your Scenario</h4>
-	<form action="" method="post" enctype="multipart/form-data">
-	    <label for="fic">File *.xml</label><input id="fic" name="fic" type="file">
+<hr style="border-width: 5px 0; margin: 5px 0;">
+<ul class="nav nav-tabs">
+	<li class="active"><a href="#create" data-toggle="tab"><i class="icon-search"></i> Create</a></li>
+	<li><a href="#select" data-toggle="tab"><i class="icon-signal"></i> Select Uploaded XML</a></li>
+	<li><a href="#upload" data-toggle="tab"><i class="icon-refresh"></i> Upload XML</a></li>
+</ul>
 
-		<input class="btn btn primary" value="Upload" type="submit">
-		<a class="btn btn primary" href="/liste">List</a>
-	</form>
-
-<h4>Or create it</h4>
-<div class="container-fluid">
-	<div class="row-fluid">
-		<div class="span6">
-			<form action="" method="post" name="includeIPs">
-				<div class="input-append">
-					{% for error in form.errors.ipincluded %}
-        			<span style="color: red;">{{error}}</span>
-        			{% endfor %}
-        			<span class="label label-info">Include IP</span>
-        			<br />
-					{{form.hidden_tag()}}
-					{{form.ipincluded(size=30,placeholder="Include IP")}}
-					<button type="submit" class="btn btn-primary"><i class="icon-plus icon-white"></i>
-					</button>
+<div class="tab-content">
+	<div class="tab-pane fade in active" id="create">
+		<div class="container-fluid">
+			<div class="row-fluid">
+				<div class="span6">
+					<form action="" method="post" name="includeIPs">
+						<div class="input-append">
+							{% for error in form.errors.ipincluded %}
+							<span style="color: red;">{{error}}</span>
+							{% endfor %}
+							<span class="label label-info">Include IP</span>
+							<br />
+							{{form.hidden_tag()}}
+							{{form.ipincluded(size=30,placeholder="Include IP")}}
+							<button type="submit" class="btn btn-primary"><i class="icon-plus icon-white"></i>
+							</button>
+						</div>
+						<br />
+						{% with ips = ips %}
+						{% if ips %}
+						{% for include in ips.includedip %}
+						<span><a href="/scenarios/remove_include?id={{loop.index0}}"><i class="icon-minus-sign"></i></a>  {{include}}</span><br />
+						{% endfor %}
+						{% endif %}
+						{% endwith %}
+					</form>
+					<!-- Check if some IP have been included -->
+					{% with ips = ips %}
+					{% if ips.includedip %}
+					<ul class="pager pull-left">
+					<li><a href="/scenarios/type">Next Step &rarr;</a></li>
+					</ul>
+					{% endif%}
+					{% endwith %}
 				</div>
-				<br />
-				{% with ips = ips %}
-				{% if ips %}
-				{% for include in ips.includedip %}
-				<span><a href="/scenarios/remove_include?id={{loop.index0}}"><i class="icon-minus-sign"></i></a>  {{include}}</span><br />
-				{% endfor %}
-				{% endif %}
-				{% endwith %}
-			</form>
-			<!-- Check if some IP have been included -->
-			{% with ips = ips %}
-			{% if ips.includedip %}
-			<ul class="pager pull-left">
-	  			<li><a href="/scenarios/type">Next Step &rarr;</a></li>
-			</ul>
-			{% endif%}
-			{% endwith %}
-		</div>
-		<div class="span6">
-			<form action="" method="post" name="excludeIPs">
-				<div class="input-append">
-					{% for error in form.errors.ipexcluded %}
-        			<span style="color: red;">{{error}}</span>
-        			{% endfor %}
-        			<span class="label label-important">Exclude IP</span>
-        			<br />
-					{{form.hidden_tag()}}
-					{{form.ipexcluded(size=30,placeholder="Exclude IP")}}
-					<button type="submit" class="btn btn-primary"><i class="icon-plus icon-white"></i>
-					</button>
+				<div class="span6">
+					<form action="" method="post" name="excludeIPs">
+						<div class="input-append">
+							{% for error in form.errors.ipexcluded %}
+							<span style="color: red;">{{error}}</span>
+							{% endfor %}
+							<span class="label label-important">Exclude IP</span>
+							<br />
+							{{form.hidden_tag()}}
+							{{form.ipexcluded(size=30,placeholder="Exclude IP")}}
+							<button type="submit" class="btn btn-primary"><i class="icon-plus icon-white"></i>
+							</button>
+						</div>
+						<br />
+						{% with ips = ips %}
+						{% if ips %}
+						{% for exclude in ips.excludedip %}
+						<span><a href="/scenarios/remove_exclude?id={{loop.index0}}"><i class="icon-minus-sign"></i></a>  {{exclude}}</span><br />
+						{% endfor %}
+						{% endif %}
+						{% endwith %}
+					</form>
 				</div>
-				<br />
-				{% with ips = ips %}
-				{% if ips %}
-				{% for exclude in ips.excludedip %}
-				<span><a href="/scenarios/remove_exclude?id={{loop.index0}}"><i class="icon-minus-sign"></i></a>  {{exclude}}</span><br />
-				{% endfor %}
-				{% endif %}
-				{% endwith %}
-			</form>
+			</div>
 		</div>
 	</div>
+	<div class="tab-pane fade in" id="select">
+		{% if xmlist %}
+		<table class="table table-hover">
+		    <tbody>
+		        <tr>
+		            <th>File</th>
+		            <th>Control</th>
+		        </tr>
+		        {% for xml in xmlist %}
+		        <tr>
+		            <td>{{xml}}</td>
+		            <td>
+		                <a class="btn" href="/liste/open?file={{xml}}"><i class="icon-pencil"></i> Open</a>
+		                <a class="btn" href="/liste/download?file={{xml}}"><i class="icon-download"></i> Download</a>
+		                <a class="btn" href="/liste/delete?id={{xml}}"><i class="icon-minus"></i> Delete</a>
+		            </td>
+		        </tr>
+		        {% endfor %}
+		    </tbody>
+		</table>
+
+		{% else %}
+		<p>You didn't upload a file</p>
+
+		{% endif %}
+	</div>
+
+	<div class="tab-pane fade in" id="upload">
+		<h4>Upload your Scenario</h4>
+		<form class="inline-form" action="" method="post" enctype="multipart/form-data">
+			<div class="fileupload fileupload-new" data-provides="fileupload">
+				<span class="btn btn-file"><span class="fileupload-new">Select file</span>
+				<span class="fileupload-exists">Change</span>
+				<input id="fic" name="fic" type="file" /></span>&nbsp;
+				<span class="fileupload-preview"></span>
+				<a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
+				<input class="btn btn primary" value="Upload" type="submit">
+				<a class="btn btn primary" href="/liste">List</a>
+			</div>
+		</form>
+	</div>
 </div>
+
 
 {% endblock %}
