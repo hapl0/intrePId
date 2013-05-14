@@ -4,9 +4,15 @@
 
 {% block content %}
 <h3><img class="pull-left" src="/static/img/DefaultIcon/png/32x32/search.png"> Scenarios</h3>
+<hr  style="border-width: 5px 0; margin: 5px 0;">
 <h4>Upload your Scenario</h4>
-<a class="btn btn primary" href="/scenario/upload">Upload</a>
-<a class="btn btn primary" href="/liste">Liste</a>
+	<form action="" method="post" enctype="multipart/form-data">
+	    <label for="fic">File *.xml</label><input id="fic" name="fic" type="file">
+
+		<input class="btn btn primary" value="Upload" type="submit">
+		<a class="btn btn primary" href="/liste">List</a>
+	</form>
+
 <h4>Or create it</h4>
 <div class="container-fluid">
 	<div class="row-fluid">

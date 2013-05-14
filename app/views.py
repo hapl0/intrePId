@@ -92,6 +92,19 @@ def updates():
 @app.route('/scenarios', methods = ['GET','POST'])
 def scenarios():
     if validateLogin():
+
+        if request.method == 'POST':
+            f = request.files['fic']
+            if f: # on vérifie qu'un fichier a bien été envoyé
+                if extension_ok(f.filename): # on vérifie que son extension est valide
+                    nom = secure_filename(f.filename)
+                    f.save(DOSSIER_UPS+nom)
+                    flash(u'File uploaded', 'info')
+                else:
+                    flash(u'Wrong extension (only *.xml)', 'error')
+            else:
+                flash(u'No file top upload', 'error')
+
         form = IpForm()
         if form.validate_on_submit():
             # Validating IP and multiple checks + error messages
@@ -253,7 +266,7 @@ def _sysinfo():
 #                     #
 #######################
 # Update scenario in XML
-@app.route('/scenario/upload', methods=['GET','POST'])
+@app.route('/scenario', methods=['GET','POST'])
 def upload():
     if request.method == 'POST':
         f = request.files['fic']
@@ -266,7 +279,7 @@ def upload():
                 flash(u'Wrong extension (only *.xml)', 'error')
         else:
            flash(u'No file top upload', 'error')
-    return render_template('upload.html', settings = globalsettings, ips = ips)
+    return render_template('scenarios.html', settings = globalsettings, ips = ips)
 
 @app.route('/liste/')
 def liste_upped():
