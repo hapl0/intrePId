@@ -72,7 +72,7 @@ def settings():
                 globalsettings.updatetime = form.updatetime.data
                 flash(u"Updatetime Changed", 'info')
             if form.interface.data and form.interface.data != globalsettings.interface:
-                globalsettings.updatetime = form.interface.data
+                globalsettings.interface = form.interface.data
                 flash(u"Interface Changed", 'info')
         return render_template('settings.html', title = 'IntrePid', settings = globalsettings, form = form, ips = ips)
     else:

@@ -37,7 +37,6 @@
 		// Updates values according to user's preferences
 		setInterval(update_values,{{ settings.updatetime }})
 		window.onload= function() {
-			update_values();
 			$("#logout").tooltip();
 		}
 		// Removes the alerts after 5s
@@ -157,5 +156,10 @@
 				</div>
 			</div>
 		</div>
+		<script>
+		window.onload= function() {
+			update_values();
+		}
+		</script>
 	</body>
 </html>
