@@ -22,6 +22,8 @@ class Usedip(object):
 class Sysinfo(object):
     """ System informations for index """
     def __init__(self):
+        self.network = None
+        self.uptime = None
         self.uname = subprocess.check_output(['uname','-a']) # Not necessary to reload
         self.update("eth0")
 
@@ -72,7 +74,7 @@ def checkIpString(ip):
         ip = temp[0]
         mask = temp[1]
         if re.search("^[1-32]", mask):
-            return True
+            pass
         else:
             flash("Invalid Mask")
             return False

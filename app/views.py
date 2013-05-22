@@ -22,8 +22,6 @@ info = Sysinfo()
 ips = Usedip()
 scenario = []
 
-print(DOSSIER_UPS)
-
 presets = {'Intense Scan':'nmap -T4 -A -v',
 'Intense Scan plus UDP':'nmap -sS -sU -T4 -A -v',
 'Intense Scan, all TCP Ports':'nmap -p 1-65535 -T4 -A -v',
@@ -70,9 +68,12 @@ def settings():
     if validateLogin():
         form = SettingForm()
         if form.validate_on_submit():
-            if form.updatetime.data != globalsettings.updatetime:
+            if form.updatetime.data and form.updatetime.data != globalsettings.updatetime:
                 globalsettings.updatetime = form.updatetime.data
-                flash(u"Changes saved", 'info')
+                flash(u"Updatetime Changed", 'info')
+            if form.interface.data and form.interface.data != globalsettings.interface:
+                globalsettings.updatetime = form.interface.data
+                flash(u"Interface Changed", 'info')
         return render_template('settings.html', title = 'IntrePid', settings = globalsettings, form = form, ips = ips)
     else:
         return redirect('/')
