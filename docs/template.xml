@@ -1,0 +1,11 @@
+<scenar>
+	<scenarObj>
+		<target>127.0.0.1</target> <!-- CSV en cas de multiples IPs-->
+		<ports>80,100</ports> <!-- CSV en cas de multiples ports-->
+		<module> <!-- Module -->
+			<name>nmap</name>
+			<preset></preset> <!-- Optionnel, "None" si pas de preset -->
+			<args></args> <!-- Si non-preset ou arguments en plus du preset -->
+		</module>
+	</scenarObj>
+</scenar>
