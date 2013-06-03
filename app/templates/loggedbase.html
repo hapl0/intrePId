@@ -8,8 +8,8 @@
 		<link href="/static/css/jasny-bootstrap.css" rel="stylesheet">
 		<script src="/static/js/jquery-latest.js"></script>
 		<!-- Téléchargé jquery pour faciliter l'accès au site en local (pas de dépendance à un autre site) -->
-		<script src="/static/js/bootstrap.min.js"></script>
 		<script src="/static/js/jasny-bootstrap.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 		<script type="text/javascript">
@@ -25,15 +25,17 @@
 		}	
 		// Updates values according to user's preferences
 		setInterval(update_values,{{ settings.updatetime }})
-		window.onload= function() {
-			$("#logout").tooltip();
-		}
 		// Removes the alerts after 5s
 		window.setTimeout(function() {
     		$(".alert").fadeTo(500, 0).slideUp(500, function(){
       		$(this).remove(); 
     		});
 			}, 5000);
+
+		function basicOnLoad() {
+			update_values();
+			$("#logout").tooltip();
+		}
 		</script>
 		{% block js%}{% endblock %}
 
@@ -82,8 +84,6 @@
 		<div class="container-fluid">
 			<div class="row-fluid">
 				<div class="span2 bs-docs-sidebar" style="padding-right:20px; border-right: 1px solid #ccc;">
-
-				
 					<ul class="nav nav-pills nav-stacked">
 						{% block menu %}
 						{% set active_page = active_page|default('index') -%}
@@ -146,9 +146,21 @@
 			</div>
 		</div>
 		<script>
-		window.onload= function() {
-			update_values();
+		function addLoadEvent(func) {
+			var oldonload = window.onload;
+			if (typeof window.onload != 'function') {
+				window.onload = func;
+			} else {
+				window.onload = function() {
+					if (oldonload) {
+						oldonload();
+					}
+					func();
+				}
+			}
 		}
+		addLoadEvent(basicOnLoad);
+		addLoadEvent(pageOnLoad);		
 		</script>	
 	</body>
 </html>

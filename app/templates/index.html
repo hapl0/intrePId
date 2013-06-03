@@ -22,7 +22,7 @@
     $('#myTab a:first').tab('show');
   }
 
-  window.onload= function() {
+  function pageOnLoad() {
     update();
     $("a#refresh").bind('click', update);
     initab();
