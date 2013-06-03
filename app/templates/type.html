@@ -24,6 +24,34 @@
 {% endblock %}
 
 {% block content %}
+
+<style>
+	#pageslide {
+    /* These styles MUST be included. Do not change. */
+    display: none;
+    position: absolute;
+    position: fixed;
+    top: 0;
+    margin-top: 20px;
+    height: 100%;
+    z-index: 0;
+    
+    /* Specify the width of your pageslide here */
+    width: 20%;
+    padding: 20px;
+    
+    /* These styles are optional, and describe how the pageslide will look */
+    background-color: #333;
+    color: #FFF;
+    -webkit-box-shadow: inset 0 0 5px 5px #222;
+    -moz-shadow: inset 0 0 5px 5px #222;
+    box-shadow: inset 0 0 5px 5px #222;
+	}
+    #modal { display: none; }
+
+</style>
+
+
 <h3>Type of Scenario</h3>
 <hr  style="border-width: 5px 0; margin: 5px 0;">
 <ul class="nav nav-tabs">
@@ -37,146 +65,49 @@
 		<div class="container-fluid">
 			<div class="row-fluid">
 				<div class="span6">
-					<h4>Presets Attribution</h4>
+					<h4>Attribution</h4>
 					{% with ips = ips %}
 					{% for include in ips.includedip %}
-					<div class="well form-inline">
-						{{include}}
-						<span class="pull-right">
-						<select onchange="updateButton({{loop.index0}})" id='sel{{loop.index0}}'>
-							<option>Intense Scan</option>
-							<option>Intense Scan plus UDP</option>
-							<option>Intense Scan, all TCP Ports</option>
-							<option>Intense Scan, no Ping</option>
-							<option>Ping Scan</option>
-							<option>Quick Scan</option>
-							<option>Quick Scan Plus</option>
-							<option>Quick Traceroute</option>
-						</select>
-						<a id="btn{{loop.index0}}"class="btn" href="/scenarios/_addObject?id={{loop.index0}}&cmd=Intense Scan"><i class="icon-plus-sign"></i></a>
-					</span>
+					<div class="form-inline">
+						<label class="checkbox pull-right">  
+    						<input type="checkbox">{{include}}  
+  						</label>
 					</div>
 					{% endfor %}
 					{% endwith %}
 				</div>
-	<div class="span6">
-		<h4>Presets Informations</h4>
-		<div class="accordion" id="accordion2">
-		  <div class="accordion-group">
-		    <div class="accordion-heading">
-		      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
-		        Intense Scan
-		      </a>
-		    </div>
-		    <div id="collapseOne" class="accordion-body collapse">
-		      <div class="accordion-inner">
-		        An intense, comprehensive scan. Enables OS detection, version detection, script scanning, and traceroute. Without root privileges only version detection and script scanning are run. This is considered an intrusive scan. <br />
-		      	Preset : nmap -T4 -A -v [target]</em>
-		      </div>
-		    </div>
-		  </div>
-		  <div class="accordion-group">
-		    <div class="accordion-heading">
-		      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
-		        Intense Scan plus UDP
-		      </a>
-		    </div>
-		    <div id="collapseTwo" class="accordion-body collapse">
-		      <div class="accordion-inner">
-		        Does OS detection, version detection, script scanning, and traceroute in addition to scanning TCP and UDP ports.<br />
-		        Preset : nmap -sS -sU -T4 -A -v [target]
-		      </div>
-		    </div>
-		  </div>
-		  <div class="accordion-group">
-		    <div class="accordion-heading">
-		      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseThree">
-		        Intense Scan, all TCP Ports
-		      </a>
-		    </div>
-		    <div id="collapseThree" class="accordion-body collapse">
-		      <div class="accordion-inner">
-		        Scans all TCP ports, then does OS detection, version detection, script scanning, and traceroute.<br />
-		        Preset : nmap -p 1-65535 -T4 -A -v [target]
-		      </div>
-		    </div>
-		  </div>
-		  <div class="accordion-group">
-		    <div class="accordion-heading">
-		      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseFour">
-		        Intense Scan, no Ping
-		      </a>
-		    </div>
-		    <div id="collapseFour" class="accordion-body collapse">
-		      <div class="accordion-inner">
-		        Does an intense scan without checking to see if targets are up first. This can be useful when a target seems to ignore the usual host discovery probes.<br />
-		        Preset : nmap -T4 -A -v -Pn [target]
-		      </div>
-		    </div>
-		  </div>
-		  <div class="accordion-group">
-		    <div class="accordion-heading">
-		      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseFive">
-		        Ping Scan
-		      </a>
-		    </div>
-		    <div id="collapseFive" class="accordion-body collapse">
-		      <div class="accordion-inner">
-		        This scan only finds which targets are up and does not port scan them.<br />
-		        Preset : nmap -sn [target]
-		      </div>
-		    </div>
-		  </div>
-		  <div class="accordion-group">
-		    <div class="accordion-heading">
-		      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseSix">
-		        Quick Scan
-		      </a>
-		    </div>
-		    <div id="collapseSix" class="accordion-body collapse">
-		      <div class="accordion-inner">
-		      	This scan is faster than a normal scan because it uses the aggressive timing template and scans fewer ports.<br />
-		        Preset : nmap -T4 -F [target]
-		      </div>
-		    </div>
-		  </div>
-		  <div class="accordion-group">
-		    <div class="accordion-heading">
-		      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseSeven">
-		        Quick Scan Plus
-		      </a>
-		    </div>
-		    <div id="collapseSeven" class="accordion-body collapse">
-		      <div class="accordion-inner">
-		      	A quick scan plus OS and version detection.<br />
-		      	Preset : nmap -sV -T4 -O -F --version-light [target]
-		      </div>
-		    </div>
-		  </div>
-		  <div class="accordion-group">
-		    <div class="accordion-heading">
-		      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseEight">
-		        Quick Traceroute
-		      </a>
-		    </div>
-		    <div id="collapseEight" class="accordion-body collapse">
-		      <div class="accordion-inner">
-		      	Traces the paths to targets without doing a full port scan on them.<br />
-		      	Preset : nmap -sn --traceroute [target]
-		      </div>
-		    </div>
-		  </div>
-		</div>
+				<div class="span6">
+					<h4>Modules</h4>
+					<ul>
+						<li><a href="#modal-nmap" class="second">Nmap</a></li>
+						<li><a href="#modal-nikto" class="second">Nikto</a></li>
+					</ul>
+				</div>
+			</div>
 		</div>
 	</div>
-</div>
-</div>
   <div class="tab-pane fade in" id="scan"><h1>TODO</h1></div>
   <div class="tab-pane fade in" id="others"><h1>TODO</h1></div>
 </div>
-
 <br />
 <ul class="pager pull-left">
 	<li><a href="/scenarios">&larr; Previous Step</a></li>
 </ul>
+<div id="modal-nmap" style="display:none">
+	<h2>Modal Nmap</h2>
+	<h1>STUF</h1>
+	<a class="btn btn-primary" href="javascript:$.pageslide.close()">Close</a>
+</div>
+<div id="modal-nikto" style="display:none">
+	<h3>Nikto Module</h3>
+	<label class="checkbox">  
+		<input type="checkbox">Hello There  
+	</label>
+	<a class="btn btn-primary" href="javascript:$.pageslide.close()">Close</a>
+	<a class="btn btn-primary" href="javascript:$.pageslide.close()">Save</a>
+</div>
+<script src="/static/js/jquery.pageslide.js"></script>
+<script>
+    $(".second").pageslide({ direction: "left", modal: true });
+</script>
 {% endblock%}
