@@ -37,7 +37,7 @@
     z-index: 0;
     
     /* Specify the width of your pageslide here */
-    width: 20%;
+    width: 30%;
     padding: 20px;
     
     /* These styles are optional, and describe how the pageslide will look */
@@ -55,13 +55,13 @@
 <h3>Type of Scenario</h3>
 <hr  style="border-width: 5px 0; margin: 5px 0;">
 <ul class="nav nav-tabs">
-  <li class="active"><a href="#preset" data-toggle="tab"><i class="icon-search"></i> Preset Scan</a></li>
+  <li class="active"><a href="#module" data-toggle="tab"><i class="icon-search"></i> Modules</a></li>
   <li><a href="#scan" data-toggle="tab"><i class="icon-cog"></i> Custom Scan</a></li>
   <li><a href="#others" data-toggle="tab"><i class="icon-list"></i> Others</a></li>
 </ul>
 
 <div class="tab-content">
-	<div class="tab-pane fade in active" id="preset">
+	<div class="tab-pane fade in active" id="module">
 		<div class="container-fluid">
 			<div class="row-fluid">
 				<div class="span6">
@@ -69,7 +69,7 @@
 					{% with ips = ips %}
 					{% for include in ips.includedip %}
 					<div class="form-inline">
-						<label class="checkbox pull-right">  
+						<label class="checkbox">  
     						<input type="checkbox">{{include}}  
   						</label>
 					</div>
@@ -78,7 +78,7 @@
 				</div>
 				<div class="span6">
 					<h4>Modules</h4>
-					<ul>
+					<ul class="unstyled">
 						<li><a href="#modal-nmap" class="second">Nmap</a></li>
 						<li><a href="#modal-nikto" class="second">Nikto</a></li>
 					</ul>
@@ -93,19 +93,37 @@
 <ul class="pager pull-left">
 	<li><a href="/scenarios">&larr; Previous Step</a></li>
 </ul>
+
 <div id="modal-nmap" style="display:none">
-	<h2>Modal Nmap</h2>
-	<h1>STUF</h1>
-	<a class="btn btn-primary" href="javascript:$.pageslide.close()">Close</a>
-</div>
-<div id="modal-nikto" style="display:none">
-	<h3>Nikto Module</h3>
+	<br />
+	<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+	<h3>Nmap Module Configuration</h3>
+	<p>Hey there. I would you to put some options there. Would you mind ?</p>
 	<label class="checkbox">  
-		<input type="checkbox">Hello There  
+		<input type="checkbox">Check that to use the module. 
 	</label>
-	<a class="btn btn-primary" href="javascript:$.pageslide.close()">Close</a>
-	<a class="btn btn-primary" href="javascript:$.pageslide.close()">Save</a>
+	<label class="checkbox">  
+		<input type="checkbox">Well well that's a nice checkbox.
+	</label>
+	<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-remove icon-white"></i> Cancel</a>
+	<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-ok icon-white"></i> Save</a>
 </div>
+
+<div id="modal-nikto" style="display:none">
+	<br />
+	<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+	<h3>Nikto Module Configuration</h3>
+	<p>Hey there. I would you to put some options there. Would you mind ?</p>
+	<label class="checkbox">  
+		<input type="checkbox">Here is an option. 
+	</label>
+	<label class="checkbox">  
+		<input type="checkbox">Here is another option. 
+	</label>
+	<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-remove icon-white"></i> Cancel</a>
+	<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-ok icon-white"></i> Save</a>
+</div>
+
 <script src="/static/js/jquery.pageslide.js"></script>
 <script>
     $(".second").pageslide({ direction: "left", modal: true });
