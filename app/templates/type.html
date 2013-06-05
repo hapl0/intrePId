@@ -60,25 +60,52 @@
 	<div class="row-fluid">
 		<div class="span2">
 			<h4>Tutorial</h4>
-			<a href="#modal-howto" class="second">HowTo</a> 
-			<div id="modal-howto" style="display:none">
-				<br />
-				<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
-				<h3>How To</h3>
-				<p>This page is used to generate a scenario on a module </p>
-			</div>
+			<ul class="nav nav-tabs nav-stacked">
+				<li><a class="second" href="#modal-howto1">Basic</a></li>
+				<div id="modal-howto1" style="display:none">
+					<br />
+					<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+					<h3 class="letterpress">How To</h3>
+					<p>
+						This page is used to generate a scenario based on an utilisation of the installed modules.
+						Here is a little tutorial which will help you to create some scenarios.
+					</p>
+					<hr style="border: none; border-top: dashed 2px; color: #222;">
+					<h4 class="letterpress">Selecting IP(s)</h4>
+					<p>
+						First of all, you should check the IP(s) you want to assign a module to. You can do this clicking the IP you want. Adding and deleting IP(s) can be done using the previous page.
+					</p>
+					<hr style="border: none; border-top: dashed 2px; color: #222;">
+					<h4>Selecting the Module</h4>
+					<p>
+						On the next column you can choose the module you want to apply to the selected IP(s).
+					</p>
+					<h4>Preset or Custom Configuration ?</h4>
+					<p>
+						On each module configuration page, you can choose between two methods : Preset or Custom Configuration.<br />
+						If you choose to use presets, you can choose one in a list we made just for you. Note that you can add arguments to the preset by adding arguments in the field below.<br />
+						If you choose to use the custom configuration method, you edit yourself the argument line and you can check some basic modes (for example, with nmap, you can choose OS detection and Firewall detection and then add some arguments)
+					</p>
+				</div>
+				<li><a class="second" href="#modal-howto1">Modules</a></li>
+				<div id="modal-howto2" style="display:none">
+
+				</div>
+			</ul>
 		</div>
 		<div class="span3">
 			<h4>Attribution</h4>
-			{% with ips = ips %}
-			{% for include in ips.includedip %}
-			<div class="form-inline">
-				<label class="checkbox">  
-					<input type="checkbox">{{include}}  
+			<ul class="nav nav-tabs nav-stacked">
+				{% with ips = ips %}
+				{% for include in ips.includedip %}
+				<li>
+					<label class="checkbox form-inline">  
+						<input type="checkbox">{{include}}  
 					</label>
-			</div>
-			{% endfor %}
-			{% endwith %}
+				</li>
+				{% endfor %}
+				{% endwith %}
+			</ul>
 		</div>
 		<div class="span3">
 			<h4>Modules</h4>
