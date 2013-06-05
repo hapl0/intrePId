@@ -31,14 +31,28 @@ class Sysinfo(object):
         self.network = subprocess.check_output(['ip', 'a', 's', 'dev', interface]).replace("\n","<br />")
         self.uptime = subprocess.check_output(['uptime'])
 
+class CustomModule(object):
+    """ Custom Module Object """
+    def __init__(self, name, description, path):
+        self.name = name
+        self.description = description
+        self.path = path
+
+class Module(object):
+    """ Module Object """
+    def __init__(self, name, preset, args):
+        if preset:
+            self.preset = preset
+        if args:
+            self.args = args
+        self.name = name
+
 class ScenarioObject(object):
     """ An item to add in the Scenario list """
-
     def __init__(self):
         self.target = None
-        self.command = None
-        self.type = None
-        self.status = "Stopped"
+        self.port = None
+        self.module = None
 
 def getCpuLoad():
     """ Returns the CPU Load """

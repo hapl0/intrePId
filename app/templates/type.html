@@ -37,7 +37,7 @@
     z-index: 0;
     
     /* Specify the width of your pageslide here */
-    width: 35%;
+    width: 37%;
     padding: 20px;
     
     /* These styles are optional, and describe how the pageslide will look */
@@ -48,83 +48,211 @@
     box-shadow: inset 0 0 5px 5px #222;
 	}
     #modal { display: none; }
-
+    .letterpress {
+    	text-shadow: 0px 1px 0px rgba(255,255,255,.3), 0px -1px 0px rgba(0,0,0,.7);
+	}
 </style>
 
 
 <h3>Type of Scenario</h3>
 <hr  style="border-width: 5px 0; margin: 5px 0;">
-<ul class="nav nav-tabs">
-  <li class="active"><a href="#module" data-toggle="tab"><i class="icon-search"></i> Modules</a></li>
-  <li><a href="#scan" data-toggle="tab"><i class="icon-cog"></i> Custom Scan</a></li>
-  <li><a href="#others" data-toggle="tab"><i class="icon-list"></i> Others</a></li>
-</ul>
-
-<div class="tab-content">
-	<div class="tab-pane fade in active" id="module">
-		<div class="container-fluid">
-			<div class="row-fluid">
-				<div class="span3">
-				</div>
-				<div class="span3">
-					<h4>Attribution</h4>
-					{% with ips = ips %}
-					{% for include in ips.includedip %}
-					<div class="form-inline">
-						<label class="checkbox">  
-    						<input type="checkbox">{{include}}  
-  						</label>
-					</div>
-					{% endfor %}
-					{% endwith %}
-				</div>
-				<div class="span3">
-					<h4>Modules</h4>
-					<ul class="unstyled">
-						<li><a href="#modal-nmap" class="second">Nmap</a> - A network scanning software.</li>
-						<li><a href="#modal-nikto" class="second">Nikto</a></li>
-					</ul>
-				</div>
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span2">
+			<h4>Tutorial</h4>
+			<a href="#modal-howto" class="second">HowTo</a> 
+			<div id="modal-howto" style="display:none">
+				<br />
+				<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+				<h3>How To</h3>
+				<p>This page is used to generate a scenario on a module </p>
 			</div>
 		</div>
+		<div class="span3">
+			<h4>Attribution</h4>
+			{% with ips = ips %}
+			{% for include in ips.includedip %}
+			<div class="form-inline">
+				<label class="checkbox">  
+					<input type="checkbox">{{include}}  
+					</label>
+			</div>
+			{% endfor %}
+			{% endwith %}
+		</div>
+		<div class="span3">
+			<h4>Modules</h4>
+			<ul class="nav nav-tabs nav-stacked">
+				<!-- NMAP -->
+				<li><a href="#modal-nmap" class="second">Nmap <i class="icon-chevron-right pull-right"></i></a></li>
+				<div id="modal-nmap" style="display:none">
+					<br />
+					<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+					<h3 class="letterpress">Nmap Module Configuration</h3>
+					<h4 class="letterpress">Module Description</h4>
+				  	<p>Nmap is a free and open source utility for network discovery and security auditing. This module uses a native python solution called python-nmap which guarantee that there will be no system call during the scans and a good error handling.</p>
+				  	<hr  style="border: none; border-top: dashed 2px; color: #222;">
+					<h4 class="letterpress">Using a Preset</h4>
+					<label>Select a Preset</label>
+					<select>
+						<option>Intense Scan</option>
+						<option>Intense Scan plus UDP</option>
+						<option>Intense Scan, all TCP Ports</option>
+						<option>Intense Scan, no Ping</option>
+						<option>Ping Scan</option>
+						<option>Quick Scan</option>
+						<option>Quick Scan Plus</option>
+						<option>Quick Traceroute</option>
+					</select><br />
+					<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-remove icon-white"></i> Cancel</a>
+					<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-ok icon-white"></i> Validate</a>
+					<hr  style="border: none; border-top: dashed 2px; color: #222;">
+					<h4 class="letterpress">Configuring the Module</h4>
+					<form>
+						<label class="checkbox">  
+							<input type="checkbox">OS Detection
+						</label>
+						<label class="checkbox">  
+							<input type="checkbox">Version Detection
+						</label>
+						<label class="checkbox">  
+							<input type="checkbox">Firewall Detection
+						</label>
+						<label>Additionnal Arguments</label>
+						<input type="text" class="span4">
+					</form>
+					<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-remove icon-white"></i> Cancel</a>
+					<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-ok icon-white"></i> Save</a>
+				</div>
+
+				<!-- NIKTO -->
+				<li><a href="#modal-nikto" class="second">Nikto <i class="icon-chevron-right pull-right"></i></a></li>
+				<div id="modal-nikto" style="display:none">
+					<br />
+					<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+					<h3>Nikto Module Configuration</h3>
+					<p>Hey there. I want you to put some options there. Would you mind ?</p>
+					<form>
+						<label class="checkbox">  
+							<input type="checkbox">Here is an option. 
+						</label>
+						<label class="checkbox">  
+							<input type="checkbox">Here is another option. 
+						</label>
+						<label>Additionnal Arguments</label>
+						<input type="text" class="span4">
+					</form>
+					<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-remove icon-white"></i> Cancel</a>
+					<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-ok icon-white"></i> Save</a>
+				</div>
+
+				<!-- METASPLOIT -->
+				<li><a href="#modal-metasploit" class="second">Metasploit<i class="icon-chevron-right pull-right"></i></a></li>
+				<div id="modal-metasploit" style="display:none">
+					<br />
+					<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+					<h3>Metasploit Module Configuration</h3>
+					<dl>
+				  		<dt>Description of the Module</dt>
+				  		<dd>
+				  			The Metasploit Project is a computer security project which provides information about security vulnerabilities and aids in penetration testing and IDS signature development.
+				  		</dd>
+					</dl>
+				</div>
+
+				<!-- SQLMAP -->
+				<li><a href="#modal-sqlmap" class="second">SQLMap<i class="icon-chevron-right pull-right"></i></a></li>
+				<div id="modal-sqlmap" style="display:none">
+					<br />
+					<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+					<h3>SQLMap Module Configuration</h3>
+					<dl>
+				  		<dt>Description of the Module</dt>
+				  		<dd>
+				  			Sqlmap is an open source penetration testing tool that automates the process of detecting and exploiting SQL injection flaws and taking over of database servers.
+				  		</dd>
+					</dl>
+				</div>
+
+				<!-- TCPDUMP -->
+				<li><a href="#modal-tcpdump" class="second">TcpDump<i class="icon-chevron-right pull-right"></i></a></li>
+				<div id="modal-tcpdump" style="display:none">
+					<br />
+					<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+					<h3>TcpDump Module Configuration</h3>
+					<dl>
+				  		<dt>Description of the Module</dt>
+				  		<dd>
+				  			Tcpdump is a powerful command-line packet analyzer.
+				  		</dd>
+					</dl>
+				</div>
+
+				<!-- HPING -->
+				<li><a href="#modal-hping" class="second">Hping3<i class="icon-chevron-right pull-right"></i></a></li>
+				<div id="modal-hping" style="display:none">
+					<br />
+					<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+					<h3>Hping3 Module Configuration</h3>
+					<dl>
+				  		<dt>Description of the Module</dt>
+				  		<dd>
+				  			Hping3 is a network tool able to send custom TCP/IP packets and to display target replies like ping program does with ICMP replies.
+				  		</dd>
+					</dl>
+				</div>
+
+				<!-- ARP-SCAN -->
+				<li><a href="#modal-arpscan" class="second">Arp-Scan<i class="icon-chevron-right pull-right"></i></a></li>
+				<div id="modal-arpscan" style="display:none">
+					<br />
+					<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+					<h3>Arp-Scan Module Configuration</h3>
+				</div>
+
+				<!-- KISMET -->
+				<li><a href="#modal-kismet" class="second">Kismet<i class="icon-chevron-right pull-right"></i></a></li>
+				<div id="modal-kismet" style="display:none">
+					<br />
+					<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+					<h3>Kismet Module Configuration</h3>
+				</div>
+
+				<!-- AIRMONG-NG -->
+				<li><a href="#modal-airmongng" class="second">Airmong-ng<i class="icon-chevron-right pull-right"></i></a></li>
+				<div id="modal-airmongng" style="display:none">
+					<br />
+					<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+					<h3>Airmong-Ng Module Configuration</h3>
+				</div>
+
+				<!-- Own module configuration -->
+				<li><a href="#modal-ownmodule" class="second">Add your Module<i class="icon-chevron-right pull-right"></i></a></li>
+				<div id="modal-ownmodule" style="display:none">
+					<br />
+					<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+					<h3>Add a Module</h3>
+					<p>Here you can add your own module based on a script or an executable. You must give the path of the executable and the application will validate it.</p>
+					<form>
+						<label>Module Name</label>  
+				  		<input type="text" class="span4">
+				  		<label>Executable Path</label>
+				  		<input type="text" class="span4">
+				  		<label>Description</label>
+				  		<input type="text" class="span4">
+				  		<br />
+				  		<a id="validate-module" class="btn btn-primary"><i class="icon-ok icon-white"></i> Validate</a>
+					</form>
+				</div>
+			</ul>
+		</div>
 	</div>
-  <div class="tab-pane fade in" id="scan"><h1>TODO</h1></div>
-  <div class="tab-pane fade in" id="others"><h1>TODO</h1></div>
 </div>
+
 <br />
 <ul class="pager pull-left">
 	<li><a href="/scenarios">&larr; Previous Step</a></li>
 </ul>
-
-<div id="modal-nmap" style="display:none">
-	<br />
-	<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
-	<h3>Nmap Module Configuration</h3>
-	<p>Hey there. I want you to put some options there. Would you mind ?</p>
-	<label class="checkbox">  
-		<input type="checkbox">Check that to use the module. 
-	</label>
-	<label class="checkbox">  
-		<input type="checkbox">Well well that's a nice checkbox.
-	</label>
-	<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-remove icon-white"></i> Cancel</a>
-	<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-ok icon-white"></i> Save</a>
-</div>
-
-<div id="modal-nikto" style="display:none">
-	<br />
-	<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
-	<h3>Nikto Module Configuration</h3>
-	<p>Hey there. I want you to put some options there. Would you mind ?</p>
-	<label class="checkbox">  
-		<input type="checkbox">Here is an option. 
-	</label>
-	<label class="checkbox">  
-		<input type="checkbox">Here is another option. 
-	</label>
-	<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-remove icon-white"></i> Cancel</a>
-	<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-ok icon-white"></i> Save</a>
-</div>
 
 <script src="/static/js/jquery.pageslide.js"></script>
 <script>
