@@ -3,7 +3,7 @@
 from flask import render_template, flash, redirect, session, abort, escape, url_for, jsonify, request, send_from_directory
 from werkzeug import secure_filename
 from app import app
-from forms import LoginForm, SettingForm, TermForm, IpForm, LaunchSettings
+from forms import LoginForm, SettingForm, TermForm, IpForm
 from functions import getCpuLoad, getVmem, getDisk, validateLogin, checkIpString, Settings, Sysinfo, Usedip, ScenarioObject, extension_ok
 import subprocess
 import nmap
@@ -182,8 +182,7 @@ def addObject():
 def manager():
     if validateLogin():
         if ips.includedip and scenario:
-            form = LaunchSettings()
-            return render_template('manager.html', title = 'IntrePId', settings = globalsettings, ips = ips, scenario = scenario, form = form)
+            return render_template('manager.html', title = 'IntrePId', settings = globalsettings, ips = ips, scenario = scenario)
         else:
             flash(u"No scenario object specified", 'error')
             return redirect('/scenarios/type')

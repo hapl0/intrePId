@@ -65,7 +65,7 @@
 				<div id="modal-howto1" style="display:none">
 					<br />
 					<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
-					<h3 class="letterpress">How To</h3>
+					<h3 class="letterpress">Scenario : How To</h3>
 					<p>
 						This page is used to generate a scenario based on an utilisation of the installed modules.
 						Here is a little tutorial which will help you to create some scenarios.
@@ -76,20 +76,52 @@
 						First of all, you should check the IP(s) you want to assign a module to. You can do this clicking the IP you want. Adding and deleting IP(s) can be done using the previous page.
 					</p>
 					<hr style="border: none; border-top: dashed 2px; color: #222;">
-					<h4>Selecting the Module</h4>
+					<h4 class="letterpress">Modules</h4>
 					<p>
-						On the next column you can choose the module you want to apply to the selected IP(s).
+						As you can see on the right side of this page, there is a list of module you can apply to your selected IP(s). Each module is independent and can be applied to as many IPs as you want.
 					</p>
-					<h4>Preset or Custom Configuration ?</h4>
+					<hr style="border: none; border-top: dashed 2px; color: #222;">
+					<h4 class="letterpress">Execution Order</h4>
+					<p>
+						If you apply multiple IPs to one module two cases are possible. <br />
+						<dl>
+							<dt>First Case</dt>
+							<dd>The module accepts multiple IP in its arg line. In this case, the module will be executed only once. </dd>
+							<dt>Second Case</dt>
+							<dd>The module accepts only one IP in its arg line. In this case the module will be executed as many times as necessary.</dd>
+						</dl>
+					</p>
+				</div>
+				<li><a class="second" href="#modal-howto2">Modules</a></li>
+				<div id="modal-howto2" style="display:none">
+					<br />
+					<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+					<h3 class="letterpress">Module Configuration : How To</h3>
+					<p>
+						As said in the previous tutorial, this page uses module. Each module has it's own configuration panel. Here is a little tutorial explaining how to configure a module you want to use.
+					</p>
+					<hr style="border: none; border-top: dashed 2px; color: #222;">
+					<h4 class="letterpress">Preset or Custom Configuration ?</h4>
 					<p>
 						On each module configuration page, you can choose between two methods : Preset or Custom Configuration.<br />
 						If you choose to use presets, you can choose one in a list we made just for you. Note that you can add arguments to the preset by adding arguments in the field below.<br />
 						If you choose to use the custom configuration method, you edit yourself the argument line and you can check some basic modes (for example, with nmap, you can choose OS detection and Firewall detection and then add some arguments)
 					</p>
 				</div>
-				<li><a class="second" href="#modal-howto1">Modules</a></li>
-				<div id="modal-howto2" style="display:none">
-
+				<li><a class="second" href="#modal-howto3">XML</a></li>
+				<div id="modal-howto3" style="display:none">
+					<br />
+					<a href="javascript:$.pageslide.close()"><i class="pull-right icon-remove icon-white"></i></a>
+					<h3 class="letterpress">XML : How To</h3>
+					<p>
+						Some blablabla
+					</p>
+					<hr style="border: none; border-top: dashed 2px; color: #222;">
+					<h4 class="letterpress">Generate the XML</h4>
+					<p>
+						Some explanation here.
+					</p>
+					<hr style="border: none; border-top: dashed 2px; color: #222;">
 				</div>
 			</ul>
 		</div>
@@ -131,22 +163,37 @@
 						<option>Quick Scan Plus</option>
 						<option>Quick Traceroute</option>
 					</select><br />
+					<input type="text" class="span4" placeholder="Additionnal Arguments"><br />
 					<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-remove icon-white"></i> Cancel</a>
 					<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-ok icon-white"></i> Validate</a>
 					<hr  style="border: none; border-top: dashed 2px; color: #222;">
 					<h4 class="letterpress">Configuring the Module</h4>
 					<form>
-						<label class="checkbox">  
-							<input type="checkbox">OS Detection
-						</label>
-						<label class="checkbox">  
-							<input type="checkbox">Version Detection
-						</label>
-						<label class="checkbox">  
-							<input type="checkbox">Firewall Detection
-						</label>
-						<label>Additionnal Arguments</label>
-						<input type="text" class="span4">
+						<div class="row-fluid">
+							<div class="span6">
+								<label class="checkbox">  
+									<input type="checkbox">OS Detection
+								</label>
+								<label class="checkbox">  
+									<input type="checkbox">Version Detection
+								</label>
+								<label class="checkbox">  
+									<input type="checkbox">Firewall Detection
+								</label>
+							</div>
+							<div class="span6">
+								<label class="checkbox">  
+									<input type="checkbox">Another Option
+								</label>
+								<label class="checkbox">  
+									<input type="checkbox">Another Option
+								</label>
+								<label class="checkbox">  
+									<input type="checkbox">Another Option
+								</label>
+							</div>
+						</div>
+						<input type="text" class="span4" placeholder="Arguments">
 					</form>
 					<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-remove icon-white"></i> Cancel</a>
 					<a class="btn btn-primary" href="javascript:$.pageslide.close()"><i class="icon-ok icon-white"></i> Save</a>

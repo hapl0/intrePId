@@ -20,5 +20,6 @@ class IpForm(Form):
     ipincluded = TextField('ipincluded')
     ipexcluded = TextField('ipexcluded')
 
-class LaunchSettings(Form):
-    options = BooleanField()
+
+
+#    options = BooleanField()
