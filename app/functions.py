@@ -78,6 +78,8 @@ def validateLogin():
 
 def checkIpString(ip):
     """ Validates if this is an IP Adress with a mask or not """
+    if ip == "localhost":
+        return True
     slashes = len(re.findall("/",ip))
     if slashes > 1:
         flash("Too many slashes")
